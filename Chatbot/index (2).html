@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Lab — Build Your Own Chatbot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B1035;
+    --navy-light:#2A1B54;
+    --violet:#7C4DFF;
+    --violet-deep:#5A2DE0;
+    --mint:#00E5A0;
+    --amber:#FFB84D;
+    --coral:#FF6B8B;
+    --cloud:#F7F5FF;
+    --paper:#FFFFFF;
+    --ink:#1B1035;
+    --radius-lg:28px;
+    --radius-md:18px;
+    --radius-sm:12px;
+    --shadow: 0 10px 30px rgba(27,16,53,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Nunito',sans-serif;
+    background: radial-gradient(circle at 15% 10%, #2A1B54 0%, #1B1035 55%, #120A24 100%);
+    color:var(--ink);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
+  button{font-family:inherit;cursor:pointer;}
+  .app{max-width:980px;margin:0 auto;padding:18px 16px 60px;}
+
+  /* Starfield */
+  .stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.5;}
+
+  /* Top bar */
+  .topbar{
+    position:relative;z-index:2;
+    display:flex;align-items:center;justify-content:space-between;
+    color:var(--cloud);padding:10px 4px 20px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Baloo 2';font-weight:800;font-size:1.3rem;}
+  .brand .dot{width:14px;height:14px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px var(--mint);}
+  .teacher-btn{
+    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.25);
+    color:var(--cloud);padding:8px 14px;border-radius:999px;font-weight:700;font-size:0.85rem;
+  }
+  .teacher-btn:hover{background:rgba(255,255,255,0.18);}
+
+  /* Stepper */
+  .stepper{
+    position:relative;z-index:2;
+    display:flex;justify-content:space-between;gap:6px;margin-bottom:22px;
+  }
+  .step{
+    flex:1;text-align:center;padding:10px 4px;border-radius:14px;
+    background:rgba(255,255,255,0.06);color:rgba(247,245,255,0.55);
+    font-weight:700;font-size:0.72rem;border:2px solid transparent;
+    transition:all .25s ease;
+  }
+  .step .num{
+    width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.12);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:0.8rem;
+  }
+  .step.active{background:rgba(124,77,255,0.35);color:#fff;border-color:var(--violet);}
+  .step.active .num{background:var(--violet);color:#fff;}
+  .step.done{color:var(--mint);}
+  .step.done .num{background:var(--mint);color:#0B0B0B;}
+
+  /* Panels */
+  .panel{
+    position:relative;z-index:2;
+    background:var(--paper);border-radius:var(--radius-lg);
+    padding:28px 26px;box-shadow:var(--shadow);
+    animation:rise .4s ease;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .panel h2{margin:0 0 6px;font-size:1.6rem;color:var(--navy);}
+  .panel .sub{color:#5B5470;margin:0 0 22px;font-size:1rem;line-height:1.5;}
+
+  .row{display:flex;gap:14px;flex-wrap:wrap;}
+  .col{flex:1;min-width:220px;}
+
+  label.field-label{display:block;font-weight:800;margin-bottom:8px;font-size:0.95rem;color:var(--navy);}
+  input[type=text], textarea{
+    width:100%;border:2px solid #E7E2F5;border-radius:var(--radius-sm);
+    padding:12px 14px;font-family:inherit;font-size:1rem;background:#FBFAFF;
+    transition:border-color .2s;
+  }
+  input[type=text]:focus, textarea:focus{outline:none;border-color:var(--violet);}
+  textarea{resize:vertical;min-height:70px;}
+
+  .avatar-grid{display:flex;gap:10px;flex-wrap:wrap;}
+  .avatar-choice{
+    font-size:1.8rem;width:58px;height:58px;border-radius:16px;
+    background:#F1EEFC;border:3px solid transparent;display:flex;align-items:center;justify-content:center;
+  }
+  .avatar-choice.selected{border-color:var(--violet);background:#E7DEFF;transform:scale(1.05);}
+
+  .slider-block{margin-bottom:18px;}
+  .slider-labels{display:flex;justify-content:space-between;font-weight:700;font-size:0.85rem;color:#5B5470;margin-bottom:4px;}
+  input[type=range]{width:100%;accent-color:var(--violet);height:6px;}
+
+  .primary-btn{
+    background:var(--violet);color:#fff;border:none;border-radius:999px;
+    padding:14px 26px;font-weight:800;font-size:1.05rem;box-shadow:0 8px 18px rgba(124,77,255,0.35);
+    transition:transform .15s ease;
+  }
+  .primary-btn:hover{transform:translateY(-2px);}
+  .primary-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .secondary-btn{
+    background:#F1EEFC;color:var(--navy);border:none;border-radius:999px;
+    padding:12px 22px;font-weight:800;font-size:0.95rem;
+  }
+  .ghost-btn{
+    background:transparent;color:var(--violet-deep);border:2px solid var(--violet);
+    border-radius:999px;padding:10px 18px;font-weight:800;font-size:0.9rem;
+  }
+  .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;flex-wrap:wrap;}
+  .actions.spread{justify-content:space-between;}
+
+  /* Knowledge cards */
+  .kcard{
+    background:#FBFAFF;border:2px solid #E7E2F5;border-radius:var(--radius-md);
+    padding:14px 16px;margin-bottom:12px;position:relative;
+  }
+  .kcard .topic{font-weight:800;color:var(--violet-deep);margin-bottom:4px;}
+  .kcard .remove{position:absolute;top:10px;right:12px;background:none;border:none;color:#B7AEDA;font-size:1.1rem;}
+  .add-card-form{background:#F1EEFC;border-radius:var(--radius-md);padding:16px;margin-top:10px;}
+
+  .venn{display:flex;align-items:center;justify-content:center;gap:8px;margin:20px 0;flex-wrap:wrap;color:#5B5470;font-weight:700;text-align:center;}
+  .venn .box{background:#F1EEFC;border-radius:14px;padding:12px 16px;min-width:130px;}
+  .venn .box.mine{background:#FFE9EF;color:#C23458;}
+  .venn .box.taught{background:#E4FBF2;color:#0A9A6C;}
+  .venn .box.instr{background:#FFF3DE;color:#B87700;}
+  .venn .box.result{background:var(--violet);color:#fff;}
+  .venn .sym{font-size:1.4rem;font-weight:800;}
+
+  /* Chat */
+  .chat-window{
+    background:#FBFAFF;border:2px solid #E7E2F5;border-radius:var(--radius-md);
+    height:340px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;margin-bottom:14px;
+  }
+  .msg{max-width:78%;padding:10px 14px;border-radius:16px;line-height:1.4;font-size:0.98rem;}
+  .msg.user{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:4px;}
+  .msg.bot{align-self:flex-start;background:#EFEBFC;color:var(--navy);border-bottom-left-radius:4px;}
+  .msg.bot .investigate{display:block;margin-top:8px;font-size:0.78rem;color:var(--violet-deep);font-weight:800;background:none;border:none;padding:0;}
+  .suggestion-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .suggestion-chip{background:#F1EEFC;border:none;border-radius:999px;padding:8px 14px;font-weight:700;font-size:0.82rem;color:var(--navy);}
+  .chat-input-row{display:flex;gap:10px;}
+  .chat-input-row input{flex:1;}
+
+  /* Investigate flow */
+  .flow{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+  .flow-step{display:flex;align-items:center;gap:12px;background:#FBFAFF;border-left:5px solid var(--violet);border-radius:12px;padding:12px 16px;}
+  .flow-step .icon{font-size:1.4rem;}
+  .flow-arrow{text-align:center;color:#B7AEDA;font-size:1.2rem;}
+
+  /* Challenge cards */
+  .challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:640px){.challenge-grid{grid-template-columns:1fr;}}
+  .challenge{background:#FBFAFF;border:2px solid #E7E2F5;border-radius:var(--radius-md);padding:16px;}
+  .challenge h3{margin:0 0 6px;font-size:1.05rem;color:var(--navy);}
+  .challenge p{margin:0;color:#5B5470;font-size:0.9rem;}
+  .challenge.done{border-color:var(--mint);background:#F0FFFA;}
+  .challenge .tick{float:right;color:var(--mint);font-weight:800;}
+
+  /* Loading overlay */
+  .loading-overlay{
+    position:fixed;inset:0;background:rgba(18,10,36,0.92);z-index:50;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px;
+  }
+  .brain{font-size:3.4rem;animation:pulse 1.4s infinite ease-in-out;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+  .progress-track{width:min(320px,80vw);height:12px;background:rgba(255,255,255,0.15);border-radius:999px;margin-top:22px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--mint));width:0%;transition:width .3s ease;}
+
+  .badge{display:inline-block;background:var(--amber);color:#5B3A00;font-weight:800;font-size:0.7rem;padding:3px 10px;border-radius:999px;margin-left:8px;}
+  .note{background:#FFF3DE;border-radius:12px;padding:12px 14px;font-size:0.88rem;color:#8A6200;margin-top:14px;}
+
+  .reflect-q{margin-bottom:18px;}
+
+  /* Teacher modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(18,10,36,0.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal{background:#fff;border-radius:var(--radius-lg);max-width:640px;width:100%;max-height:85vh;overflow-y:auto;padding:28px;}
+  .modal h2{margin-top:0;}
+  .modal dt{font-weight:800;color:var(--violet-deep);margin-top:14px;}
+  .modal dd{margin:4px 0 0;color:#3A3352;}
+
+  .hidden{display:none !important;}
+  .fallback-note{font-size:0.82rem;color:#8A6200;background:#FFF3DE;padding:6px 10px;border-radius:8px;display:inline-block;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<canvas class="stars" id="stars"></canvas>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span> AI Lab</div>
+    <button class="teacher-btn" id="teacherBtn">🧑‍🏫 Teacher Info</button>
+  </div>
+
+  <div class="stepper" id="stepper">
+    <div class="step" data-step="0"><div class="num">1</div>Build</div>
+    <div class="step" data-step="1"><div class="num">2</div>Teach</div>
+    <div class="step" data-step="2"><div class="num">3</div>Chat</div>
+    <div class="step" data-step="3"><div class="num">4</div>Investigate</div>
+    <div class="step" data-step="4"><div class="num">5</div>Challenge</div>
+    <div class="step" data-step="5"><div class="num">6</div>Reflect</div>
+  </div>
+
+  <!-- STEP 0: WELCOME / BUILD -->
+  <div class="panel" id="panel-welcome">
+    <h2>Where do a chatbot's answers come from? 🤔</h2>
+    <p class="sub">Before you build anything — take a guess. When you ask a chatbot a question, where do you think its answer comes from?</p>
+    <div class="suggestion-row">
+      <button class="suggestion-chip" data-guess="It reads your mind">It reads your mind</button>
+      <button class="suggestion-chip" data-guess="It looks things up on the internet live">It looks things up live</button>
+      <button class="suggestion-chip" data-guess="It uses knowledge + instructions it was given">Knowledge + instructions</button>
+      <button class="suggestion-chip" data-guess="It's a real person typing">A real person typing</button>
+    </div>
+    <div id="welcomeAnswer" class="note hidden"></div>
+    <div class="flow" style="margin-top:22px;">
+      <div class="flow-step"><span class="icon">❓</span><div><b>Your question</b> goes in</div></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><span class="icon">🧠</span><div><b>AI model</b> uses information + instructions</div></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><span class="icon">💬</span><div>It gives you a <b>response</b></div></div>
+    </div>
+    <div class="note">Today's AI already knows lots of things — but it doesn't know <i>you</i>. You're about to fix that.</div>
+    <div class="actions"><button class="primary-btn" id="toMeetBtn">Meet the AI →</button></div>
+  </div>
+
+  <!-- STEP: MEET THE AI -->
+  <div class="panel hidden" id="panel-meet">
+    <h2>Meet the AI 🤖</h2>
+    <p class="sub">This is the same AI model everyone in class will use — but you'll decide what it knows and how it behaves.</p>
+    <div class="chat-window" style="height:220px;">
+      <div class="msg user">What's Jupiter?</div>
+      <div class="msg bot">Jupiter is the largest planet in our Solar System — a giant ball of gas!</div>
+      <div class="msg user">What's my favourite game?</div>
+      <div class="msg bot">I don't know that yet — nobody's taught me! You can teach me in a minute. 😊</div>
+    </div>
+    <div class="note">See that second answer? The AI didn't make something up — it honestly said it doesn't know. That's exactly what a good AI should do.</div>
+    <div class="actions"><button class="primary-btn" id="toBuildBtn">Build my own bot →</button></div>
+  </div>
+
+  <!-- STEP 1: BUILD -->
+  <div class="panel hidden" id="panel-build">
+    <h2>Build Your Bot 🛠️</h2>
+    <p class="sub">Design your chatbot's identity. You can change any of this later.</p>
+
+    <div class="row">
+      <div class="col">
+        <label class="field-label">Bot name</label>
+        <input type="text" id="botName" placeholder="e.g. Astro, Nova, Pixel...">
+      </div>
+      <div class="col">
+        <label class="field-label">Choose an avatar</label>
+        <div class="avatar-grid" id="avatarGrid"></div>
+      </div>
+    </div>
+
+    <label class="field-label" style="margin-top:16px;">What is your bot?</label>
+    <textarea id="botDesc" placeholder="e.g. A friendly space expert who helps people learn about planets."></textarea>
+
+    <h3 style="margin:22px 0 10px;color:var(--navy);">Personality</h3>
+    <div class="slider-block">
+      <div class="slider-labels"><span>😄 Friendly</span><span>🧐 Serious</span></div>
+      <input type="range" min="0" max="100" value="20" id="sliderFriendly">
+    </div>
+    <div class="slider-block">
+      <div class="slider-labels"><span>😂 Funny</span><span>🎩 Formal</span></div>
+      <input type="range" min="0" max="100" value="30" id="sliderFunny">
+    </div>
+    <div class="slider-block">
+      <div class="slider-labels"><span>✂️ Short answers</span><span>📖 Detailed answers</span></div>
+      <input type="range" min="0" max="100" value="40" id="sliderLength">
+    </div>
+
+    <div class="actions"><button class="primary-btn" id="toTeachBtn">Next: Teach My Bot →</button></div>
+  </div>
+
+  <!-- STEP 2: TEACH -->
+  <div class="panel hidden" id="panel-teach">
+    <h2>Teach My Bot 📚</h2>
+    <p class="sub">Add information you want your bot to know. You are <b>not</b> retraining the AI — you're giving it notes it can read when it answers you.</p>
+
+    <div id="knowledgeList"></div>
+
+    <div class="add-card-form">
+      <label class="field-label">Topic</label>
+      <input type="text" id="newTopic" placeholder="e.g. My Favourite Game">
+      <label class="field-label" style="margin-top:10px;">What should your bot know?</label>
+      <textarea id="newInfo" placeholder="e.g. My favourite game is Minecraft. I like building castles and exploring caves."></textarea>
+      <div class="actions" style="margin-top:12px;"><button class="secondary-btn" id="addCardBtn">➕ Add this knowledge card</button></div>
+    </div>
+
+    <div class="venn">
+      <div class="box"><b>🧠 AI's built-in<br>knowledge</b></div>
+      <div class="sym">+</div>
+      <div class="box taught"><b>📚 Your<br>knowledge</b></div>
+      <div class="sym">+</div>
+      <div class="box instr"><b>🎛️ Your<br>instructions</b></div>
+      <div class="sym">=</div>
+      <div class="box result"><b>🤖 Your<br>chatbot</b></div>
+    </div>
+
+    <div class="actions"><button class="primary-btn" id="toChatBtn">Next: Chat With My Bot →</button></div>
+  </div>
+
+  <!-- STEP 3: CHAT -->
+  <div class="panel hidden" id="panel-chat">
+    <h2 id="chatHeader">Chat With Your Bot 💬</h2>
+    <p class="sub">Try asking these four kinds of question:</p>
+    <div class="suggestion-row" id="chatSuggestions"></div>
+    <div class="chat-window" id="chatWindow"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Ask your bot something...">
+      <button class="primary-btn" id="sendBtn">Send</button>
+    </div>
+    <div class="actions"><button class="primary-btn" id="toInvestigateBtn">Next: AI Detective 🔍</button></div>
+  </div>
+
+  <!-- STEP 4: INVESTIGATE -->
+  <div class="panel hidden" id="panel-investigate">
+    <h2>AI Detective 🔍</h2>
+    <p class="sub">Pick a question, ask your bot, then click <b>"How did my bot answer?"</b> to see how it thought it through.</p>
+    <div class="chat-window" id="investigateWindow" style="height:220px;"></div>
+    <div class="chat-input-row">
+      <input type="text" id="investigateInput" placeholder="Ask a question to investigate...">
+      <button class="primary-btn" id="investigateSendBtn">Send</button>
+    </div>
+    <div id="investigateFlow"></div>
+    <div class="actions"><button class="primary-btn" id="toChallengeBtn">Next: Bot Challenge 🏆</button></div>
+  </div>
+
+  <!-- STEP 5: CHALLENGE -->
+  <div class="panel hidden" id="panel-challenge">
+    <h2>Bot Challenge 🏆</h2>
+    <p class="sub">Complete each mini-challenge using the chat box below.</p>
+    <div class="challenge-grid">
+      <div class="challenge" id="ch1"><h3>1. Teach It <span class="tick hidden">✔</span></h3><p>Add a brand-new knowledge card, then ask your bot about it.</p></div>
+      <div class="challenge" id="ch2"><h3>2. Change Its Personality <span class="tick hidden">✔</span></h3><p>Move a personality slider all the way, then ask the same question again.</p></div>
+      <div class="challenge" id="ch3"><h3>3. Try to Break It <span class="tick hidden">✔</span></h3><p>Ask something strange, like "What is the secret password of the Moon?"</p></div>
+      <div class="challenge" id="ch4"><h3>4. Human vs AI <span class="tick hidden">✔</span></h3><p>Type one thing <i>you</i> know that your bot doesn't.</p></div>
+    </div>
+    <div class="chat-window" id="challengeWindow" style="height:220px;margin-top:16px;"></div>
+    <div class="chat-input-row">
+      <input type="text" id="challengeInput" placeholder="Chat here to complete the challenges...">
+      <button class="primary-btn" id="challengeSendBtn">Send</button>
+    </div>
+    <div class="actions">
+      <button class="ghost-btn" id="backToBuildBtn">⚙️ Tweak my bot</button>
+      <button class="primary-btn" id="toReflectBtn">Next: Final Reflection →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: REFLECT -->
+  <div class="panel hidden" id="panel-reflect">
+    <h2>Final Reflection ✨</h2>
+    <div class="reflect-q">
+      <label class="field-label">What did you teach your AI?</label>
+      <textarea id="r1"></textarea>
+    </div>
+    <div class="reflect-q">
+      <label class="field-label">What changed when you changed its instructions?</label>
+      <textarea id="r2"></textarea>
+    </div>
+    <div class="reflect-q">
+      <label class="field-label">What is one thing your AI couldn't answer?</label>
+      <textarea id="r3"></textarea>
+    </div>
+    <div class="note" style="font-size:1.05rem;text-align:center;">You didn't just use AI today. <b>You designed how an AI system behaves.</b></div>
+    <div class="actions spread">
+      <button class="ghost-btn" id="resetBtn">🔄 Reset My Bot</button>
+      <button class="secondary-btn" id="backToChallengeBtn">← Back to Challenge</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="brain">🧠</div>
+  <h2 id="loadingText" style="margin:16px 0 4px;">Getting your AI brain ready...</h2>
+  <div id="loadingSub" style="opacity:0.75;font-size:0.9rem;">Getting the AI brain ready (this only happens once per session)</div>
+  <div class="progress-track"><div class="progress-fill" id="loadingFill"></div></div>
+</div>
+
+<!-- Teacher modal -->
+<div class="modal-backdrop hidden" id="teacherModal">
+  <div class="modal">
+    <h2>🧑‍🏫 Teacher Mode</h2>
+    <dl>
+      <dt>What are students learning?</dt>
+      <dd>The difference between an AI's built-in knowledge and information a person supplies, how instructions shape tone and behaviour, and why AI should admit uncertainty instead of guessing.</dd>
+      <dt>What AI model is this?</dt>
+      <dd>This activity uses SmolLM2-360M-Instruct, a small open language model (about 360 million parameters) chosen specifically because it's light and fast enough to run smoothly in a browser on ordinary school laptops. The <code>MODEL_ID</code> constant near the top of the script can be swapped for a larger model (e.g. a Qwen model) if you want stronger general knowledge and have faster classroom devices — replies will be slower.</dd>
+      <dt>What does Transformers.js do?</dt>
+      <dd>It's a JavaScript library that runs AI models inside the browser using ONNX Runtime Web, with WebGPU acceleration where available and a CPU/WASM fallback otherwise.</dd>
+      <dt>Why does it run in the browser?</dt>
+      <dd>No server, account or database is needed. Nothing a student types leaves their device — it's ideal for a classroom with safeguarding requirements.</dd>
+      <dt>What does "teaching" the bot actually mean?</dt>
+      <dd>Students are not retraining the model. Their knowledge cards and instructions are added as context alongside each question, which the model reads before answering.</dd>
+      <dt>Why does the bot sometimes say "I don't know"?</dt>
+      <dd>It's prompted to only rely on its own general knowledge or what the student typed — and to say so honestly when neither covers the question.</dd>
+      <dt>Why no accounts or database?</dt>
+      <dd>Everything is stored in the browser's sessionStorage only, for privacy and simplicity, and clears when the browser tab/session ends.</dd>
+      <dt>How is it accessed?</dt>
+      <dd>The activity is a static site hosted on GitHub Pages, shared with students via a short Bitly link — no install required.</dd>
+    </dl>
+    <div class="actions"><button class="primary-btn" id="closeTeacherModal">Close</button></div>
+  </div>
+</div>
+
+<script type="module">
+import { pipeline, TextStreamer } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0";
+
+/* ---------- Starfield background ---------- */
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+resize(); addEventListener('resize', resize);
+const stars = Array.from({length:120}, ()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.4+0.2,s:Math.random()*0.02+0.005}));
+function drawStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#fff";
+  for(const st of stars){
+    st.y += st.s*10; if(st.y>canvas.height) st.y=0;
+    ctx.globalAlpha = 0.4+Math.sin(Date.now()*st.s)*0.4;
+    ctx.beginPath(); ctx.arc(st.x,st.y,st.r,0,7); ctx.fill();
+  }
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* ---------- State (sessionStorage) ---------- */
+const STORAGE_KEY = "ailab_bot_state_v1";
+const defaultState = {
+  step: 0,
+  bot: { name:"", desc:"", avatar:"🤖", friendly:20, funny:30, length:40 },
+  knowledge: [],
+  chatLog: [],
+  challenges: {ch1:false, ch2:false, ch3:false, ch4:false},
+  slidersMovedFar: false
+};
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if(raw) return {...structuredClone(defaultState), ...JSON.parse(raw)};
+  }catch(e){}
+  return structuredClone(defaultState);
+}
+function saveState(){
+  try{ sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+/* ---------- Avatars ---------- */
+const AVATARS = ["🤖","🦊","🐙","🚀","🐉","🦉","👾","🐱","🌟","🦄"];
+const avatarGrid = document.getElementById('avatarGrid');
+AVATARS.forEach(a=>{
+  const b = document.createElement('button');
+  b.className='avatar-choice'; b.type='button'; b.textContent=a;
+  b.onclick = ()=>{ state.bot.avatar=a; renderAvatars(); saveState(); };
+  avatarGrid.appendChild(b);
+});
+function renderAvatars(){
+  [...avatarGrid.children].forEach(el=>el.classList.toggle('selected', el.textContent===state.bot.avatar));
+}
+
+/* ---------- Built-in curated knowledge (small, kid-friendly) ---------- */
+const BUILTIN_FACTS = `
+- Space: Jupiter is the largest planet in the Solar System. Mars is called the Red Planet. The Moon orbits the Earth roughly every 27 days.
+- Animals & nature: Octopuses have three hearts. A group of lions is called a pride. Rainforests hold more than half of the world's plant and animal species.
+- Science & tech: Robots are machines that can sense and act in the world. Coding means giving a computer step-by-step instructions. AI models learn patterns from lots of examples.
+- Games & pop culture: Minecraft is a building and exploration game. Roblox lets players create and play games made by others. Pokémon are creatures that trainers collect and battle with.
+- Sport & scientists: Marie Curie won two Nobel Prizes for her work on radioactivity. The football World Cup happens every four years.
+- Fun facts: Honey never spoils. A day on Venus is longer than its year.
+`;
+
+/* ---------- Prompt construction ---------- */
+function personalityInstructions(bot){
+  const tone = bot.friendly < 50 ? "warm, friendly and encouraging" : "calm, precise and serious";
+  const humour = bot.funny < 50 ? "You enjoy the occasional light joke or fun exclamation." : "You keep a formal, matter-of-fact style with no jokes.";
+  const length = bot.length < 50 ? "Keep answers to 1-2 short sentences." : "Give a fuller, more detailed answer of 3-5 sentences.";
+  return `${tone}. ${humour} ${length}`;
+}
+
+function buildSystemPrompt(){
+  const bot = state.bot;
+  const knowledgeBlock = state.knowledge.length
+    ? state.knowledge.map(k=>`- ${k.topic}: ${k.info}`).join("\n")
+    : "(The student has not taught you anything yet.)";
+  return `You are ${bot.name || "a chatbot"}, ${bot.desc || "a helpful assistant"}.
+Personality instructions: ${personalityInstructions(bot)}
+
+You have two sources of information:
+1. Your own general knowledge (facts most people would know, e.g. about space, animals, science, games).
+2. Information the student specifically taught you, listed below:
+${knowledgeBlock}
+
+Rules:
+- If the question is about something the student taught you, use ONLY that taught information to answer, and mention it's something they told you.
+- If the question is general knowledge you already know, answer normally and briefly.
+- If you do not know the answer and it was not taught to you, honestly say "I don't know that yet." Do NOT invent an answer.
+- Always stay in character and follow your personality instructions.
+- Keep the language simple enough for a 9-11 year old.`;
+}
+
+/* ---------- Model loading (Transformers.js + Qwen) ---------- */
+// Very small, fast instruct model — good enough for this demo since the
+// system prompt + knowledge cards do most of the work. Swap to a bigger
+// Qwen model here later if you want noticeably smarter general knowledge
+// at the cost of slower replies on weak laptops.
+const MODEL_ID = "HuggingFaceTB/SmolLM2-360M-Instruct";
+let generator = null;
+let usingFallback = false;
+const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingFill = document.getElementById('loadingFill');
+const loadingSub = document.getElementById('loadingSub');
+const loadingText = document.getElementById('loadingText');
+
+async function detectWebGPU(){
+  try{
+    if(!navigator.gpu) return false;
+    const adapter = await navigator.gpu.requestAdapter();
+    return !!adapter;
+  }catch(e){ return false; }
+}
+
+async function initModel(){
+  loadingOverlay.classList.remove('hidden');
+  const hasWebGPU = await detectWebGPU();
+  const device = hasWebGPU ? "webgpu" : "wasm";
+  if(!hasWebGPU){
+    usingFallback = true;
+    loadingSub.textContent = "Your device doesn't support WebGPU — using the lightweight CPU mode instead.";
+  }
+  try{
+    generator = await pipeline(
+      "text-generation",
+      MODEL_ID,
+      {
+        // Using "q4" (not "q4f16") on both devices avoids a known WebGPU
+        // bug where some browsers' Float16Array support doesn't match what
+        // the fp16 quantised weights expect, causing generation to throw.
+        dtype: "q4",
+        device,
+        progress_callback: (p)=>{
+          if(p.status === "progress" && p.total){
+            const pct = Math.round((p.loaded / p.total) * 100);
+            loadingFill.style.width = pct + "%";
+            loadingSub.textContent = `Loading ${p.file || "AI brain"}... ${pct}%`;
+          } else if (p.status === "ready"){
+            loadingFill.style.width = "100%";
+          }
+        }
+      }
+    );
+  }catch(err){
+    console.error("Model load failed, retrying on wasm", err);
+    usingFallback = true;
+    try{
+      generator = await pipeline("text-generation", MODEL_ID, {dtype:"q4", device:"wasm"});
+    }catch(err2){
+      console.error("Fallback also failed", err2);
+      loadingText.textContent = "Hmm, the AI brain couldn't load.";
+      loadingSub.textContent = "Try refreshing the page, or ask your teacher for help.";
+      return;
+    }
+  }
+  loadingOverlay.classList.add('hidden');
+}
+
+async function askBot(question){
+  if(!generator){
+    return "My AI brain is still waking up — one moment!";
+  }
+  const messages = [
+    { role:"system", content: buildSystemPrompt() },
+    { role:"user", content: question }
+  ];
+  try{
+    let promptText;
+    let usedChatTemplate = false;
+    try{
+      // Preferred path: use the model's own chat template so it sees proper
+      // system/user turn markers.
+      promptText = generator.tokenizer.apply_chat_template(messages, {
+        tokenize: false,
+        add_generation_prompt: true
+      });
+      usedChatTemplate = true;
+    }catch(templateErr){
+      console.warn("Chat template unavailable, falling back to plain prompt", templateErr);
+      promptText = `${buildSystemPrompt()}\n\nQuestion: ${question}\nAnswer:`;
+    }
+
+    const output = await generator(promptText, {
+      max_new_tokens: 60,        // short answers = faster + less room to ramble
+      do_sample: false,          // greedy decoding: steadier for a small model
+      repetition_penalty: 1.3,   // stops repetition loops
+      no_repeat_ngram_size: 3,
+      return_full_text: false    // ask the library to strip the prompt for us
+    });
+
+    let text = output?.[0]?.generated_text ?? "";
+    if(Array.isArray(text)) text = text[text.length-1]?.content ?? "";
+
+    // return_full_text isn't honoured by every build — if the prompt is
+    // still in there, strip it manually.
+    if(typeof text === "string" && text.startsWith(promptText)){
+      text = text.slice(promptText.length);
+    }
+    text = cleanUpAnswer(text);
+    return text || "I don't know that yet.";
+  }catch(e){
+    console.error("askBot failed:", e);
+    return "Oops, my circuits got a bit tangled! Try asking again. (Check the browser console for the technical error.)";
+  }
+}
+
+// Small models sometimes still degrade into repeated words/punctuation even
+// with a repetition penalty. Trim anything that starts looping so students
+// never see a wall of nonsense text.
+function cleanUpAnswer(raw){
+  let text = (raw || "").trim();
+  const words = text.split(/\s+/);
+  const seenRecently = [];
+  let cutIndex = words.length;
+  for(let i=0;i<words.length;i++){
+    seenRecently.push(words[i].toLowerCase());
+    if(seenRecently.length > 6) seenRecently.shift();
+    const uniqueCount = new Set(seenRecently).size;
+    if(seenRecently.length===6 && uniqueCount<=2){ cutIndex = Math.max(1, i-5); break; }
+  }
+  text = words.slice(0, cutIndex).join(' ');
+  // Hard cap so one bad generation can't fill the whole chat window.
+  if(text.length > 400) text = text.slice(0,400).replace(/\s+\S*$/, '') + '…';
+  return text.trim() || "I don't know that yet.";
+}
+
+/* ---------- Navigation / stepper ---------- */
+const panels = ["welcome","meet","build","teach","chat","investigate","challenge","reflect"];
+const stepMap = { welcome:0, meet:0, build:0, teach:1, chat:2, investigate:3, challenge:4, reflect:5 };
+
+function showPanel(name){
+  panels.forEach(p=>document.getElementById('panel-'+p).classList.toggle('hidden', p!==name));
+  updateStepper(stepMap[name]);
+  state.currentPanel = name;
+  saveState();
+}
+function updateStepper(activeIdx){
+  document.querySelectorAll('.step').forEach(el=>{
+    const idx = Number(el.dataset.step);
+    el.classList.toggle('active', idx===activeIdx);
+    el.classList.toggle('done', idx<activeIdx);
+  });
+}
+
+/* ---------- Wire up welcome ---------- */
+document.querySelectorAll('#panel-welcome .suggestion-chip').forEach(chip=>{
+  chip.onclick = ()=>{
+    const box = document.getElementById('welcomeAnswer');
+    box.classList.remove('hidden');
+    box.textContent = "Good guess! The real answer is: an AI model combines information it already knows with instructions and information it's given, to generate a response. No mind-reading involved!";
+  };
+});
+document.getElementById('toMeetBtn').onclick = ()=>showPanel('meet');
+document.getElementById('toBuildBtn').onclick = ()=>showPanel('build');
+
+/* ---------- Wire up build ---------- */
+const botNameInput = document.getElementById('botName');
+const botDescInput = document.getElementById('botDesc');
+const sliderFriendly = document.getElementById('sliderFriendly');
+const sliderFunny = document.getElementById('sliderFunny');
+const sliderLength = document.getElementById('sliderLength');
+
+function loadBuildForm(){
+  botNameInput.value = state.bot.name;
+  botDescInput.value = state.bot.desc;
+  sliderFriendly.value = state.bot.friendly;
+  sliderFunny.value = state.bot.funny;
+  sliderLength.value = state.bot.length;
+  renderAvatars();
+}
+[botNameInput,botDescInput].forEach(el=>el.addEventListener('input', ()=>{
+  state.bot.name = botNameInput.value; state.bot.desc = botDescInput.value; saveState();
+}));
+[[sliderFriendly,'friendly'],[sliderFunny,'funny'],[sliderLength,'length']].forEach(([el,key])=>{
+  let startVal = Number(el.value);
+  el.addEventListener('change', ()=>{
+    const val = Number(el.value);
+    if(Math.abs(val-startVal) >= 60) state.slidersMovedFar = true;
+    state.bot[key]=val; saveState();
+  });
+});
+document.getElementById('toTeachBtn').onclick = ()=>{
+  if(!state.bot.name.trim()) state.bot.name = "My Bot";
+  saveState();
+  showPanel('teach');
+};
+
+/* ---------- Wire up teach ---------- */
+const knowledgeListEl = document.getElementById('knowledgeList');
+function renderKnowledge(){
+  knowledgeListEl.innerHTML = "";
+  if(state.knowledge.length===0){
+    knowledgeListEl.innerHTML = `<p style="color:#8A80A8;">No knowledge cards yet — add your first one below!</p>`;
+    return;
+  }
+  const label = document.createElement('div');
+  label.className='field-label'; label.textContent="Information you taught your bot:";
+  knowledgeListEl.appendChild(label);
+  state.knowledge.forEach((k,i)=>{
+    const div = document.createElement('div');
+    div.className='kcard';
+    div.innerHTML = `<button class="remove" data-i="${i}">✕</button><div class="topic">${escapeHtml(k.topic)}</div><div>${escapeHtml(k.info)}</div>`;
+    knowledgeListEl.appendChild(div);
+  });
+  knowledgeListEl.querySelectorAll('.remove').forEach(btn=>{
+    btn.onclick = ()=>{ state.knowledge.splice(Number(btn.dataset.i),1); saveState(); renderKnowledge(); };
+  });
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+document.getElementById('addCardBtn').onclick = ()=>{
+  const topic = document.getElementById('newTopic').value.trim();
+  const info = document.getElementById('newInfo').value.trim();
+  if(!topic || !info) return;
+  state.knowledge.push({topic, info});
+  document.getElementById('newTopic').value="";
+  document.getElementById('newInfo').value="";
+  saveState();
+  renderKnowledge();
+};
+document.getElementById('toChatBtn').onclick = ()=>{
+  document.getElementById('chatHeader').textContent = `Chat With ${state.bot.name} ${state.bot.avatar}`;
+  renderChatSuggestions();
+  renderChatWindow('chatWindow');
+  showPanel('chat');
+};
+
+/* ---------- Generic chat rendering ---------- */
+function renderChatWindow(elId){
+  const win = document.getElementById(elId);
+  win.innerHTML = "";
+  state.chatLog.forEach(m=>appendMsg(win, m.role, m.text, false));
+  win.scrollTop = win.scrollHeight;
+}
+function appendMsg(win, role, text, withInvestigate){
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role==='user'?'user':'bot');
+  div.textContent = text;
+  if(withInvestigate && role==='bot'){
+    const btn = document.createElement('button');
+    btn.className='investigate'; btn.textContent="🔍 How did my bot answer?";
+    btn.onclick = ()=>{ showPanel('investigate'); explainAnswer(text); };
+    div.appendChild(btn);
+  }
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+  return div;
+}
+
+async function sendMessage(inputEl, winEl, opts={}){
+  const text = inputEl.value.trim();
+  if(!text) return;
+  inputEl.value="";
+  state.chatLog.push({role:'user', text});
+  appendMsg(document.getElementById(winEl), 'user', text);
+  saveState();
+  const thinking = appendMsg(document.getElementById(winEl), 'bot', "💭 thinking...");
+  const answer = await askBot(text);
+  thinking.textContent = answer;
+  if(opts.investigate){
+    const btn = document.createElement('button');
+    btn.className='investigate'; btn.textContent="🔍 How did my bot answer?";
+    btn.onclick = ()=>explainAnswer(text, answer);
+    thinking.appendChild(btn);
+  }
+  state.chatLog.push({role:'bot', text:answer});
+  saveState();
+  checkChallenges(text, answer);
+  return {question:text, answer};
+}
+
+function renderChatSuggestions(){
+  const box = document.getElementById('chatSuggestions');
+  box.innerHTML="";
+  const examples = [
+    "What is Jupiter?",
+    state.knowledge[0] ? `What is my ${state.knowledge[0].topic}?` : "What did I teach you?",
+    "What is my favourite food?",
+    "What is the secret password of the Moon?"
+  ];
+  examples.forEach(ex=>{
+    const b = document.createElement('button');
+    b.className='suggestion-chip'; b.textContent=ex;
+    b.onclick = ()=>{ document.getElementById('chatInput').value = ex; };
+    box.appendChild(b);
+  });
+}
+document.getElementById('sendBtn').onclick = ()=>sendMessage(document.getElementById('chatInput'),'chatWindow');
+document.getElementById('chatInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(document.getElementById('chatInput'),'chatWindow'); });
+document.getElementById('toInvestigateBtn').onclick = ()=>{ renderChatWindow('investigateWindow'); showPanel('investigate'); };
+
+/* ---------- Investigate ---------- */
+document.getElementById('investigateSendBtn').onclick = async ()=>{
+  const result = await sendMessage(document.getElementById('investigateInput'), 'investigateWindow', {investigate:true});
+};
+document.getElementById('investigateInput').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('investigateSendBtn').click(); });
+
+function explainAnswer(question, answer){
+  const matched = state.knowledge.find(k=>question.toLowerCase().includes(k.topic.toLowerCase().split(' ')[0]));
+  const flow = document.getElementById('investigateFlow');
+  flow.innerHTML = `
+    <div class="flow">
+      <div class="flow-step"><span class="icon">❓</span><div>You asked: <b>"${escapeHtml(question)}"</b></div></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><span class="icon">🔎</span><div>${matched ? `Your bot found information you taught it about <b>${escapeHtml(matched.topic)}</b>.` : `Your bot checked — you hadn't taught it anything about this, so it used its own general knowledge (or said it didn't know).`}</div></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><span class="icon">🎛️</span><div>Your bot followed its personality instructions (${state.bot.friendly<50?'friendly':'serious'}, ${state.bot.funny<50?'a bit funny':'formal'}).</div></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><span class="icon">🧠</span><div>The AI model generated the final response: <i>"${escapeHtml(answer||"")}"</i></div></div>
+    </div>`;
+}
+document.getElementById('toChallengeBtn').onclick = ()=>{ renderChatWindow('challengeWindow'); renderChallenges(); showPanel('challenge'); };
+
+/* ---------- Challenges ---------- */
+document.getElementById('challengeSendBtn').onclick = ()=>sendMessage(document.getElementById('challengeInput'),'challengeWindow');
+document.getElementById('challengeInput').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('challengeSendBtn').click(); });
+
+function checkChallenges(question, answer){
+  const qlc = question.toLowerCase();
+  if(state.knowledge.some(k=>qlc.includes(k.topic.toLowerCase().split(' ')[0]))) state.challenges.ch1 = true;
+  if(state.slidersMovedFar) state.challenges.ch2 = true;
+  if(/secret|password|moon|dragon|unicorn|impossible/.test(qlc) && /don't know|not sure|no idea/i.test(answer)) state.challenges.ch3 = true;
+  saveState();
+  renderChallenges();
+}
+document.getElementById('r1'); // no-op ensures element exists before listener below
+function renderChallenges(){
+  Object.entries(state.challenges).forEach(([id,done])=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.toggle('done', !!done);
+    el.querySelector('.tick').classList.toggle('hidden', !done);
+  });
+}
+document.getElementById('backToBuildBtn').onclick = ()=>{ loadBuildForm(); showPanel('build'); };
+document.getElementById('toReflectBtn').onclick = ()=>showPanel('reflect');
+document.getElementById('backToChallengeBtn').onclick = ()=>showPanel('challenge');
+
+/* human vs AI challenge 4: any reflect text or a manual "I know" chat counts */
+document.getElementById('r3')?.addEventListener('input', ()=>{ state.challenges.ch4 = true; saveState(); renderChallenges(); });
+
+/* ---------- Reflection persistence ---------- */
+['r1','r2','r3'].forEach(id=>{
+  const el = document.getElementById(id);
+  el.addEventListener('input', ()=>{ state[id]=el.value; saveState(); });
+});
+
+/* ---------- Reset ---------- */
+document.getElementById('resetBtn').onclick = ()=>{
+  if(confirm("This will erase your bot, its knowledge and your chat. Are you sure?")){
+    sessionStorage.removeItem(STORAGE_KEY);
+    state = structuredClone(defaultState);
+    location.reload();
+  }
+};
+
+/* ---------- Teacher modal ---------- */
+document.getElementById('teacherBtn').onclick = ()=>document.getElementById('teacherModal').classList.remove('hidden');
+document.getElementById('closeTeacherModal').onclick = ()=>document.getElementById('teacherModal').classList.add('hidden');
+
+/* ---------- Restore state on load ---------- */
+function restoreUI(){
+  loadBuildForm();
+  renderKnowledge();
+  ['r1','r2','r3'].forEach(id=>{ if(state[id]) document.getElementById(id).value = state[id]; });
+  renderChallenges();
+  showPanel(state.currentPanel || 'welcome');
+}
+
+/* ---------- Boot ---------- */
+(async function boot(){
+  restoreUI();
+  await initModel();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teacher | Recommendation Lab</title><link rel="stylesheet" href="styles.css"></head>
+<body><main>
+<h1>TEACHER</h1>
+<div id="login" class="card">
+  <label>Password<br><input id="pw" type="password"></label>
+  <button class="btn" onclick="login()">LOG IN</button>
+  <p class="err" id="e1"></p>
+</div>
+<div id="panel" class="card hide">
+  <p class="mu">CLASSROOM CODE</p>
+  <div class="vec" id="code">------</div>
+  <p>Students connected: <b id="count">0</b></p>
+  <button class="btn" onclick="create()">NEW CLASSROOM CODE</button>
+  <button class="btn g" onclick="joinAs()">JOIN AS A STUDENT</button>
+  <button class="btn g" onclick="endIt()">END SESSION</button>
+  <p class="err" id="e2"></p>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+<script>
+const PASSWORD = "teacher123"; // dummy login, demo only
+const $ = s => document.querySelector(s);
+let code = "", off = null;
+function login() {
+  if ($("#pw").value !== PASSWORD) { $("#e1").textContent = "Wrong password."; return; }
+  $("#login").classList.add("hide"); $("#panel").classList.remove("hide");
+}
+function create() {
+  if (!db) {
+    $("#e2").textContent = "Firebase didn't load. Check the config and your internet connection.";
+    console.error("db is null");
+    return;
+  }
+  code = String(Math.floor(100000 + Math.random() * 900000));
+  
+  // Change .set to .update here:
+  db.ref("classrooms/" + code).update({ createdAt: Date.now(), status: "active" })
+    .then(() => {
+      $("#code").textContent = code;
+      $("#e2").textContent = "";
+      if (off) off();
+      const ref = db.ref("classrooms/" + code + "/students");
+      const f = s => $("#count").textContent = s.numChildren();
+      ref.on("value", f);
+      off = () => ref.off("value", f);
+    })
+    .catch(err => {
+      console.error(err);
+      $("#e2").textContent = "Live classroom sharing is temporarily unavailable.";
+    });
+}
+function joinAs() {
+  if (!code) { $("#e2").textContent = "Create a code first."; return; }
+  const st = JSON.parse(localStorage.getItem("rl_state") || "{}");
+  st.code = code; st.name = "Teacher";
+  localStorage.setItem("rl_state", JSON.stringify(st));
+  location.href = "index.html";
+}
+function endIt() { if (code && db) db.ref("classrooms/" + code + "/status").set("ended"); $("#code").textContent = "ENDED"; }
+</script></main></body></html>
