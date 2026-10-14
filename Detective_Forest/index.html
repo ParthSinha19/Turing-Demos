@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Forest of Forgotten Clues</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS","Comic Sans MS",system-ui,sans-serif;background:#eaf5e4;color:#1f3a2b;font-size:22px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 16px;background:#2f6b4f;color:#fff}
+h1{font-size:1.05em;margin:0}
+ol{display:flex;gap:6px;list-style:none;margin:0;padding:0}
+ol li{width:38px;height:38px;border-radius:50%;border:3px solid #cfe9d8;display:grid;place-items:center;font-weight:700}
+ol li.d{background:#ffd95a;color:#1f3a2b;border-color:#ffd95a}ol li.n{background:#fff;color:#2f6b4f;border-color:#ffd95a;outline:3px dashed #ffd95a;outline-offset:2px}
+.inv{background:#1f4d38;border-radius:12px;padding:4px 10px;min-height:42px;display:flex;gap:8px;align-items:center;font-size:.8em}
+.tools{display:flex;gap:6px}
+button{font:inherit;cursor:pointer;min-height:52px;min-width:52px;border-radius:16px;border:3px solid #2f6b4f;background:#fff;color:#1f3a2b;padding:6px 14px}
+button:hover{background:#fff4c2}
+button:focus-visible,input:focus-visible{outline:5px solid #ff9f1c;outline-offset:2px}
+button.big{background:#ffd95a;font-weight:700;font-size:1.1em;border-color:#c99700}
+main{max-width:960px;margin:0 auto;padding:12px}
+.scene{border-radius:24px;overflow:hidden;border:5px solid #2f6b4f;background:#bfe3d0}
+.scene svg{display:block;width:100%;height:auto}
+.card{background:#fffdf3;border:4px solid #c9a95c;border-radius:24px;padding:16px 20px;margin-top:12px}
+.say{font-size:1.15em;line-height:1.5;min-height:3.2em}
+.say.hint{background:#fff1c9;border-radius:14px;padding:8px 12px}
+.say.good{background:#d9f5df;border-radius:14px;padding:8px 12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
+input{font:inherit;font-size:1.5em;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:16px;border:4px solid #2f6b4f;flex:1;min-width:160px;min-height:62px}
+label{display:block;font-size:.8em;margin-top:8px}
+.bank button{font-size:1.2em;text-transform:uppercase;background:#e6f7ff}
+.title{font-size:1.6em;text-align:center}
+li{margin:4px 0}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 4s ease-in-out infinite alternate}
+.bob{animation:bob 2.4s ease-in-out infinite}
+.wing{animation:bob 1s ease-in-out infinite}
+.fly{animation:fly 9s linear infinite}
+.tw{animation:tw 1.6s ease-in-out infinite}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 20s linear infinite}
+.open{transform-box:fill-box;transform-origin:left;animation:dr .9s forwards}
+.route{stroke-dasharray:600;animation:rt 3s forwards}
+.pop{animation:pop .8s}
+@keyframes sway{to{transform:rotate(2.5deg)}}
+@keyframes bob{50%{transform:translateY(-10px)}}
+@keyframes fly{from{transform:translateX(-80px)}to{transform:translateX(900px)}}
+@keyframes tw{50%{opacity:.2}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes dr{to{transform:scaleX(.15)}}
+@keyframes rt{from{stroke-dashoffset:600}to{stroke-dashoffset:0}}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.route{stroke-dasharray:none}.open{transform:scaleX(.15)}}
+</style></head><body>
+<div id="app"></div>
+<script>
+const K='forest-clues-v1',CH=['The Forest Wakes','The Footprint Mystery','The Three Secret Doors','The Map That Forgot','The Forgotten Treasure'];
+const H3=(a,b,c)=>[a,b,c];
+const S=[
+{c:0,t:'s',say:"Hello! I am Pip. 🧚 Shh... the forest is very quiet. It forgot its magic words! Will you help me?",btn:"Yes, I will help!"},
+{c:0,id:'tree',t:'q',demo:1,say:"Words can wake the forest! Type the word TREE and press Go. Press “Watch Pip” to see how.",ans:['tree'],b:'tree sun bird',fx:'tree',ok:"Whoosh! The tree grows green leaves! 🌳 You did it!",fb:{sun:"That word is good, but we need the one with branches and leaves!"},h:H3("Look at the big word: TREE.","The letters are T, R, E, E.","Press T, then R, then E, then E. Then press Go!")},
+{c:0,id:'sun',t:'q',say:"The sky is grey. Type SUN to wake up the warm, bright sun! ☀️",ans:['sun'],b:'tree sun bird',fx:'sun',ok:"The sun is up! ☀️ It feels warm.",fb:{tree:"That is the tree. We need the round, warm thing in the sky!"},h:H3("Think of the bright, warm thing in the sky.","S, U, N. Three letters!","Press S, then U, then N. Then Go!")},
+{c:0,id:'bird',t:'q',say:"Something is hiding in the tree. It has wings and sings! Type BIRD.",ans:['bird'],b:'bird sun tree',fx:'bird',ok:"Tweet tweet! A bird is singing! 🐦",fb:{cat:"Cats do not have wings. Who has wings and feathers?"},h:H3("It has two wings and a beak.","It sings: tweet tweet! B, I, R, D.","Press B, I, R, D. Then Go!")},
+{c:0,id:'water',t:'q',say:"Listen... splash! A little stream is asleep. Type WATER to wake it up. 💧",ans:['water'],b:'water fire sand',fx:'water',ok:"Splish splash! The stream sparkles! 💧",fb:{fire:"Fire is hot! The stream needs something wet."},h:H3("We drink it, and fish swim in it.","It starts with W. W-A-T-E-R.","Press W, A, T, E, R. Then Go!")},
+{c:0,id:'flower',t:'q',say:"Almost there! Type FLOWER to open the flowers. 🌸",ans:['flower'],b:'flower tree water',fx:'flower',ok:"The flowers open and fireflies dance! ✨ The forest is awake!",h:H3("A pretty plant that smells nice.","F-L-O-W-E-R. It starts with F.","Press F, L, O, W, E, R. Then Go!")},
+{c:0,t:'s',say:"Oh! Look! 🐾 Strange footprints on the path! Who made them? Let's follow them!",btn:"Follow the prints"},
+{c:1,id:'fork',t:'q',say:"The path splits in two. On the LEFT are mushrooms 🍄. On the RIGHT are footprints 🐾. Type LEFT or RIGHT to look.",ans:['left','right'],b:'left right',okBy:{left:"Mushrooms! They are tiny and nobody is hiding here. But look, little prints go the other way! Let's go there.",right:"Yes! The prints go along this path. Let's look closer!"},h:H3("Type LEFT for mushrooms, or RIGHT for footprints.","Both are fine! Pick one.","Type L-E-F-T or R-I-G-H-T.")},
+{c:1,id:'size',t:'q',say:"A squirrel 🐿️ peeks out. “Those prints are not mine! Are they BIG or SMALL?”",ans:['small'],b:'big small',clue:"The prints were small 🔎",ok:"Yes, SMALL! The prints are tiny. 🔎",fb:{big:"Big feet make big dents. These dents are tiny! Look again."},h:H3("Look at the picture. Are the prints as big as a shoe?","They are as tiny as your thumb.","They are SMALL. S-M-A-L-L.")},
+{c:1,id:'toes',t:'q',say:"“Let's count the toes,” says Squirrel. How many toes? Type the number word: ONE, TWO, THREE or FOUR.",ans:['three','3'],b:'two three four',clue:"The prints had three toes",ok:"Three toes! 👣 That is a good clue.",fb:{two:"Count again. There is one more toe!",four:"Count again. There is one fewer toe!"},h:H3("Point at each toe on the screen and count.","The prints show a fork with 1, 2, ... toes.","It is THREE. T-H-R-E-E.")},
+{c:1,id:'who',t:'q',say:"Small feet, three toes, and a feather 🪶! Squirrel asks: “Who has feathers?”",ans:['bird'],b:'bird cat fish',clue:"A small bird made the prints",ok:"A bird! 🐦 A little bird left the prints.",fb:{cat:"Cats have fur, not feathers. Look at the feather!",fish:"Fish swim in water. These prints are on dry ground!"},h:H3("Who has feathers and wings?","It sings: tweet tweet!","B-I-R-D.")},
+{c:1,id:'where',t:'q',say:"Squirrel points up. “The bird hopped to the biggest ___ in the forest!” 🌳 Type the word.",ans:['tree'],b:'tree rock pond',clue:"The prints lead to the giant tree",ok:"Yes! The prints lead to a giant tree!",fb:{rock:"Rocks do not have branches. Birds love to sit on branches!"},h:H3("Birds sit on branches. What has branches?","We woke it up in Chapter 1!","T-R-E-E.")},
+{c:2,t:'s',say:"Wow! The giant tree has three tiny doors 🚪. A wooden sign says: “Find the door that shines in the day, but does not grow on a branch.”",btn:"Look at the doors"},
+{c:2,id:'star',t:'q',say:"Which door is it? Type LEAF, STAR or MOON to look at a door.",ans:['star'],b:'leaf star moon',give:'🗝️ Golden Key',clue:"The star door hid a golden key",fx:'door',ok:"Click! The star door opens. Inside is a golden key 🗝️ with a tiny, faded map tied to it!",fb:{leaf:"Leaves grow on branches. I wonder if we're looking for something different?",moon:"The moon likes the night. Can you think of something bright in the daytime?"},h:H3("Read the sign again. The door does NOT grow on a branch.","Think of the sky. Which shape twinkles, and is not the moon?","Look up in the sky! What sparkles above the trees? ✨ S-T-A-R.")},
+{c:3,t:'s',say:"Pip sits on a mossy stump and unrolls the map. 🗺️ It is old and faded. We must remember our walk to fix it!",btn:"Let's remember"},
+{c:3,id:'m1',t:'q',say:"First: which landmark had three little doors? 🚪 Type the word.",ans:['tree','big tree','giant tree'],b:'tree pond hill',map:'🌳',ok:"The giant tree is back on the map! 🌳",fb:{hill:"We did not see doors on a hill. Remember the giant...?"},h:H3("The doors were in something tall with leaves.","We woke one up in Chapter 1.","T-R-E-E.")},
+{c:3,id:'m2',t:'q',say:"Next, the map shows a ❓. Something sang there: tweet tweet! 🎵 Who sang?",ans:['bird'],b:'bird cat frog',map:'🐦',ok:"The singing place is back on the map! 🐦",h:H3("Remember who made the small prints?","It has wings and feathers.","B-I-R-D.")},
+{c:3,id:'m3',t:'q',say:"Now find the place with sparkling water! 💧 Pip sees a POND and a HILL on the map. Type one.",ans:['pond','lake'],b:'pond hill sun',map:'💧',ok:"The sparkling pond is back on the map! 💧",fb:{hill:"Hills are dry and bumpy. Look for sparkles on water!"},h:H3("We want water that sparkles.","A little pool of water: P-O-N-D.","Type P, O, N, D.")},
+{c:3,id:'m4',t:'q',say:"The last piece is torn. Who told us about the prints? 🐿️ Type their name to finish the map.",ans:['squirrel'],b:'squirrel bird cat',map:'❌',fx:'route',ok:"The map glows! A path shows the way to a hidden clearing! ✨",fb:{bird:"The bird made the prints, but someone else helped us. Who peeked out?",cat:"Cats were not in our story. Think of a bushy tail!"},h:H3("A friend with a bushy tail helped us.","It climbs trees and likes nuts.","S-Q-U-I-R-R-E-L. Try the word cards if you like!")},
+{c:4,t:'s',say:"The path leads to a hidden clearing! 🌟 There is an old chest with a star-shaped lock. It needs our key!",btn:"Try the key"},
+{c:4,id:'c1',t:'q',need:'Key',say:"The key turns... a tiny voice asks: “Who left the small footprints?”",ans:['bird'],b:'bird cat tree',ok:"“Correct!” says the chest. One more question!",fb:{squirrel:"Squirrel helped us. But who has feathers?"},h:H3("Small, three toes, and a feather.","It sings tweet tweet!","B-I-R-D.")},
+{c:4,id:'c2',t:'q',say:"“What shape was on the door where you found the key?”",ans:['star'],b:'star leaf moon',fx:'won',ok:"The lock clicks open! 🎉",fb:{leaf:"The leaf door was not the one with the key.",moon:"The moon door stayed closed. Which door opened?"},h:H3("Which door opened for us?","It twinkles in the sky.","S-T-A-R.")},
+{c:4,t:'f'}
+];
+const fresh=()=>({v:1,i:0,r:null,w:{},inv:[],cl:[],map:[],fx:[],ref:{},sound:false});
+function load(){try{const o=JSON.parse(localStorage.getItem(K));if(o&&o.v===1&&Number.isInteger(o.i)&&o.i>=0&&o.i<S.length&&['inv','cl','map','fx'].every(k=>Array.isArray(o[k]))&&o.w&&typeof o.w==='object'){o.ref=o.ref||{};return o}}catch(e){}return fresh()}
+let st=load(),bank=false,cur='';
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}};
+const has=f=>st.fx.includes(f);
+const lev=(a,b)=>{const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]};
+const norm=s=>s.toLowerCase().trim().replace(/\s+/g,' ');
+function speak(t,f){if((f||st.sound)&&window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[^\w\s.,!?'’:-]/g,'').replace(/\b([A-Z])-/g,'$1 '));u.rate=.85;speechSynthesis.speak(u)}}
+function chime(){if(!st.sound)return;try{const a=new (window.AudioContext||webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.frequency.value=660;g.gain.value=.08;o.connect(g);g.connect(a.destination);o.start();o.frequency.setTargetAtTime(880,a.currentTime,.1);o.stop(a.currentTime+.35)}catch(e){}}
+/* ---------- art ---------- */
+const T=(x,y,s,l)=>`<g transform="translate(${x} ${y}) scale(${s})"><g class="sway"><rect x="-10" y="-70" width="20" height="70" fill="#7a5230"/><circle cy="-90" r="42" fill="${l}"/><circle cx="-28" cy="-65" r="28" fill="${l}"/><circle cx="28" cy="-65" r="28" fill="${l}"/></g></g>`;
+const E=(x,y,sz,e,c='')=>`<text x="${x}" y="${y}" font-size="${sz}" class="${c}" text-anchor="middle">${e}</text>`;
+function scene(c){const sky=['#bfe3d0','#cfe8c8','#bcd9ee','#e8dcb8','#f6e7b0'][c];let b='';
+if(c==0){const n=['tree','sun','bird','water','flower'].filter(has).length,L=has('tree')?'#3f9b5a':'#8c9a8c';
+b+=`<circle class="spin" cx="680" cy="60" r="${has('sun')?34:30}" fill="${has('sun')?'#f5d442':'#b8c0c8'}"/>`+(has('sun')?`<g class="spin" transform-origin="680 60">${[0,45,90,135].map(a=>`<rect x="670" y="10" width="20" height="100" rx="10" fill="#f5d442" opacity=".4" transform="rotate(${a} 680 60)"/>`).join('')}</g>`:'')+
+`<rect y="250" width="800" height="80" fill="#6fb36f"/>`+(has('water')?`<ellipse cx="560" cy="300" rx="120" ry="18" fill="#5ab7e8"/>${E(520,305,26,'💧','tw')}${E(600,300,26,'✨','tw')}`:'')+T(150,255,1,L)+T(420,262,1.4,L)+T(700,255,1,L)+
+(has('bird')?E(0,120,44,'🐦','fly'):'')+(has('flower')?[80,250,330,500,640,740].map((x,i)=>E(x,300+i%2*14,36,'🌸','pop')).join('')+[200,380,560,700].map(x=>E(x,200,28,'✨','tw')).join(''):'')+
+`<rect width="800" height="330" fill="#1c2b3a" opacity="${.5-.1*n}"/>`}
+if(c==1){b+=`<rect y="230" width="800" height="100" fill="#6fb36f"/>`+T(80,240,1,'#3f9b5a')+T(730,240,1,'#3f9b5a')+`<path d="M400 330V240L190 150M400 240L610 150" stroke="#d9b97a" stroke-width="46" fill="none" stroke-linecap="round"/>`+E(170,150,54,'🍄')+E(230,190,40,'🍄')+[[560,175],[600,150],[640,130]].map(p=>`<ellipse cx="${p[0]}" cy="${p[1]}" rx="9" ry="13" fill="#7a5230"/><ellipse cx="${p[0]+22}" cy="${p[1]-8}" rx="9" ry="13" fill="#7a5230"/>`).join('')+E(640,100,40,'🐾','tw')+(st.i>=8?E(730,300,64,'🐿️','bob'):'')}
+if(c==2){const ds=has('door'),dr=(x,sy)=>`<g><rect x="${x}" y="190" width="58" height="82" rx="29 29 4 4" fill="#fff0c9" stroke="#5a3a1a" stroke-width="4"/>${sy}</g>`;
+b+=`<rect y="270" width="800" height="60" fill="#6fb36f"/><circle cx="400" cy="90" r="130" fill="#3f9b5a"/><rect x="300" y="100" width="200" height="180" rx="30" fill="#7a5230"/>`+
+dr(318,`<path d="M347 215c-16 14-16 36 0 46 16-10 16-32 0-46z" fill="#3f9b5a" stroke="#1f3a2b" stroke-width="3"/>`)+
+dr(371,`<polygon points="400,212 406,230 425,230 410,241 416,260 400,248 384,260 390,241 375,230 394,230" fill="#f5c400" stroke="#1f3a2b" stroke-width="3"/>`)+
+dr(424,`<path d="M462 218a22 22 0 1 0 6 36a18 18 0 0 1-6-36z" fill="#9aa6c9" stroke="#1f3a2b" stroke-width="3"/>`)+
+(ds?`<rect class="open" x="371" y="190" width="58" height="82" rx="29 29 4 4" fill="#a86e2c"/>${E(400,250,36,'🗝️','pop')}`:'')+E(190,260,60,'🪧')+T(110,270,1,'#3f9b5a')+T(700,270,1,'#3f9b5a')}
+if(c==3){const P={'🌳':[300,150],'🐦':[400,100],'💧':[490,190],'❌':[350,225]};
+b+=`<rect y="270" width="800" height="60" fill="#6fb36f"/><ellipse cx="400" cy="290" rx="150" ry="40" fill="#8b6a3e"/><ellipse cx="400" cy="280" rx="150" ry="32" fill="#a98652"/><rect x="230" y="40" width="340" height="215" rx="14" fill="#f3e2b3" stroke="#8b6a3e" stroke-width="5"/>`+
+[300,400,490,350].map((x,i)=>E(x,[150,100,190,225][i]+10,30,'❓','tw')).join('')+
+st.map.map(m=>E(P[m][0],P[m][1]+12,44,m,'pop')).join('')+
+(st.map.length>=4?`<path class="route" d="M300 150Q340 110 400 100T490 190Q430 220 350 225" stroke="#e0603a" stroke-width="6" stroke-dasharray="14 10" fill="none"/>`:'')}
+if(c==4){const w=has('won');b+=`<rect y="240" width="800" height="90" fill="#7fc47f"/>`+T(70,250,1.3,'#3f9b5a')+T(730,250,1.3,'#3f9b5a')+T(220,230,.9,'#4aa866')+T(590,230,.9,'#4aa866')+
+`<rect x="320" y="200" width="160" height="80" rx="10" fill="#a0642a" stroke="#5a3a1a" stroke-width="5"/><g ${w?'class="open" transform-origin="320 200"':''}><rect x="320" y="165" width="160" height="40" rx="14" fill="#b9772f" stroke="#5a3a1a" stroke-width="5"/></g>`+
+(w?E(400,200,56,'🗺️','pop')+[300,500,400].map((x,i)=>E(x,150-i*10,34,'✨','tw')).join(''):E(400,250,34,'⭐')+(st.inv.length?E(470,190,32,'🗝️','bob'):''))+(w?[120,680,200,600].map((x,i)=>E(x,300,36,['🐿️','🐦','🦊','🐰'][i],'bob')).join(''):'')}
+return `<svg viewBox="0 0 800 330" role="img" aria-label="Forest picture, chapter ${c+1}"><defs><symbol id="pip" viewBox="-40 -40 80 80"><g class="wing"><ellipse cx="-26" cy="-8" rx="16" ry="9" fill="#e6fbff" transform="rotate(-25 -26 -8)"/><ellipse cx="26" cy="-8" rx="16" ry="9" fill="#e6fbff" transform="rotate(25 26 -8)"/></g><circle r="22" fill="#ffd95a" stroke="#e0a800" stroke-width="3"/><circle cx="-8" cy="-4" r="3.5" fill="#333"/><circle cx="8" cy="-4" r="3.5" fill="#333"/><path d="M-8 7q8 8 16 0" stroke="#333" stroke-width="3" fill="none"/><path d="M-12 -20l12-16 12 16z" fill="#3f9b5a"/></symbol></defs><rect width="800" height="330" fill="${sky}"/>${b}<use href="#pip" x="30" y="30" width="110" height="110" class="bob"/></svg>`}
+/* ---------- ui ---------- */
+function render(){const s=S[st.i];let say,ctl='';
+if(s.t==='s'){say=s.say;ctl=`<button class="big" data-a="next">${s.btn} ➜</button>`}
+else if(s.t==='q'){
+if(s.need&&!st.inv.some(x=>x.includes(s.need))){say="Oh! We need the golden key first. Let's go back to the star door!";ctl=`<button class="big" data-a="goto">Go back ➜</button>`}
+else if(st.r){say=s.okBy?s.okBy[st.r]:s.ok;ctl=`<button class="big" data-a="next">Next ➜</button>`}
+else{say=s.say;const n=st.w[s.id]||0;
+ctl=`<form id="f" autocomplete="off"><label for="w">Type your word, then press Go (or Enter):</label><div class="row"><input id="w" maxlength="20" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type your word here"><button class="big" type="submit">Go! ✓</button><button type="button" data-a="clr" aria-label="Rub out">⌫ Rub out</button></div></form><div class="row"><button data-a="bank">🃏 Word cards</button>${s.demo?'<button data-a="demo">👀 Watch Pip type</button>':''}</div>${bank||n>=3?`<div class="row bank">${s.b.split(' ').map(w=>`<button data-w="${w}">${w}</button>`).join('')}</div>`:''}`}}
+else{say="";ctl=`<div class="title">🏅 You are a Friend of the Forest! 🏅</div><p>Pip says: “You found the Forest Keeper's map! The forest remembers its paths again. Look what you found:”</p><ul>${st.cl.map(c=>`<li>${c}</li>`).join('')}<li>🗝️ A golden key</li><li>🗺️ The Forest Keeper's map</li></ul>
+<p><b>Which clue helped you most?</b></p><div class="row">${['🚪 The doors','🐾 The footprints','🗺️ The map'].map(x=>`<button data-r="a|${x}" aria-pressed="${st.ref.a===x}">${st.ref.a===x?'✓ ':''}${x}</button>`).join('')}</div>
+<p><b>What did you do when you were not sure?</b></p><div class="row">${['🤔 Tried again','💡 Used a hint','🙋 Asked a friend'].map(x=>`<button data-r="b|${x}" aria-pressed="${st.ref.b===x}">${st.ref.b===x?'✓ ':''}${x}</button>`).join('')}</div><p>${st.ref.a&&st.ref.b?'Thank you! Great detective work! 🌟':''}</p>`}
+cur=say;
+app.innerHTML=`<header><h1>🌲 Forest of Forgotten Clues</h1><ol aria-label="Chapters">${CH.map((_,i)=>`<li class="${i<s.c?'d':i==s.c?'n':''}" aria-label="Chapter ${i+1}${i<s.c?' done':''}">${i<s.c?'✓':i+1}</li>`).join('')}</ol><div class="inv" aria-label="Your things">🎒 ${st.inv.join(' ')||'empty'}</div><div class="tools"><button data-a="read" aria-label="Read aloud">🔊</button><button data-a="snd" aria-pressed="${st.sound}" aria-label="Sound and auto-read">${st.sound?'🔔 On':'🔕 Off'}</button><button data-a="rst" aria-label="Start again">↺</button></div></header>
+<main><h2 style="margin:6px 4px">Chapter ${s.c+1}: ${CH[s.c]}</h2><div class="scene">${scene(s.c)}</div><section class="card">${say?`<div class="say" id="say" aria-live="polite">🧚 ${say.replace(/\b(TREE|SUN|BIRD|WATER|FLOWER|LEFT|RIGHT|SMALL|BIG|STAR|LEAF|MOON|POND|HILL|THREE)\b/g,'<b>$1</b>')}</div>`:''}${ctl}</section></main>`;
+const w=document.getElementById('w');if(w)w.focus();if(say)speak(say)}
+function say(t,c){const e=document.getElementById('say');if(e){e.className='say '+c;e.textContent='🧚 '+t}cur=t;speak(t)}
+function submit(raw){const s=S[st.i],v=norm(raw),w=document.getElementById('w');
+if(!v){say("Type a word, then press Go! ✍️",'hint');return}
+if(s.ans.includes(v)){const d=(a,x)=>{if(x&&!st[a].includes(x))st[a].push(x)};d('inv',s.give);d('cl',s.clue);d('map',s.map);d('fx',s.fx);st.r=v;save();chime();render();return}
+const near=s.ans.find(a=>a.length>3&&lev(a,v)<=1);
+if(near){say("So close! Check your letters: "+near.toUpperCase().split('').join(' ')+" 🔍",'hint')}
+else{const n=st.w[s.id]=(st.w[s.id]||0)+1;save();say(n==1?((s.fb&&s.fb[v])||s.h[0]):n==2?s.h[1]:s.h[2],'hint');if(n>=3&&!document.querySelector('.bank')){bank=true;const b=document.createElement('div');b.className='row bank';b.innerHTML=s.b.split(' ').map(x=>`<button data-w="${x}">${x}</button>`).join('');w.closest('section').appendChild(b)}}
+w.value='';w.focus()}
+function demo(){const w=document.getElementById('w'),t='TREE';w.value='';[...t].forEach((c,i)=>setTimeout(()=>{w.value+=c},500+i*600));setTimeout(()=>{say("See? Press Go now! ✓",'hint')},500+t.length*600)}
+document.addEventListener('submit',e=>{if(e.target.id==='f'){e.preventDefault();submit(document.getElementById('w').value)}});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+if(b.dataset.w){submit(b.dataset.w);return}
+if(b.dataset.r){const[k,v]=b.dataset.r.split('|');st.ref[k]=v;save();render();return}
+if(a==='next'){st.i=Math.min(st.i+1,S.length-1);st.r=null;bank=false;save();render()}
+else if(a==='goto'){st.i=S.findIndex(x=>x.id==='star');st.r=null;save();render()}
+else if(a==='bank'){bank=!bank;render()}
+else if(a==='clr'){const w=document.getElementById('w');w.value='';w.focus()}
+else if(a==='demo')demo();
+else if(a==='read')speak(cur,true);
+else if(a==='snd'){st.sound=!st.sound;if(!st.sound&&window.speechSynthesis)speechSynthesis.cancel();save();render()}
+else if(a==='rst'&&confirm('Start the adventure again? All progress will be cleared.')){try{localStorage.removeItem(K)}catch(x){}st=fresh();bank=false;render()}});
+const app=document.getElementById('app');render();
+</script></body></html>
