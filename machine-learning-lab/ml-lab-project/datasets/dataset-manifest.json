@@ -1,0 +1,155 @@
+{
+  "datasets": [
+    {
+      "id": "fruit",
+      "name": "Fruit Lab",
+      "description": "Learn with familiar apples, oranges and bananas. These classroom examples are prepared for this activity.",
+      "kind": "built-in",
+      "columns": [
+        {
+          "name": "size",
+          "label": "Size",
+          "type": "number",
+          "description": "How big the fruit is, on a scale from 1 to 10.",
+          "symbol": "\ud83d\udccf",
+          "unit": "score / 10"
+        },
+        {
+          "name": "sweetness",
+          "label": "Sweetness",
+          "type": "number",
+          "description": "How sweet the fruit is, on a scale from 1 to 10.",
+          "symbol": "\ud83c\udf6f",
+          "unit": "score / 10"
+        },
+        {
+          "name": "weight",
+          "label": "Weight",
+          "type": "number",
+          "description": "A simple classroom weight score.",
+          "symbol": "\u2696\ufe0f",
+          "unit": "score / 10"
+        },
+        {
+          "name": "colour",
+          "label": "Colour",
+          "type": "category",
+          "description": "The fruit's main colour.",
+          "symbol": "\ud83c\udfa8"
+        },
+        {
+          "name": "shape",
+          "label": "Shape",
+          "type": "category",
+          "description": "The fruit's general shape.",
+          "symbol": "\u25d2"
+        },
+        {
+          "name": "species",
+          "label": "Fruit name",
+          "type": "label",
+          "description": "The known fruit category.",
+          "symbol": "\ud83c\udff7\ufe0f"
+        }
+      ],
+      "targetColumn": "species",
+      "featureColumns": [
+        "size",
+        "sweetness",
+        "weight"
+      ],
+      "activities": [
+        "classification",
+        "clustering"
+      ],
+      "sourceUrl": "",
+      "licence": "Original classroom examples created for this project.",
+      "attribution": "Machine Learning Lab classroom dataset.",
+      "preprocessing": "Hand-authored teaching examples. Numeric scores are illustrative, not scientific measurements. Classification uses numeric size, sweetness and weight; clustering uses only selected numeric features.",
+      "kicker": "START HERE \u00b7 CLASSROOM DATA",
+      "artClass": "fruit-art",
+      "art": [
+        "\ud83c\udf4e",
+        "\ud83c\udf4a",
+        "\ud83c\udf4c"
+      ],
+      "cardTags": [
+        "Classification",
+        "Clustering"
+      ]
+    },
+    {
+      "id": "iris",
+      "name": "Iris Flower Lab",
+      "description": "Explore measurements from 150 real iris flowers collected for scientific study.",
+      "kind": "csv",
+      "assetPath": "./datasets/iris.csv",
+      "columns": [
+        {
+          "name": "sepal_length_cm",
+          "label": "Sepal length",
+          "type": "number",
+          "unit": "cm",
+          "description": "Length of the outer, leaf-like part of the flower.",
+          "symbol": "\ud83d\udccf"
+        },
+        {
+          "name": "sepal_width_cm",
+          "label": "Sepal width",
+          "type": "number",
+          "unit": "cm",
+          "description": "Width of the outer, leaf-like part of the flower.",
+          "symbol": "\u2194\ufe0f"
+        },
+        {
+          "name": "petal_length_cm",
+          "label": "Petal length",
+          "type": "number",
+          "unit": "cm",
+          "description": "Length of a flower petal.",
+          "symbol": "\ud83c\udf38"
+        },
+        {
+          "name": "petal_width_cm",
+          "label": "Petal width",
+          "type": "number",
+          "unit": "cm",
+          "description": "Width of a flower petal.",
+          "symbol": "\u2194\ufe0f"
+        },
+        {
+          "name": "species",
+          "label": "Fruit name",
+          "type": "label",
+          "description": "The flower type recorded by researchers. This is the answer for classification, never a clustering input.",
+          "symbol": "\ud83c\udff7\ufe0f"
+        }
+      ],
+      "targetColumn": "species",
+      "featureColumns": [
+        "sepal_length_cm",
+        "sepal_width_cm",
+        "petal_length_cm",
+        "petal_width_cm"
+      ],
+      "activities": [
+        "classification",
+        "clustering"
+      ],
+      "sourceUrl": "https://archive.ics.uci.edu/dataset/53/iris",
+      "licence": "CC BY 4.0 (verify current repository terms before redistribution outside this project).",
+      "attribution": "Iris dataset, UCI Machine Learning Repository. DOI: 10.24432/C56C76. Original data associated with R. A. Fisher (1936).",
+      "preprocessing": "CSV prepared from the classic 150-row Iris dataset. Measurements retain the original centimetre values and one decimal place; no rows were filtered. Column names were made web-friendly.",
+      "kicker": "REAL SCIENCE DATA",
+      "artClass": "iris-art",
+      "art": [
+        "\u273f",
+        "\ud83c\udf3f"
+      ],
+      "cardTags": [
+        "150 flowers",
+        "4 measurements"
+      ]
+    }
+  ]
+}

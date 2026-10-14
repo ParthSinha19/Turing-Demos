@@ -1,0 +1,9 @@
+{
+  "name": "machine-learning-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static browser-based classification and clustering lab for children",
+  "scripts": {
+    "check": "node --check src/app.js"
+  }
+}

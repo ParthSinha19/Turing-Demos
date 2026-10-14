@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5faff">
+  <meta name="description" content="A hands-on machine learning lab for children: learn classification and clustering with fruit and real flower measurements.">
+  <title>Machine Learning Lab</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Machine Learning Lab home"><span class="brand-mark">ML</span><span>Machine Learning <strong>Lab</strong></span></a>
+    <button id="reset-lab" class="quiet-button" type="button">↺ Reset lab</button>
+  </header>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">LOOK CLOSER. TRY SOMETHING.</p>
+        <h1>Machine Learning Lab<span class="period">.</span></h1>
+        <p class="hero-subtitle">Teach a computer with examples. Then discover how it finds patterns.</p>
+        <div class="hero-tags"><span>🔎 Explore data</span><span>🧠 Try a model</span><span>🌱 Discover patterns</span></div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="leaf leaf-a"></div><div class="leaf leaf-b"></div><div class="flower"><i></i><i></i><i></i><i></i><i></i><b></b></div><div class="art-dot dot-a"></div><div class="art-dot dot-b"></div><div class="art-dot dot-c"></div></div>
+    </section>
+
+    <section class="dataset-section" aria-labelledby="dataset-heading">
+      <div class="section-heading"><div><p class="eyebrow">YOUR INVESTIGATION</p><h2 id="dataset-heading">Choose your data</h2></div><p class="section-note">Start with familiar fruit, then try real flower measurements.</p></div>
+      <div id="dataset-cards" class="dataset-cards" role="group" aria-label="Choose a dataset"></div>
+      <div id="dataset-intro" class="dataset-intro" aria-live="polite"></div>
+    </section>
+
+    <section class="activity-section" aria-labelledby="activity-heading">
+      <div class="section-heading activity-title"><div><p class="eyebrow">PICK AN EXPERIMENT</p><h2 id="activity-heading">What should the computer try?</h2></div></div>
+      <div class="activity-switch" role="tablist" aria-label="Machine learning activity">
+        <button id="tab-classification" class="activity-tab active" role="tab" aria-selected="true" aria-controls="activity-panel" data-activity="classification" type="button"><span class="tab-icon">🏷️</span><span><strong>Classification</strong><small>Learn from examples with answers</small></span><span class="tab-arrow">↗</span></button>
+        <button id="tab-clustering" class="activity-tab" role="tab" aria-selected="false" aria-controls="activity-panel" data-activity="clustering" type="button"><span class="tab-icon">🫧</span><span><strong>Clustering</strong><small>Find groups without the answers</small></span><span class="tab-arrow">↗</span></button>
+      </div>
+      <div id="activity-panel" class="activity-panel" role="tabpanel" aria-labelledby="tab-classification">
+        <div class="panel-topline"><div><span class="step-pill" id="activity-step">EXPERIMENT 01</span><h3 id="activity-title">Can the computer learn from examples?</h3><p id="activity-description" class="muted">We show the computer examples with answers. It looks for patterns and uses them to make a prediction about something new.</p></div><div class="mini-illustration" id="activity-illustration" aria-hidden="true">🍎<span>→</span>❔</div></div>
+        <div class="stage-track" aria-label="Experiment stages"><div class="stage active"><span>1</span><small>Explore</small></div><div class="stage"><span>2</span><small>Choose</small></div><div class="stage"><span>3</span><small>Run model</small></div><div class="stage"><span>4</span><small>Investigate</small></div></div>
+        <div id="feature-controls" class="feature-controls"></div>
+        <div id="experiment-content" class="experiment-content"></div>
+      </div>
+    </section>
+    <footer class="page-footer"><span>Made for curious minds.</span><span>All experiments run in your browser · No account needed</span></footer>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./src/app.js" defer></script>
+</body>
+</html>
