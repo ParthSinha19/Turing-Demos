@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Space Detectives: The Lost Star Lantern</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS","Comic Sans MS",system-ui,sans-serif;background:#e9eefc;color:#16204a;font-size:22px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 16px;background:#1b2559;color:#fff}
+h1{font-size:1.05em;margin:0}
+ol{display:flex;gap:6px;list-style:none;margin:0;padding:0}
+ol li{width:38px;height:38px;border-radius:50%;border:3px solid #9fb0ee;display:grid;place-items:center;font-weight:700}
+ol li.d{background:#ffd95a;color:#16204a;border-color:#ffd95a}ol li.n{background:#fff;color:#1b2559;border-color:#ffd95a;outline:3px dashed #ffd95a;outline-offset:2px}
+.inv{background:#10183f;border-radius:12px;padding:4px 10px;min-height:42px;display:flex;gap:8px;align-items:center;font-size:.8em}
+.tools{display:flex;gap:6px}
+button{font:inherit;cursor:pointer;min-height:52px;min-width:52px;border-radius:16px;border:3px solid #1b2559;background:#fff;color:#16204a;padding:6px 14px}
+button:hover{background:#fff4c2}
+button:focus-visible,input:focus-visible{outline:5px solid #ff9f1c;outline-offset:2px}
+button.big{background:#ffd95a;font-weight:700;font-size:1.1em;border-color:#c99700}
+main{max-width:960px;margin:0 auto;padding:12px}
+.scene{border-radius:24px;overflow:hidden;border:5px solid #1b2559;background:#10163a}
+.scene svg{display:block;width:100%;height:auto}
+.card{background:#fffdf3;border:4px solid #8e9be0;border-radius:24px;padding:16px 20px;margin-top:12px}
+.say{font-size:1.15em;line-height:1.5;min-height:3.2em}
+.say.hint{background:#fff1c9;border-radius:14px;padding:8px 12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
+input{font:inherit;font-size:1.5em;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:16px;border:4px solid #1b2559;flex:1;min-width:160px;min-height:62px}
+label{display:block;font-size:.8em;margin-top:8px}
+.bank button{font-size:1.2em;text-transform:uppercase;background:#e6f0ff}
+.title{font-size:1.6em;text-align:center}
+li{margin:4px 0}
+.bob{animation:bob 2.4s ease-in-out infinite}
+.fly{animation:fly 9s linear infinite}
+.tw{animation:tw 1.6s ease-in-out infinite}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 30s linear infinite}
+.open{transform-box:fill-box;transform-origin:left;animation:dr .9s forwards}
+.route{stroke-dasharray:600;animation:rt 3s forwards}
+.pop{animation:pop .8s}
+@keyframes bob{50%{transform:translateY(-10px)}}
+@keyframes fly{from{transform:translateX(-80px)}to{transform:translateX(900px)}}
+@keyframes tw{50%{opacity:.2}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes dr{to{transform:scaleX(.15)}}
+@keyframes rt{from{stroke-dashoffset:600}to{stroke-dashoffset:0}}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.route{stroke-dasharray:none}.open{transform:scaleX(.15)}}
+</style></head><body>
+<div id="app"></div>
+<script>
+const K='space-clues-v1',CH=['The Station Wakes','The Moon Dust Mystery','The Three Round Hatches','The Star Chart That Forgot','The Lost Star Lantern'];
+const H=(a,b,c)=>[a,b,c];
+const S=[
+{c:0,t:'s',say:"Beep boop! I am Bleep the robot. 🤖 The space station is dark and quiet. It forgot its magic words! Will you help me, Space Detective?",btn:"Yes, let's go!"},
+{c:0,id:'star',t:'q',demo:1,say:"Words wake up space! Type the word STAR and press Go. Press “Watch Bleep” to see how.",ans:['star'],b:'star moon rocket',fx:'star',ok:"Twinkle twinkle! ⭐ The stars are shining!",fb:{moon:"The moon is big and round. We need the little twinkly lights!"},h:H("Look at the big word: STAR.","The letters are S, T, A, R.","Press S, then T, then A, then R. Then press Go!")},
+{c:0,id:'moon',t:'q',say:"The sky needs a big, round, silver light. Type MOON. 🌙",ans:['moon'],b:'moon star sun',fx:'moon',ok:"The moon glows! 🌙 It is so bright.",fb:{star:"Stars are tiny. We need the big round light!"},h:H("It glows at night and is round like a ball.","M, O, O, N. Two O's!","Press M, O, O, N. Then Go!")},
+{c:0,id:'rocket',t:'q',say:"Something zooms with fire and goes whoosh! Type ROCKET. 🚀",ans:['rocket'],b:'rocket moon car',fx:'rocket',ok:"Whoosh! A rocket lands! 🚀",fb:{car:"Cars stay on the ground. This one flies to space!"},h:H("Astronauts ride in it to space.","It goes 3, 2, 1... R-O-C-K-E-T.","Press R, O, C, K, E, T. Then Go!")},
+{c:0,id:'earth',t:'q',say:"Look far away! Our home is a blue and green ball. Type EARTH. 🌍",ans:['earth'],b:'earth moon star',fx:'earth',ok:"There is Earth! 🌍 It looks so small from here!",fb:{moon:"The moon is grey. Our home is blue and green!"},h:H("It is where we all live.","E-A-R-T-H.","Press E, A, R, T, H. Then Go!")},
+{c:0,t:'s',say:"Beep! Look! 🐾 Tiny glowing prints in the moon dust! Who made them? Let's follow them!",btn:"Follow the prints"},
+{c:1,id:'fork',t:'q',say:"The path splits in two. On the LEFT is a deep crater 🕳️. On the RIGHT are glowing prints 🐾. Type LEFT or RIGHT.",ans:['left','right'],b:'left right',okBy:{left:"A crater! It is empty, nobody is hiding here. But look, glowing prints go the other way! Let's go there.",right:"Yes! The prints go this way. Let's look closer!"},h:H("Type LEFT for the crater, or RIGHT for the prints.","Both are fine! Pick one.","Type L-E-F-T or R-I-G-H-T.")},
+{c:1,id:'size',t:'q',say:"A space rabbit 🐰 hops out. “Those are not my prints! Are they BIG or SMALL?”",ans:['small'],b:'big small',clue:"The prints were small 🔎",ok:"Yes, SMALL! The prints are tiny. 🔎",fb:{big:"Big feet make big dents. These dents are tiny! Look again."},h:H("Look at the picture. Are the prints as big as a boot?","They are as tiny as your thumb.","They are SMALL. S-M-A-L-L.")},
+{c:1,id:'toes',t:'q',say:"“Let's count the toes,” says Rabbit. How many? Type the number word: TWO, FOUR or FIVE.",ans:['four','4'],b:'two four five',clue:"The prints had four toes",ok:"Four toes! 👣 That is a good clue.",fb:{two:"Count again. There are more toes than that!",five:"Count again. There is one fewer toe!"},h:H("Point at each toe on the screen and count.","Each print has 1, 2, 3, ... toes.","It is FOUR. F-O-U-R.")},
+{c:1,id:'who',t:'q',say:"Small feet, four toes, and three eyes 👁️! Rabbit asks: “Which space friend has three eyes?”",ans:['alien'],b:'alien dog fish',clue:"A small alien made the prints",ok:"An alien! 👽 A little alien left the prints.",fb:{dog:"Dogs have two eyes. Who is green with three eyes?",fish:"Fish swim in water. There is no water on the moon!"},h:H("Who comes from another planet?","Green, with three eyes!","A-L-I-E-N.")},
+{c:1,id:'where',t:'q',say:"Rabbit points up. “The alien hopped into the big ___ !” 🚀 Type the word.",ans:['rocket'],b:'rocket tree boat',clue:"The prints led to the big rocket",ok:"Yes! The prints lead to a big rocket!",fb:{tree:"Trees do not grow on the moon! What flies to space?",boat:"Boats sail on water. What flies to space?"},h:H("It flies to space with fire.","We made one land in Chapter 1!","R-O-C-K-E-T.")},
+{c:2,t:'s',say:"Wow! The big rocket has three round hatches 🚪. A sign says: “Find the door with a ring around it, but it is not a ball you can throw.”",btn:"Look at the hatches"},
+{c:2,id:'planet',t:'q',say:"Which hatch is it? Type MOON, COMET or PLANET to look at one.",ans:['planet'],b:'moon comet planet',give:'🔑 Star Key',clue:"The planet hatch hid a star key",fx:'door',ok:"Click! The planet hatch opens. Inside is a star key 🔑 with a tiny, faded star chart tied to it!",fb:{moon:"The moon is a crescent and has no ring. What else is in space?",comet:"A comet has a long tail, not a ring. I wonder if we're looking for something different?",rocket:"We are already inside the rocket! Look at the hatches."},h:H("Read the sign again. We want a ring.","Which hatch has a ring around a round ball?","Look for the ball with a ring, like Saturn! P-L-A-N-E-T.")},
+{c:3,t:'s',say:"Bleep unrolls the chart on the control panel. 🗺️ It is old and faded. Let's remember our trip to fix it!",btn:"Let's remember"},
+{c:3,id:'m1',t:'q',say:"First: which big ship had three round hatches? 🚪 Type the word.",ans:['rocket','big rocket'],b:'rocket moon planet',map:'🚀',ok:"The rocket is back on the chart! 🚀",fb:{moon:"The moon has no hatches. Think of something that goes whoosh!"},h:H("It flies with fire.","We found a key inside it.","R-O-C-K-E-T.")},
+{c:3,id:'m2',t:'q',say:"Next, a ❓ shows who left the glowing prints. 🐾 Type their name.",ans:['alien'],b:'alien rabbit dog',map:'👽',ok:"The alien is back on the chart! 👽",fb:{rabbit:"Rabbit helped us, but who made the prints? Three eyes!"},h:H("Small, four toes, three eyes.","It is green and comes from space.","A-L-I-E-N.")},
+{c:3,id:'m3',t:'q',say:"Now find the place with the ring! 🪐 Bleep sees a PLANET and a COMET on the chart. Type one.",ans:['planet'],b:'planet comet moon',map:'🪐',ok:"The ringed planet is back on the chart! 🪐",fb:{comet:"A comet has a tail, not a ring. Look for the ring!"},h:H("We want the one with a ring.","A ball with a ring: P-L-A-N-E-T.","Type P, L, A, N, E, T.")},
+{c:3,id:'m4',t:'q',say:"The last piece is torn. Who told us about the prints? 🐰 Type their name to finish the chart.",ans:['rabbit'],b:'rabbit alien dog',map:'🌟',fx:'route',ok:"The chart glows! A path shows the way to a hidden asteroid garden! ✨",fb:{alien:"The alien made the prints, but someone else helped us. Who hopped out?",dog:"Dogs were not in our story. Think of long ears!"},h:H("A friend with long ears helped us.","It hops and loves carrots.","R-A-B-B-I-T. Try the word cards if you like!")},
+{c:4,t:'s',say:"The path leads to a hidden asteroid garden! 🌟 There is a glowing box with a ring-shaped lock. It needs our key!",btn:"Try the key"},
+{c:4,id:'c1',t:'q',need:'Key',say:"The key turns... a tiny voice asks: “Who left the small prints?”",ans:['alien'],b:'alien rabbit dog',ok:"“Correct!” says the box. One more question!",fb:{rabbit:"Rabbit helped us. But who has three eyes?"},h:H("Small, four toes, three eyes.","It is green!","A-L-I-E-N.")},
+{c:4,id:'c2',t:'q',say:"“What was on the hatch where you found the key?” Type its name.",ans:['planet','saturn'],b:'planet moon comet',fx:'won',ok:"The lock clicks open! 🎉",fb:{moon:"The moon hatch stayed closed. Which hatch opened?",comet:"The comet hatch stayed closed. Which hatch opened?"},h:H("Which hatch opened for us?","It had a ring around it.","P-L-A-N-E-T.")},
+{c:4,t:'f'}
+];
+const fresh=()=>({v:1,i:0,r:null,w:{},inv:[],cl:[],map:[],fx:[],ref:{},sound:false});
+function load(){try{const o=JSON.parse(localStorage.getItem(K));if(o&&o.v===1&&Number.isInteger(o.i)&&o.i>=0&&o.i<S.length&&['inv','cl','map','fx'].every(k=>Array.isArray(o[k]))&&o.w&&typeof o.w==='object'){o.ref=o.ref||{};return o}}catch(e){}return fresh()}
+let st=load(),bank=false,cur='';
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}};
+const has=f=>st.fx.includes(f);
+const lev=(a,b)=>{const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]};
+const norm=s=>s.toLowerCase().trim().replace(/\s+/g,' ');
+function speak(t,f){if((f||st.sound)&&window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[^\w\s.,!?'’:-]/g,'').replace(/\b([A-Z])-/g,'$1 '));u.rate=.85;speechSynthesis.speak(u)}}
+function chime(){if(!st.sound)return;try{const a=new (window.AudioContext||webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.frequency.value=660;g.gain.value=.08;o.connect(g);g.connect(a.destination);o.start();o.frequency.setTargetAtTime(880,a.currentTime,.1);o.stop(a.currentTime+.35)}catch(e){}}
+/* ---------- art ---------- */
+const E=(x,y,sz,e,c='')=>`<text x="${x}" y="${y}" font-size="${sz}" class="${c}" text-anchor="middle">${e}</text>`;
+const stars=(n,c)=>Array.from({length:n},(_,i)=>`<circle cx="${i*137%800}" cy="${i*61%230+8}" r="${1+i%3}" fill="#fff" class="${c&&i%2?'tw':''}"/>`).join('');
+const ground=`<ellipse cx="400" cy="345" rx="520" ry="100" fill="#b9bccd"/><ellipse cx="150" cy="285" rx="30" ry="8" fill="#9a9db3"/><ellipse cx="640" cy="300" rx="42" ry="10" fill="#9a9db3"/>`;
+function scene(c){const sky=['#10163a','#1b1650','#0f2a4a','#241447','#0b1f3a'][c];let b='';
+if(c==0){const n=['star','moon','rocket','earth'].filter(has).length;
+b+=stars(has('star')?40:6,has('star'))+`<circle cx="150" cy="90" r="50" fill="${has('moon')?'#f3efd0':'#555a78'}"/>`+(has('moon')?`<circle cx="135" cy="80" r="9" fill="#d8d3a8"/><circle cx="170" cy="105" r="12" fill="#d8d3a8"/>`:'')+
+`<circle class="spin" cx="680" cy="80" r="40" fill="${has('earth')?'#3d8bd9':'#555a78'}"/>`+(has('earth')?`<path d="M660 65q18-14 30 4q-6 16-22 10zM680 95q16-6 20 8q-12 8-20-8z" fill="#58b368"/>`:'')+ground+(has('rocket')?E(470,285,80,'🚀','bob'):'')+`<rect width="800" height="330" fill="#000" opacity="${.5-.12*n}"/>`}
+if(c==1){b+=stars(30,1)+`<circle cx="650" cy="70" r="36" fill="#3d8bd9"/>`+ground+`<path d="M400 330V250L200 190M400 250L610 190" stroke="#dcdff0" stroke-width="44" fill="none" stroke-linecap="round"/><ellipse cx="190" cy="190" rx="50" ry="16" fill="#555a78"/>`+[[540,215],[585,198],[630,182]].map(p=>[0,1,2,3].map(k=>`<circle cx="${p[0]+k*8-10}" cy="${p[1]+(k%2)*8}" r="4" fill="#ffe36b" class="tw"/>`).join('')+`<ellipse cx="${p[0]+6}" cy="${p[1]+20}" rx="12" ry="9" fill="#ffe36b" class="tw"/>`).join('')+(st.i>=7?E(730,300,64,'🐰','bob'):'')}
+if(c==2){const o=has('door'),h=(x,s)=>`<circle cx="${x}" cy="215" r="42" fill="#dfe8ff" stroke="#1b2559" stroke-width="5"/>${s}`;
+b+=stars(30,1)+`<rect y="285" width="800" height="45" fill="#b9bccd"/><path d="M400 20C330 70 310 150 310 285H490C490 150 470 70 400 20z" fill="#e9ecf7" stroke="#8e9be0" stroke-width="5"/><circle cx="400" cy="95" r="20" fill="#7fc4ff" stroke="#1b2559" stroke-width="4"/>`+
+h(345,`<circle cx="345" cy="215" r="14" fill="#c97bd9"/><ellipse cx="345" cy="215" rx="30" ry="8" fill="none" stroke="#7b3fa0" stroke-width="5"/>`)+
+h(400,`<circle cx="410" cy="212" r="10" fill="#6fa8dc"/><path d="M402 218L370 240M404 210L372 226M410 222L386 250" stroke="#6fa8dc" stroke-width="5"/>`)+
+h(455,`<path d="M462 197a20 20 0 1 0 6 32a16 16 0 0 1-6-32z" fill="#9aa6c9" stroke="#1b2559" stroke-width="3"/>`)+
+(o?`<circle class="open" cx="345" cy="215" r="42" fill="#7a82b8"/>${E(345,230,34,'🔑','pop')}`:'')+E(190,285,56,'🪧')+E(640,285,50,'🤖','bob')}
+if(c==3){const P={'🚀':[310,120],'👽':[400,95],'🪐':[500,170],'🌟':[360,215]};
+b+=stars(25,1)+`<rect y="285" width="800" height="45" fill="#2a3470"/><rect x="200" y="30" width="400" height="235" rx="16" fill="#142a5c" stroke="#8e9be0" stroke-width="6"/>`+
+[310,400,500,360].map((x,i)=>E(x,[130,105,180,225][i],30,'❓','tw')).join('')+st.map.map(m=>E(P[m][0],P[m][1]+14,46,m,'pop')).join('')+
+(st.map.length>=4?`<path class="route" d="M310 120Q350 80 400 95T500 170Q430 210 360 215" stroke="#ffd95a" stroke-width="6" stroke-dasharray="14 10" fill="none"/>`:'')}
+if(c==4){const w=has('won');b+=stars(35,1)+`<ellipse cx="400" cy="330" rx="480" ry="100" fill="#6b5fa8"/>`+E(90,270,60,'💎','tw')+E(710,270,60,'💎','tw')+E(210,285,40,'☄️','bob')+
+`<rect x="320" y="190" width="160" height="85" rx="12" fill="#3b4a9c" stroke="#ffd95a" stroke-width="5"/><g ${w?'class="open" transform-origin="320 190"':''}><rect x="320" y="155" width="160" height="40" rx="14" fill="#4a5cc0" stroke="#ffd95a" stroke-width="5"/></g>`+
+(w?E(400,190,64,'🏮','pop')+[300,500,400,250,550].map((x,i)=>E(x,120-i*8,34,'✨','tw')).join('')+[110,690,200,600].map((x,i)=>E(x,300,40,['🐰','👽','🤖','🛸'][i],'bob')).join(''):E(400,245,36,'🪐')+(st.inv.length?E(470,185,32,'🔑','bob'):''))}
+return `<svg viewBox="0 0 800 330" role="img" aria-label="Space picture, chapter ${c+1}"><defs><symbol id="bl" viewBox="-40 -40 80 80"><path d="M0-22V-36" stroke="#cfd8e3" stroke-width="4"/><circle cy="-38" r="5" fill="#ff7a7a"/><rect x="-28" y="-22" width="56" height="44" rx="14" fill="#cfd8e3" stroke="#6f7fa8" stroke-width="3"/><circle cx="-10" cy="-4" r="6" fill="#33c3ff"/><circle cx="10" cy="-4" r="6" fill="#33c3ff"/><path d="M-9 10q9 7 18 0" stroke="#16204a" stroke-width="3" fill="none"/></symbol></defs><rect width="800" height="330" fill="${sky}"/>${b}<use href="#bl" x="30" y="30" width="110" height="110" class="bob"/></svg>`}
+/* ---------- ui ---------- */
+function render(){const s=S[st.i];let say,ctl='';
+if(s.t==='s'){say=s.say;ctl=`<button class="big" data-a="next">${s.btn} ➜</button>`}
+else if(s.t==='q'){
+if(s.need&&!st.inv.some(x=>x.includes(s.need))){say="Oh! We need the star key first. Let's go back to the hatches!";ctl=`<button class="big" data-a="goto">Go back ➜</button>`}
+else if(st.r){say=s.okBy?s.okBy[st.r]:s.ok;ctl=`<button class="big" data-a="next">Next ➜</button>`}
+else{say=s.say;const n=st.w[s.id]||0;
+ctl=`<form id="f" autocomplete="off"><label for="w">Type your word, then press Go (or Enter):</label><div class="row"><input id="w" maxlength="20" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type your word here"><button class="big" type="submit">Go! ✓</button><button type="button" data-a="clr" aria-label="Rub out">⌫ Rub out</button></div></form><div class="row"><button data-a="bank">🃏 Word cards</button>${s.demo?'<button data-a="demo">👀 Watch Bleep</button>':''}</div>${bank||n>=3?`<div class="row bank">${s.b.split(' ').map(w=>`<button data-w="${w}">${w}</button>`).join('')}</div>`:''}`}}
+else{say="";ctl=`<div class="title">🏅 You are a Friend of the Stars! 🏅</div><p>Bleep says: “You found the Star Lantern! The stars shine again. Look what you found:”</p><ul>${st.cl.map(c=>`<li>${c}</li>`).join('')}<li>🔑 A star key</li><li>🏮 The Star Lantern</li></ul>
+<p><b>Which clue helped you most?</b></p><div class="row">${['🚪 The hatches','🐾 The prints','🗺️ The star chart'].map(x=>`<button data-r="a|${x}" aria-pressed="${st.ref.a===x}">${st.ref.a===x?'✓ ':''}${x}</button>`).join('')}</div>
+<p><b>What did you do when you were not sure?</b></p><div class="row">${['🤔 Tried again','💡 Used a hint','🙋 Asked a friend'].map(x=>`<button data-r="b|${x}" aria-pressed="${st.ref.b===x}">${st.ref.b===x?'✓ ':''}${x}</button>`).join('')}</div><p>${st.ref.a&&st.ref.b?'Thank you! Great detective work! 🌟':''}</p>`}
+cur=say;
+app.innerHTML=`<header><h1>🚀 Space Detectives</h1><ol aria-label="Chapters">${CH.map((_,i)=>`<li class="${i<s.c?'d':i==s.c?'n':''}" aria-label="Chapter ${i+1}${i<s.c?' done':''}">${i<s.c?'✓':i+1}</li>`).join('')}</ol><div class="inv" aria-label="Your things">🎒 ${st.inv.join(' ')||'empty'}</div><div class="tools"><button data-a="read" aria-label="Read aloud">🔊</button><button data-a="snd" aria-pressed="${st.sound}" aria-label="Sound and auto-read">${st.sound?'🔔 On':'🔕 Off'}</button><button data-a="rst" aria-label="Start again">↺</button></div></header>
+<main><h2 style="margin:6px 4px">Chapter ${s.c+1}: ${CH[s.c]}</h2><div class="scene">${scene(s.c)}</div><section class="card">${say?`<div class="say" id="say" aria-live="polite">🤖 ${say.replace(/\b(STAR|MOON|ROCKET|EARTH|LEFT|RIGHT|SMALL|BIG|ALIEN|PLANET|COMET|FOUR|TWO|FIVE|RABBIT)\b/g,'<b>$1</b>')}</div>`:''}${ctl}</section></main>`;
+const w=document.getElementById('w');if(w)w.focus();if(say)speak(say)}
+function say(t,c){const e=document.getElementById('say');if(e){e.className='say '+c;e.textContent='🤖 '+t}cur=t;speak(t)}
+function submit(raw){const s=S[st.i],v=norm(raw),w=document.getElementById('w');
+if(!v){say("Type a word, then press Go! ✍️",'hint');return}
+if(s.ans.includes(v)){const d=(a,x)=>{if(x&&!st[a].includes(x))st[a].push(x)};d('inv',s.give);d('cl',s.clue);d('map',s.map);d('fx',s.fx);st.r=v;save();chime();render();return}
+const near=s.ans.find(a=>a.length>3&&lev(a,v)<=1);
+if(near){say("So close! Check your letters: "+near.toUpperCase().split('').join(' ')+" 🔍",'hint')}
+else{const n=st.w[s.id]=(st.w[s.id]||0)+1;save();say(n==1?((s.fb&&s.fb[v])||s.h[0]):n==2?s.h[1]:s.h[2],'hint');if(n>=3&&!document.querySelector('.bank')){bank=true;const b=document.createElement('div');b.className='row bank';b.innerHTML=s.b.split(' ').map(x=>`<button data-w="${x}">${x}</button>`).join('');w.closest('section').appendChild(b)}}
+w.value='';w.focus()}
+function demo(){const w=document.getElementById('w'),t='STAR';w.value='';[...t].forEach((c,i)=>setTimeout(()=>{w.value+=c},500+i*600));setTimeout(()=>{say("See? Press Go now! ✓",'hint')},500+t.length*600)}
+document.addEventListener('submit',e=>{if(e.target.id==='f'){e.preventDefault();submit(document.getElementById('w').value)}});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+if(b.dataset.w){submit(b.dataset.w);return}
+if(b.dataset.r){const[k,v]=b.dataset.r.split('|');st.ref[k]=v;save();render();return}
+if(a==='next'){st.i=Math.min(st.i+1,S.length-1);st.r=null;bank=false;save();render()}
+else if(a==='goto'){st.i=S.findIndex(x=>x.id==='planet');st.r=null;save();render()}
+else if(a==='bank'){bank=!bank;render()}
+else if(a==='clr'){const w=document.getElementById('w');w.value='';w.focus()}
+else if(a==='demo')demo();
+else if(a==='read')speak(cur,true);
+else if(a==='snd'){st.sound=!st.sound;if(!st.sound&&window.speechSynthesis)speechSynthesis.cancel();save();render()}
+else if(a==='rst'&&confirm('Start the adventure again? All progress will be cleared.')){try{localStorage.removeItem(K)}catch(x){}st=fresh();bank=false;render()}});
+const app=document.getElementById('app');render();
+</script></body></html>
