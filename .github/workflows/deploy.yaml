@@ -31,7 +31,15 @@ jobs:
           npm ci
           npm run build
           cp -r dist/* .
-
+      
+      - name: Build The Last Signal
+        run: |
+          cd the-last-signal
+          npm ci
+          npm run build
+          cp -r dist/* .
+          cd ..
+          
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
