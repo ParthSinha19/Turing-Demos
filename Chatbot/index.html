@@ -62,7 +62,7 @@
   .step{
     flex:1;text-align:center;padding:10px 4px;border-radius:14px;
     background:rgba(255,255,255,0.06);color:rgba(247,245,255,0.55);
-    font-weight:700;font-size:0.72rem;border:2px solid transparent;
+    font-weight:700;font-size:0.8rem;border:2px solid transparent;
     transition:all .25s ease;
   }
   .step .num{
@@ -131,7 +131,7 @@
     background:#FBFAFF;border:2px solid #E7E2F5;border-radius:var(--radius-md);
     padding:14px 16px;margin-bottom:12px;position:relative;
   }
-  .kcard .topic{font-weight:800;color:var(--violet-deep);margin-bottom:4px;}
+  .kcard .topic{font-weight:800;color:var(--violet-deep);margin-bottom:4px;padding-right:70px;}
   .kcard .remove{position:absolute;top:10px;right:12px;background:none;border:none;color:#B7AEDA;font-size:1.1rem;}
   .add-card-form{background:#F1EEFC;border-radius:var(--radius-md);padding:16px;margin-top:10px;}
 
@@ -157,7 +157,7 @@
   .chat-input-row{display:flex;gap:10px;}
   .chat-input-row input{flex:1;}
 
-  /* Investigate flow */
+  /* Flow */
   .flow{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
   .flow-step{display:flex;align-items:center;gap:12px;background:#FBFAFF;border-left:5px solid var(--violet);border-radius:12px;padding:12px 16px;}
   .flow-step .icon{font-size:1.4rem;}
@@ -185,9 +185,7 @@
   .badge{display:inline-block;background:var(--amber);color:#5B3A00;font-weight:800;font-size:0.7rem;padding:3px 10px;border-radius:999px;margin-left:8px;}
   .note{background:#FFF3DE;border-radius:12px;padding:12px 14px;font-size:0.88rem;color:#8A6200;margin-top:14px;}
 
-  .reflect-q{margin-bottom:18px;}
-
-  /* Teacher modal */
+  /* Modals */
   .modal-backdrop{position:fixed;inset:0;background:rgba(18,10,36,0.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;}
   .modal{background:#fff;border-radius:var(--radius-lg);max-width:640px;width:100%;max-height:85vh;overflow-y:auto;padding:28px;}
   .modal h2{margin-top:0;}
@@ -195,7 +193,118 @@
   .modal dd{margin:4px 0 0;color:#3A3352;}
 
   .hidden{display:none !important;}
-  .fallback-note{font-size:0.82rem;color:#8A6200;background:#FFF3DE;padding:6px 10px;border-radius:8px;display:inline-block;margin-top:8px;}
+
+  /* ===================== Visual refresh ===================== */
+  body::before{
+    content:"";position:fixed;inset:-20%;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(40% 35% at 20% 25%, rgba(124,77,255,.35), transparent 70%),
+      radial-gradient(35% 30% at 80% 70%, rgba(0,229,160,.18), transparent 70%),
+      radial-gradient(30% 30% at 70% 15%, rgba(255,107,139,.18), transparent 70%);
+    animation:drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift{to{transform:translate3d(3%,-2%,0) scale(1.08);}}
+  .brand .dot{animation:glow 2.4s ease-in-out infinite;}
+  @keyframes glow{50%{box-shadow:0 0 22px var(--mint);transform:scale(1.2);}}
+  .topbar-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+  .step{position:relative;backdrop-filter:blur(6px);cursor:pointer;}
+  .step:not(:last-child)::after{content:"";position:absolute;top:23px;right:-8px;width:10px;height:2px;background:rgba(255,255,255,.2);}
+  .step.active{box-shadow:0 0 0 4px rgba(124,77,255,.18), 0 8px 24px rgba(124,77,255,.35);transform:translateY(-2px);}
+  .step.done .num{font-size:0;}
+  .step.done .num::before{content:"✓";font-size:.8rem;}
+
+  .panel{
+    border:1px solid rgba(255,255,255,.7);
+    background:linear-gradient(180deg,#fff 0%,#FBFAFF 100%);
+    overflow:hidden;
+  }
+  .panel::before{
+    content:"";position:absolute;inset:0 0 auto 0;height:6px;
+    background:linear-gradient(90deg,var(--violet),var(--mint),var(--amber),var(--coral));
+  }
+  .panel h2{letter-spacing:.2px;}
+
+  .primary-btn{background:linear-gradient(135deg,var(--violet),var(--violet-deep));}
+  .primary-btn:hover{box-shadow:0 12px 28px rgba(124,77,255,.5);}
+  .primary-btn:active{transform:scale(.97);}
+  .secondary-btn,.ghost-btn,.suggestion-chip,.avatar-choice{transition:transform .15s ease, box-shadow .15s ease, background .15s ease;}
+  .secondary-btn:hover,.ghost-btn:hover,.suggestion-chip:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(27,16,53,.12);}
+  .avatar-choice:hover{transform:scale(1.1) rotate(-4deg);}
+  .avatar-choice.selected{box-shadow:0 0 0 4px rgba(124,77,255,.2);}
+  input[type=text]:focus,textarea:focus{box-shadow:0 0 0 4px rgba(124,77,255,.15);}
+
+  .chat-window{
+    background:
+      radial-gradient(circle at 1px 1px, #E7E2F5 1px, transparent 0) 0 0/18px 18px,
+      #FBFAFF;
+    scroll-behavior:smooth;
+  }
+  .msg{animation:pop .25s ease;box-shadow:0 2px 6px rgba(27,16,53,.06);}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.96);}to{opacity:1;transform:none;}}
+  .msg.user{background:linear-gradient(135deg,var(--violet),var(--violet-deep));}
+  .msg.bot{position:relative;margin-left:36px;}
+  .msg.bot::before{
+    content:var(--bot-avatar,"🤖");
+    position:absolute;left:-38px;bottom:0;width:30px;height:30px;
+    display:flex;align-items:center;justify-content:center;font-size:1.05rem;
+    background:#fff;border:2px solid #E7DEFF;border-radius:50%;
+  }
+  .msg.thinking::after{content:"●";letter-spacing:3px;color:var(--violet);animation:dots 1.1s steps(1) infinite;}
+  @keyframes dots{0%{content:"●";}33%{content:"●●";}66%{content:"●●●";}}
+
+  .kcard{transition:transform .15s ease, box-shadow .15s ease;}
+  .kcard:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(124,77,255,.12);}
+  .challenge{transition:transform .2s ease, border-color .2s ease;}
+  .challenge:hover{transform:translateY(-3px);}
+  .challenge.done{animation:celebrate .6s ease;}
+  @keyframes celebrate{40%{transform:scale(1.05);}}
+  .venn .box{box-shadow:0 4px 10px rgba(27,16,53,.06);}
+
+  /* Knowledge packs */
+  .pack-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px;}
+  .pack{
+    background:#F1EEFC;border:2px solid transparent;border-radius:16px;padding:10px 14px;
+    font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .pack span{font-size:1.4rem;}
+  .pack:hover{transform:translateY(-2px);border-color:var(--violet);}
+  .pack.added{background:#E4FBF2;border-color:var(--mint);}
+  .pack.added::after{content:"✓";color:#0A9A6C;}
+
+  /* My Bots modal */
+  .slot{display:flex;align-items:center;gap:12px;background:#FBFAFF;border:2px solid #E7E2F5;border-radius:16px;padding:10px 14px;margin-bottom:10px;}
+  .slot-av{font-size:1.8rem;}
+  .slot-txt{flex:1;display:flex;flex-direction:column;}
+  .slot-txt small{color:#8A80A8;}
+  .modal h3{margin:18px 0 8px;color:var(--navy);}
+
+  /* Confetti */
+  .confetti{position:fixed;top:35vh;width:9px;height:14px;border-radius:2px;z-index:80;pointer-events:none;animation:fall 1.5s ease-out forwards;}
+  @keyframes fall{to{transform:translate(var(--dx),60vh) rotate(var(--rot));opacity:0;}}
+
+  /* ===================== 3-stage additions ===================== */
+  .mini-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 0 22px;font-weight:800;font-size:.85rem;color:var(--navy);}
+  .mini-flow span.pill{background:#F1EEFC;border-radius:999px;padding:8px 14px;}
+  .mini-flow span.arr{color:#B7AEDA;}
+
+  .kcard .edit{position:absolute;top:8px;right:40px;background:none;border:none;font-size:1rem;}
+  .kcard .tag{display:inline-block;margin-top:8px;font-size:.75rem;font-weight:800;background:#F1EEFC;color:var(--violet-deep);padding:3px 10px;border-radius:999px;}
+  .kcard.editing{border-color:var(--violet);background:#fff;}
+  .kcard.editing textarea{margin-top:8px;min-height:60px;}
+
+  .challenge-grid.mini{gap:10px;margin-bottom:6px;}
+  .challenge-grid.mini .challenge{padding:10px 12px;border-radius:14px;}
+  .challenge-grid.mini h3{font-size:.9rem;margin-bottom:2px;}
+  .challenge-grid.mini p{font-size:.78rem;}
+
+  .msg.bot .why{margin-top:8px;font-size:.8rem;background:#fff;border:1px solid #E7DEFF;border-radius:10px;padding:8px 10px;color:#3A3352;}
+  .msg.bot .why div{margin:3px 0;}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;}
+  }
 </style>
 </head>
 <body>
@@ -205,58 +314,28 @@
 <div class="app">
   <div class="topbar">
     <div class="brand"><span class="dot"></span> AI Lab</div>
-    <button class="teacher-btn" id="teacherBtn">🧑‍🏫 Teacher Info</button>
+    <div class="topbar-actions">
+      <button class="teacher-btn" id="saveMenuBtn">💾 My Bots</button>
+      <button class="teacher-btn" id="teacherBtn">🧑‍🏫 Teacher Info</button>
+    </div>
   </div>
 
   <div class="stepper" id="stepper">
     <div class="step" data-step="0"><div class="num">1</div>Build</div>
-    <div class="step" data-step="1"><div class="num">2</div>Teach</div>
-    <div class="step" data-step="2"><div class="num">3</div>Chat</div>
-    <div class="step" data-step="3"><div class="num">4</div>Investigate</div>
-    <div class="step" data-step="4"><div class="num">5</div>Challenge</div>
-    <div class="step" data-step="5"><div class="num">6</div>Reflect</div>
+    <div class="step" data-step="1"><div class="num">2</div>Train</div>
+    <div class="step" data-step="2"><div class="num">3</div>Test</div>
   </div>
 
-  <!-- STEP 0: WELCOME / BUILD -->
-  <div class="panel" id="panel-welcome">
-    <h2>Where do a chatbot's answers come from? 🤔</h2>
-    <p class="sub">Before you build anything — take a guess. When you ask a chatbot a question, where do you think its answer comes from?</p>
-    <div class="suggestion-row">
-      <button class="suggestion-chip" data-guess="It reads your mind">It reads your mind</button>
-      <button class="suggestion-chip" data-guess="It looks things up on the internet live">It looks things up live</button>
-      <button class="suggestion-chip" data-guess="It uses knowledge + instructions it was given">Knowledge + instructions</button>
-      <button class="suggestion-chip" data-guess="It's a real person typing">A real person typing</button>
-    </div>
-    <div id="welcomeAnswer" class="note hidden"></div>
-    <div class="flow" style="margin-top:22px;">
-      <div class="flow-step"><span class="icon">❓</span><div><b>Your question</b> goes in</div></div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-step"><span class="icon">🧠</span><div><b>AI model</b> uses information + instructions</div></div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-step"><span class="icon">💬</span><div>It gives you a <b>response</b></div></div>
-    </div>
-    <div class="note">Today's AI already knows lots of things — but it doesn't know <i>you</i>. You're about to fix that.</div>
-    <div class="actions"><button class="primary-btn" id="toMeetBtn">Meet the AI →</button></div>
-  </div>
-
-  <!-- STEP: MEET THE AI -->
-  <div class="panel hidden" id="panel-meet">
-    <h2>Meet the AI 🤖</h2>
-    <p class="sub">This is the same AI model everyone in class will use — but you'll decide what it knows and how it behaves.</p>
-    <div class="chat-window" style="height:220px;">
-      <div class="msg user">What's Jupiter?</div>
-      <div class="msg bot">Jupiter is the largest planet in our Solar System — a giant ball of gas!</div>
-      <div class="msg user">What's my favourite game?</div>
-      <div class="msg bot">I don't know that yet — nobody's taught me! You can teach me in a minute. 😊</div>
-    </div>
-    <div class="note">See that second answer? The AI didn't make something up — it honestly said it doesn't know. That's exactly what a good AI should do.</div>
-    <div class="actions"><button class="primary-btn" id="toBuildBtn">Build my own bot →</button></div>
-  </div>
-
-  <!-- STEP 1: BUILD -->
-  <div class="panel hidden" id="panel-build">
+  <!-- STAGE 1: BUILD -->
+  <div class="panel" id="panel-build">
     <h2>Build Your Bot 🛠️</h2>
-    <p class="sub">Design your chatbot's identity. You can change any of this later.</p>
+    <p class="sub">Stage 1 of 3 — design your chatbot's identity. You can come back and change any of this later.</p>
+
+    <div class="mini-flow">
+      <span class="pill">❓ Your question</span><span class="arr">→</span>
+      <span class="pill">🧠 AI + your notes</span><span class="arr">→</span>
+      <span class="pill">💬 Answer</span>
+    </div>
 
     <div class="row">
       <div class="col">
@@ -285,104 +364,77 @@
       <div class="slider-labels"><span>✂️ Short answers</span><span>📖 Detailed answers</span></div>
       <input type="range" min="0" max="100" value="40" id="sliderLength">
     </div>
+    <div class="slider-block">
+      <div class="slider-labels"><span>🐟 Forgets quickly</span><span>🐘 Remembers the chat</span></div>
+      <input type="range" min="0" max="3" step="1" value="0" id="sliderMemory">
+    </div>
 
-    <div class="actions"><button class="primary-btn" id="toTeachBtn">Next: Teach My Bot →</button></div>
+    <div class="actions spread">
+      <button class="ghost-btn" id="resetBtn">🔄 Start over</button>
+      <button class="primary-btn" id="toTeachBtn">Next: Train my bot →</button>
+    </div>
   </div>
 
-  <!-- STEP 2: TEACH -->
+  <!-- STAGE 2: TRAIN -->
   <div class="panel hidden" id="panel-teach">
-    <h2>Teach My Bot 📚</h2>
-    <p class="sub">Add information you want your bot to know. You are <b>not</b> retraining the AI — you're giving it notes it can read when it answers you.</p>
+    <h2>Train Your Bot 📚</h2>
+    <p class="sub">Stage 2 of 3 — add notes your bot can read when it answers. You are <b>not</b> retraining the AI. Every card is editable, <b>including pack cards</b>, and your bot's answers change straight away.</p>
 
     <div id="knowledgeList"></div>
 
     <div class="add-card-form">
       <label class="field-label">Topic</label>
-      <input type="text" id="newTopic" placeholder="e.g. My Favourite Game">
+      <input type="text" id="newTopic" maxlength="60" placeholder="e.g. My Favourite Game">
       <label class="field-label" style="margin-top:10px;">What should your bot know?</label>
-      <textarea id="newInfo" placeholder="e.g. My favourite game is Minecraft. I like building castles and exploring caves."></textarea>
-      <div class="actions" style="margin-top:12px;"><button class="secondary-btn" id="addCardBtn">➕ Add this knowledge card</button></div>
+      <textarea id="newInfo" maxlength="400" placeholder="e.g. My favourite game is Minecraft. I like building castles and exploring caves."></textarea>
+      <div class="note" style="margin-top:10px;">Tip: using a topic that already exists (even from a pack) <b>updates</b> that card.</div>
+      <div id="cardFeedback" class="note hidden" style="background:#E4FBF2;color:#0A9A6C;"></div>
+      <div class="actions" style="margin-top:12px;"><button class="secondary-btn" id="addCardBtn">➕ Add / update card</button></div>
     </div>
+
+    <h3 style="margin:22px 0 10px;color:var(--navy);">📦 Knowledge packs <span class="badge">click to add or remove</span></h3>
+    <div class="pack-grid" id="packGrid"></div>
 
     <div class="venn">
       <div class="box"><b>🧠 AI's built-in<br>knowledge</b></div>
       <div class="sym">+</div>
-      <div class="box taught"><b>📚 Your<br>knowledge</b></div>
+      <div class="box taught"><b>📚 Your<br>cards</b></div>
       <div class="sym">+</div>
       <div class="box instr"><b>🎛️ Your<br>instructions</b></div>
       <div class="sym">=</div>
       <div class="box result"><b>🤖 Your<br>chatbot</b></div>
     </div>
 
-    <div class="actions"><button class="primary-btn" id="toChatBtn">Next: Chat With My Bot →</button></div>
+    <div class="actions spread">
+      <button class="ghost-btn" id="backToBuildBtn">← Back to Build</button>
+      <button class="primary-btn" id="toChatBtn">Next: Test my bot →</button>
+    </div>
   </div>
 
-  <!-- STEP 3: CHAT -->
+  <!-- STAGE 3: TEST -->
   <div class="panel hidden" id="panel-chat">
-    <h2 id="chatHeader">Chat With Your Bot 💬</h2>
-    <p class="sub">Try asking these four kinds of question:</p>
-    <div class="suggestion-row" id="chatSuggestions"></div>
+    <h2 id="chatHeader">Test Your Bot 💬</h2>
+    <p class="sub">Stage 3 of 3 — ask questions and check the answers. Not right? Jump back to <b>Train</b> and re-train your bot.</p>
+
+    <div class="challenge-grid mini">
+      <div class="challenge" id="ch1"><h3>1. Teach It <span class="tick hidden">✔</span></h3><p>Add your own card, then ask about it.</p></div>
+      <div class="challenge" id="ch2"><h3>2. Change Its Personality <span class="tick hidden">✔</span></h3><p>Move a personality slider a long way, then ask again.</p></div>
+      <div class="challenge" id="ch3"><h3>3. Try to Break It <span class="tick hidden">✔</span></h3><p>Ask: "What is the secret password of the Moon?"</p></div>
+      <div class="challenge" id="ch4"><h3>4. Fill the Gap <span class="tick hidden">✔</span></h3><p>Get an "I don't know", then teach it the answer.</p></div>
+    </div>
+
+    <div class="suggestion-row" id="chatSuggestions" style="margin-top:14px;"></div>
     <div class="chat-window" id="chatWindow"></div>
     <div class="chat-input-row">
       <input type="text" id="chatInput" placeholder="Ask your bot something...">
       <button class="primary-btn" id="sendBtn">Send</button>
     </div>
-    <div class="actions"><button class="primary-btn" id="toInvestigateBtn">Next: AI Detective 🔍</button></div>
-  </div>
-
-  <!-- STEP 4: INVESTIGATE -->
-  <div class="panel hidden" id="panel-investigate">
-    <h2>AI Detective 🔍</h2>
-    <p class="sub">Pick a question, ask your bot, then click <b>"How did my bot answer?"</b> to see how it thought it through.</p>
-    <div class="chat-window" id="investigateWindow" style="height:220px;"></div>
-    <div class="chat-input-row">
-      <input type="text" id="investigateInput" placeholder="Ask a question to investigate...">
-      <button class="primary-btn" id="investigateSendBtn">Send</button>
-    </div>
-    <div id="investigateFlow"></div>
-    <div class="actions"><button class="primary-btn" id="toChallengeBtn">Next: Bot Challenge 🏆</button></div>
-  </div>
-
-  <!-- STEP 5: CHALLENGE -->
-  <div class="panel hidden" id="panel-challenge">
-    <h2>Bot Challenge 🏆</h2>
-    <p class="sub">Complete each mini-challenge using the chat box below.</p>
-    <div class="challenge-grid">
-      <div class="challenge" id="ch1"><h3>1. Teach It <span class="tick hidden">✔</span></h3><p>Add a brand-new knowledge card, then ask your bot about it.</p></div>
-      <div class="challenge" id="ch2"><h3>2. Change Its Personality <span class="tick hidden">✔</span></h3><p>Move a personality slider all the way, then ask the same question again.</p></div>
-      <div class="challenge" id="ch3"><h3>3. Try to Break It <span class="tick hidden">✔</span></h3><p>Ask something strange, like "What is the secret password of the Moon?"</p></div>
-      <div class="challenge" id="ch4"><h3>4. Human vs AI <span class="tick hidden">✔</span></h3><p>Type one thing <i>you</i> know that your bot doesn't.</p></div>
-    </div>
-    <div class="chat-window" id="challengeWindow" style="height:220px;margin-top:16px;"></div>
-    <div class="chat-input-row">
-      <input type="text" id="challengeInput" placeholder="Chat here to complete the challenges...">
-      <button class="primary-btn" id="challengeSendBtn">Send</button>
-    </div>
-    <div class="actions">
-      <button class="ghost-btn" id="backToBuildBtn">⚙️ Tweak my bot</button>
-      <button class="primary-btn" id="toReflectBtn">Next: Final Reflection →</button>
-    </div>
-  </div>
-
-  <!-- STEP 6: REFLECT -->
-  <div class="panel hidden" id="panel-reflect">
-    <h2>Final Reflection ✨</h2>
-    <div class="reflect-q">
-      <label class="field-label">What did you teach your AI?</label>
-      <textarea id="r1"></textarea>
-    </div>
-    <div class="reflect-q">
-      <label class="field-label">What changed when you changed its instructions?</label>
-      <textarea id="r2"></textarea>
-    </div>
-    <div class="reflect-q">
-      <label class="field-label">What is one thing your AI couldn't answer?</label>
-      <textarea id="r3"></textarea>
-    </div>
-    <div class="note" style="font-size:1.05rem;text-align:center;">You didn't just use AI today. <b>You designed how an AI system behaves.</b></div>
     <div class="actions spread">
-      <button class="ghost-btn" id="resetBtn">🔄 Reset My Bot</button>
-      <button class="secondary-btn" id="backToChallengeBtn">← Back to Challenge</button>
+      <button class="ghost-btn" id="clearChatBtn">🧹 Clear chat</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="ghost-btn" id="tweakBtn">⚙️ Tweak personality</button>
+        <button class="primary-btn" id="retrainBtn">✏️ Re-train my bot</button>
+      </div>
     </div>
   </div>
 </div>
@@ -402,6 +454,8 @@
     <dl>
       <dt>What are students learning?</dt>
       <dd>The difference between an AI's built-in knowledge and information a person supplies, how instructions shape tone and behaviour, and why AI should admit uncertainty instead of guessing.</dd>
+      <dt>What are the three stages?</dt>
+      <dd><b>Build</b> (name, avatar, personality), <b>Train</b> (add and edit knowledge cards) and <b>Test</b> (chat, check answers, then go back to Train to improve). The loop Train → Test → re-train is the point of the activity.</dd>
       <dt>What AI model is this?</dt>
       <dd>This activity uses SmolLM2-360M-Instruct, a small open language model (about 360 million parameters) chosen specifically because it's light and fast enough to run smoothly in a browser on ordinary school laptops. The <code>MODEL_ID</code> constant near the top of the script can be swapped for a larger model (e.g. a Qwen model) if you want stronger general knowledge and have faster classroom devices — replies will be slower.</dd>
       <dt>What does Transformers.js do?</dt>
@@ -409,11 +463,15 @@
       <dt>Why does it run in the browser?</dt>
       <dd>No server, account or database is needed. Nothing a student types leaves their device — it's ideal for a classroom with safeguarding requirements.</dd>
       <dt>What does "teaching" the bot actually mean?</dt>
-      <dd>Students are not retraining the model. Their knowledge cards and instructions are added as context alongside each question, which the model reads before answering.</dd>
+      <dd>Students are not retraining the model. Their knowledge cards and instructions are added as context alongside each question, which the model reads before answering. Only the cards relevant to the question are included each time.</dd>
+      <dt>How do knowledge packs work?</dt>
+      <dd>A pack is just a quick way to add a set of ready-made cards. They are ordinary cards: students can edit them, and the bot's answers change immediately. There are no pre-written answers — everything the bot says is generated from the current card text.</dd>
+      <dt>What does the "remembers the chat" slider do?</dt>
+      <dd>It controls how many of the previous question-and-answer pairs are shown to the model with each new question — a simple way to see how an AI's short-term memory works.</dd>
       <dt>Why does the bot sometimes say "I don't know"?</dt>
-      <dd>It's prompted to only rely on its own general knowledge or what the student typed — and to say so honestly when neither covers the question.</dd>
-      <dt>Why no accounts or database?</dt>
-      <dd>Everything is stored in the browser's sessionStorage only, for privacy and simplicity, and clears when the browser tab/session ends.</dd>
+      <dd>It's designed to only rely on its own general knowledge or what the student typed — and to say so honestly when neither covers the question. Questions about the student ("my favourite…") with no matching card always get an honest "I don't know".</dd>
+      <dt>Where is a student's work saved?</dt>
+      <dd>Their working bot lives in sessionStorage and clears when the tab closes. "Save current bot" stores it in localStorage on that device, and Export / Share link let them move it elsewhere. Nothing is sent to a server.</dd>
       <dt>How is it accessed?</dt>
       <dd>The activity is a static site hosted on GitHub Pages, shared with students via a short Bitly link — no install required.</dd>
     </dl>
@@ -421,8 +479,30 @@
   </div>
 </div>
 
+<!-- My Bots modal -->
+<div class="modal-backdrop hidden" id="botsModal">
+  <div class="modal">
+    <h2>💾 My Bots</h2>
+    <p class="sub" style="margin-bottom:14px;">Saved on <b>this device only</b>. Use Export or Share to move a bot somewhere else.</p>
+    <div id="slotList"></div>
+    <div class="actions spread" style="margin-top:12px;">
+      <button class="secondary-btn" id="saveSlotBtn">💾 Save current bot</button>
+      <button class="ghost-btn" id="exportBtn">⬇️ Export</button>
+      <button class="ghost-btn" id="importBtn">⬆️ Import</button>
+      <button class="ghost-btn" id="shareBtn">🔗 Copy share link</button>
+      <input type="file" id="importFile" accept=".json,application/json" class="hidden">
+    </div>
+    <h3>⭐ Starter bots</h3>
+    <div id="starterList"></div>
+    <div class="actions">
+      <button class="ghost-btn" id="clearSlotsBtn">🗑 Clear all saved bots</button>
+      <button class="primary-btn" id="closeBots">Close</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-import { pipeline, TextStreamer } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0";
+import { pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0";
 
 /* ---------- Starfield background ---------- */
 const canvas = document.getElementById('stars');
@@ -443,26 +523,39 @@ function drawStars(){
 drawStars();
 
 /* ---------- State (sessionStorage) ---------- */
-const STORAGE_KEY = "ailab_bot_state_v1";
+const STORAGE_KEY = "ailab_bot_state_v2";
+const MAX_CARDS = 40;
+const uid = ()=>Math.random().toString(36).slice(2,9);
 const defaultState = {
-  step: 0,
-  bot: { name:"", desc:"", avatar:"🤖", friendly:20, funny:30, length:40 },
-  knowledge: [],
-  chatLog: [],
+  bot: { name:"", desc:"", avatar:"🤖", friendly:20, funny:30, length:40, memory:0 },
+  knowledge: [],            // {id, topic, info, pid?, edited?, t}
+  chatLog: [],              // {role, text, trace?, direct?}
   challenges: {ch1:false, ch2:false, ch3:false, ch4:false},
-  slidersMovedFar: false
+  slidersMovedFar: false,
+  sawIDK: false,
+  currentPanel: "build"
 };
 let state = loadState();
+ensureIds();
 
 function loadState(){
   try{
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if(raw) return {...structuredClone(defaultState), ...JSON.parse(raw)};
+    if(raw){
+      const saved = JSON.parse(raw);
+      const merged = {...structuredClone(defaultState), ...saved};
+      merged.bot = {...defaultState.bot, ...(saved.bot||{})};
+      merged.challenges = {...defaultState.challenges, ...(saved.challenges||{})};
+      return merged;
+    }
   }catch(e){}
   return structuredClone(defaultState);
 }
 function saveState(){
   try{ sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+function ensureIds(){
+  state.knowledge.forEach(k=>{ if(!k.id) k.id = uid(); if(!k.t) k.t = 0; });
 }
 
 /* ---------- Avatars ---------- */
@@ -476,17 +569,134 @@ AVATARS.forEach(a=>{
 });
 function renderAvatars(){
   [...avatarGrid.children].forEach(el=>el.classList.toggle('selected', el.textContent===state.bot.avatar));
+  document.documentElement.style.setProperty('--bot-avatar', JSON.stringify(state.bot.avatar));
 }
 
-/* ---------- Built-in curated knowledge (small, kid-friendly) ---------- */
-const BUILTIN_FACTS = `
-- Space: Jupiter is the largest planet in the Solar System. Mars is called the Red Planet. The Moon orbits the Earth roughly every 27 days.
-- Animals & nature: Octopuses have three hearts. A group of lions is called a pride. Rainforests hold more than half of the world's plant and animal species.
-- Science & tech: Robots are machines that can sense and act in the world. Coding means giving a computer step-by-step instructions. AI models learn patterns from lots of examples.
-- Games & pop culture: Minecraft is a building and exploration game. Roblox lets players create and play games made by others. Pokémon are creatures that trainers collect and battle with.
-- Sport & scientists: Marie Curie won two Nobel Prizes for her work on radioactivity. The football World Cup happens every four years.
-- Fun facts: Honey never spoils. A day on Venus is longer than its year.
-`;
+/* ---------- Built-in knowledge (the AI's own "notes") ---------- */
+// Keep `keys` specific. Generic words like "game", "food" or "planet" cause false matches.
+const BUILTIN = [
+  {topic:"Jupiter", keys:"biggest largest giant", info:"Jupiter is the largest planet in the Solar System. It has a giant storm called the Great Red Spot."},
+  {topic:"Mars", keys:"red", info:"Mars is called the Red Planet because rusty iron dust covers its surface."},
+  {topic:"Saturn", keys:"rings", info:"Saturn is famous for its beautiful rings made of ice and rock."},
+  {topic:"Venus", keys:"hot", info:"A day on Venus is longer than its year. It is the hottest planet."},
+  {topic:"Moon", keys:"lunar", info:"The Moon orbits the Earth roughly every 27 days. Astronauts first walked on it in 1969."},
+  {topic:"Sun", keys:"star daylight", info:"The Sun is a star. It is so big that over a million Earths could fit inside it."},
+  {topic:"Earth", keys:"home ocean", info:"Earth is our home planet. About 70% of its surface is covered by water."},
+  {topic:"Octopus", keys:"octopuses hearts", info:"Octopuses have three hearts and blue blood."},
+  {topic:"Lion", keys:"lions pride", info:"A group of lions is called a pride."},
+  {topic:"Blue whale", keys:"whales ocean", info:"The blue whale is the largest animal known to have ever lived."},
+  {topic:"Cheetah", keys:"fastest speed", info:"The cheetah is the fastest land animal and can run faster than 100 km/h in short bursts."},
+  {topic:"Rainforest", keys:"rainforests jungle", info:"Rainforests are home to a huge share of the world's plant and animal species."},
+  {topic:"Photosynthesis", keys:"plants sunlight leaves", info:"Plants use sunlight, water and air to make their own food. This is called photosynthesis."},
+  {topic:"Water cycle", keys:"rain evaporation clouds", info:"Water evaporates, forms clouds, falls as rain, then collects and starts again. This is the water cycle."},
+  {topic:"Gravity", keys:"falling", info:"Gravity is a force that pulls things toward each other. It keeps us on the ground."},
+  {topic:"Dinosaurs", keys:"dinosaur fossils extinct", info:"Most dinosaurs died out about 66 million years ago. Fossils help scientists learn about them."},
+  {topic:"Robots", keys:"robot", info:"Robots are machines that can sense and act in the world."},
+  {topic:"Coding", keys:"code programming", info:"Coding means giving a computer step-by-step instructions."},
+  {topic:"Artificial intelligence", keys:"ai chatbot model", info:"AI models learn patterns from lots of examples. They do not think or feel like people. A chatbot is a program that chats with people."},
+  {topic:"Binary", keys:"bits", info:"Computers store everything as 0s and 1s, called binary."},
+  {topic:"Internet safety", keys:"password online private", info:"Never share your passwords or private details like your address online. Ask a trusted adult if unsure."},
+  {topic:"Minecraft", keys:"blocks", info:"Minecraft is a building and exploration game where you place blocks and craft things."},
+  {topic:"Roblox", keys:"creating", info:"Roblox lets players create games and play games made by other people."},
+  {topic:"Pokémon", keys:"pokemon trainers", info:"Pokémon are creatures that trainers collect and battle with."},
+  {topic:"Marie Curie", keys:"curie radioactivity nobel", info:"Marie Curie won two Nobel Prizes for her work on radioactivity."},
+  {topic:"World Cup", keys:"worldcup tournament", info:"The football World Cup happens every four years."},
+  {topic:"Honey", keys:"bees spoil", info:"Honey never spoils. Bees make it from flower nectar."},
+  {topic:"Volcano", keys:"volcanoes lava", info:"A volcano is an opening in the ground where hot melted rock called lava can escape."},
+  {topic:"Rainbow", keys:"colours colors", info:"A rainbow appears when sunlight shines through raindrops and splits into colours."},
+  {topic:"Human body", keys:"heart brain bones skeleton", info:"Adults have 206 bones. The heart is a muscle that pumps blood around your body."}
+];
+
+/* ---------- Knowledge packs = ready-made CARDS (no canned answers) ---------- */
+const PACKS = [
+  {icon:"🦖", name:"Dinosaurs", cards:[
+    {topic:"T. rex", info:"Tyrannosaurus rex was a huge meat-eating dinosaur with tiny arms and very strong jaws."},
+    {topic:"Triceratops", info:"Triceratops had three horns and a big bony frill. It ate plants."},
+    {topic:"Dinosaur ending", info:"Most dinosaurs died out about 66 million years ago, probably after a giant asteroid hit Earth."},
+    {topic:"Birds and dinosaurs", info:"Scientists think modern birds are living relatives of dinosaurs."}]},
+  {icon:"⚽", name:"Football", cards:[
+    {topic:"Football team", info:"A football team has 11 players on the pitch, including one goalkeeper."},
+    {topic:"Football match", info:"A football match lasts 90 minutes, split into two halves."},
+    {topic:"Goalkeeper", info:"The goalkeeper is the only player allowed to use their hands, and only inside their own penalty area."},
+    {topic:"Penalty", info:"A penalty kick is taken from 12 yards out with only the goalkeeper defending."}]},
+  {icon:"⛏️", name:"Minecraft", cards:[
+    {topic:"Creeper", info:"A creeper is a green Minecraft mob that sneaks up and explodes."},
+    {topic:"Crafting table", info:"You use a crafting table to make tools, weapons and other items."},
+    {topic:"Redstone", info:"Redstone is a material used to build circuits and machines in Minecraft."},
+    {topic:"Nether portal", info:"A Nether portal is built from obsidian and lit with flint and steel."}]},
+  {icon:"🚀", name:"Space Mission", cards:[
+    {topic:"Space station", info:"The International Space Station orbits Earth and astronauts from many countries live and work on it."},
+    {topic:"Rocket speed", info:"A rocket must travel about 28,000 km/h to stay in orbit around Earth."},
+    {topic:"Neil Armstrong", info:"Neil Armstrong was the first person to walk on the Moon, in 1969."},
+    {topic:"Astronaut food", info:"Astronauts eat food from sealed packets, and drinks are sipped through straws so nothing floats away."}]},
+  {icon:"🐾", name:"Animals", cards:[
+    {topic:"Cats", info:"Cats sleep for around 12 to 16 hours a day."},
+    {topic:"Dogs", info:"Dogs have a sense of smell much stronger than a human's."},
+    {topic:"Penguins", info:"Penguins are birds that cannot fly but are excellent swimmers."},
+    {topic:"Elephants", info:"Elephants are the largest land animals and use their trunks like a hand."}]},
+  {icon:"🍕", name:"Food", cards:[
+    {topic:"Pizza", info:"Modern pizza comes from Naples in Italy."},
+    {topic:"Chocolate", info:"Chocolate is made from cacao beans that grow on cacao trees."},
+    {topic:"Fruit and veg", info:"Fruit and vegetables give your body vitamins that help you stay healthy."},
+    {topic:"Bread", info:"Bread rises because yeast makes tiny bubbles of gas in the dough."}]},
+  {icon:"🎵", name:"Music", cards:[
+    {topic:"Piano", info:"A standard piano has 88 keys."},
+    {topic:"Guitar", info:"A standard guitar has six strings."},
+    {topic:"Orchestra", info:"An orchestra has families of instruments: strings, woodwind, brass and percussion."},
+    {topic:"Tempo", info:"Tempo is how fast or slow a piece of music is played."}]}
+];
+const packByName = n => PACKS.find(p=>p.name===n);
+const packCards = n => packByName(n).cards.map((c,i)=>({topic:c.topic, info:c.info, pid:`${n}#${i}`}));
+
+const STARTERS = [
+  {bot:{name:"Captain Cosmo", desc:"a cheerful space explorer who loves planets and rockets", avatar:"🚀", friendly:15, funny:20, length:40, memory:1}, knowledge:packCards("Space Mission")},
+  {bot:{name:"Professor Paws", desc:"a calm animal expert who shares careful facts", avatar:"🦉", friendly:70, funny:80, length:70, memory:2}, knowledge:packCards("Animals")},
+  {bot:{name:"Pixel", desc:"a playful gaming buddy who loves building worlds", avatar:"👾", friendly:10, funny:10, length:30, memory:1}, knowledge:packCards("Minecraft")}
+];
+
+/* ---------- Retrieval: only relevant cards go into the prompt ---------- */
+const STOP = new Set("what whats is are was the an of my your you me who how why when where does do did can tell about it in on to and for im favourite favorite please know think like love want hello hi hey thanks thank ok okay say said let lets get got make".split(" "));
+function tok(s){
+  return (String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().match(/[a-z0-9]+/g)||[])
+    .filter(w=>w.length>1 && !STOP.has(w))
+    .map(w=> (w.length>3 && w.endsWith("s") && !w.endsWith("ss")) ? w.slice(0,-1) : w);
+}
+const near = (a,b) => a===b || (a.length>=4 && b.length>=4 && (a.startsWith(b)||b.startsWith(a)));
+function score(q, entry){
+  const head = tok(entry.topic+" "+(entry.keys||"")), body = tok(entry.info||"");
+  let s = 0;
+  q.forEach(w=>{ if(head.some(h=>near(w,h))) s+=3; else if(body.some(h=>near(w,h))) s+=1; });
+  return s;
+}
+
+const DIRECT = {
+  personal:"I don't know that yet — nobody's taught me! Add a knowledge card in the Train stage and ask me again. 😊",
+  secret:"I don't know that yet — and I'm not sure that even exists! I only know what I've been taught or what's in my own notes. 🤔",
+  none:"You haven't taught me anything yet! Head to the Train stage and add a card or a pack. 📚"
+};
+const isIDK = t => /don't know|do not know|not sure|no idea/i.test(t||"");
+
+function retrieve(question){
+  const q = tok(question);
+  const asksTaught = /\b(teach|taught)\b|your notes/i.test(question);
+  const personal = /\b(my|mine|our)\b/i.test(question);
+  const secret = /\bsecret\b/i.test(question);
+  const rank = (list,min)=>list.map(k=>({k,s:score(q,k)})).filter(x=>x.s>=min).sort((a,b)=>b.s-a.s);
+
+  if(asksTaught && !state.knowledge.length) return {user:[],builtin:[],guard:'none'};
+
+  const u = asksTaught ? state.knowledge.slice(0,5).map(k=>({k,s:9})) : rank(state.knowledge, personal?1:2).slice(0,3);
+  const strong = u.some(x=>x.s>=3);
+  if(secret && !strong) return {user:[],builtin:[],guard:'secret'};
+  if(personal && !u.length) return {user:[],builtin:[],guard:'personal'};
+
+  const user = u.map(x=>x.k);
+  // A student's card on the same topic OVERRIDES the AI's built-in note
+  const heads = user.flatMap(k=>tok(k.topic));
+  const builtin = rank(BUILTIN,3).slice(0,2).map(x=>x.k)
+    .filter(b=>!tok(b.topic).some(t=>heads.some(h=>near(t,h))));
+  return {user, builtin, guard:null};
+}
 
 /* ---------- Prompt construction ---------- */
 function personalityInstructions(bot){
@@ -495,29 +705,59 @@ function personalityInstructions(bot){
   const length = bot.length < 50 ? "Keep answers to 1-2 short sentences." : "Give a fuller, more detailed answer of 3-5 sentences.";
   return `${tone}. ${humour} ${length}`;
 }
+const styleLabel = bot => `${bot.friendly<50?'friendly':'serious'}, ${bot.funny<50?'a bit funny':'formal'}, ${bot.length<50?'short':'detailed'} answers`;
 
-function buildSystemPrompt(){
+function buildSystemPrompt(r){
   const bot = state.bot;
-  const knowledgeBlock = state.knowledge.length
-    ? state.knowledge.map(k=>`- ${k.topic}: ${k.info}`).join("\n")
-    : "(The student has not taught you anything yet.)";
+  const taught = r.user.length ? r.user.map(k=>`- ${k.topic}: ${k.info}`).join("\n") : "(nothing relevant)";
+  const known  = r.builtin.length ? r.builtin.map(k=>`- ${k.info}`).join("\n") : "(nothing relevant)";
   return `You are ${bot.name || "a chatbot"}, ${bot.desc || "a helpful assistant"}.
 Personality instructions: ${personalityInstructions(bot)}
 
-You have two sources of information:
-1. Your own general knowledge (facts most people would know, e.g. about space, animals, science, games).
-2. Information the student specifically taught you, listed below:
-${knowledgeBlock}
+Notes the student gave you:
+${taught}
+
+General facts you know:
+${known}
 
 Rules:
-- If the question is about something the student taught you, use ONLY that taught information to answer, and mention it's something they told you.
-- If the question is general knowledge you already know, answer normally and briefly.
-- If you do not know the answer and it was not taught to you, honestly say "I don't know that yet." Do NOT invent an answer.
+- If the question is about something in the student's notes, use ONLY that information and mention it comes from the notes they gave you.
+- If the question is answered by the general facts above, or by general knowledge you are sure about, answer briefly.
+- If you do not know the answer and it is not in your notes, honestly say "I don't know that yet." Do NOT invent an answer.
 - Always stay in character and follow your personality instructions.
 - Keep the language simple enough for a 9-11 year old.`;
 }
 
-/* ---------- Model loading (Transformers.js + Qwen) ---------- */
+function plan(question){
+  const r = retrieve(question);
+  const trace = {
+    user: r.user.map(k=>k.topic),
+    builtin: r.builtin.map(k=>k.topic),
+    own: r.user.some(k=>!k.pid),
+    mem: 0,
+    style: styleLabel(state.bot),
+    guard: r.guard
+  };
+  return {r, guard:r.guard, trace};
+}
+
+// Short-term memory: last N good exchanges. "I don't know" turns are left out
+// so a small model doesn't get stuck repeating them.
+function historyFor(){
+  const n = state.bot.memory ?? 0;
+  if(!n) return [];
+  const log = state.chatLog.slice(0,-1);          // exclude the question just asked
+  const picked = [];
+  for(let i=log.length-1; i>0 && picked.length<n*2; i--){
+    if(log[i].role==='bot' && log[i-1].role==='user'){
+      if(!isIDK(log[i].text) && !log[i].direct) picked.unshift(log[i-1], log[i]);
+      i--;
+    }
+  }
+  return picked.map(m=>({role: m.role==='user' ? 'user' : 'assistant', content: String(m.text).slice(0,200)}));
+}
+
+/* ---------- Model loading (Transformers.js + SmolLM2) ---------- */
 // Very small, fast instruct model — good enough for this demo since the
 // system prompt + knowledge cards do most of the work. Swap to a bigger
 // Qwen model here later if you want noticeably smarter general knowledge
@@ -551,9 +791,7 @@ async function initModel(){
       "text-generation",
       MODEL_ID,
       {
-        // Using "q4" (not "q4f16") on both devices avoids a known WebGPU
-        // bug where some browsers' Float16Array support doesn't match what
-        // the fp16 quantised weights expect, causing generation to throw.
+        // "q4" (not "q4f16") avoids a known WebGPU Float16 bug in some browsers.
         dtype: "q4",
         device,
         progress_callback: (p)=>{
@@ -583,56 +821,47 @@ async function initModel(){
 }
 
 async function askBot(question){
-  if(!generator){
-    return "My AI brain is still waking up — one moment!";
-  }
-  const messages = [
-    { role:"system", content: buildSystemPrompt() },
-    { role:"user", content: question }
-  ];
+  const {r, guard, trace} = plan(question);
+  if(guard) return {text:DIRECT[guard], trace, direct:true};
+  if(!generator) return {text:"My AI brain is still waking up — one moment!", trace, direct:true};
+
+  const sys = buildSystemPrompt(r);
+  const past = historyFor();
+  trace.mem = past.length/2;
+  const messages = [{role:"system", content:sys}, ...past, {role:"user", content:question}];
+
   try{
     let promptText;
-    let usedChatTemplate = false;
     try{
-      // Preferred path: use the model's own chat template so it sees proper
-      // system/user turn markers.
-      promptText = generator.tokenizer.apply_chat_template(messages, {
-        tokenize: false,
-        add_generation_prompt: true
-      });
-      usedChatTemplate = true;
+      promptText = generator.tokenizer.apply_chat_template(messages, { tokenize:false, add_generation_prompt:true });
     }catch(templateErr){
       console.warn("Chat template unavailable, falling back to plain prompt", templateErr);
-      promptText = `${buildSystemPrompt()}\n\nQuestion: ${question}\nAnswer:`;
+      const hist = past.map(m=>`${m.role==='user'?'Student':'Bot'}: ${m.content}`).join("\n");
+      promptText = `${sys}\n\n${hist}\nStudent: ${question}\nBot:`;
     }
 
+    // NOTE: no no_repeat_ngram_size — it counts the prompt too, which would stop
+    // the bot from repeating phrases out of the very notes we just gave it.
     const output = await generator(promptText, {
-      max_new_tokens: 60,        // short answers = faster + less room to ramble
-      do_sample: false,          // greedy decoding: steadier for a small model
-      repetition_penalty: 1.3,   // stops repetition loops
-      no_repeat_ngram_size: 3,
-      return_full_text: false    // ask the library to strip the prompt for us
+      max_new_tokens: state.bot.length < 50 ? 60 : 120,
+      do_sample: false,
+      repetition_penalty: 1.1,
+      return_full_text: false
     });
 
     let text = output?.[0]?.generated_text ?? "";
     if(Array.isArray(text)) text = text[text.length-1]?.content ?? "";
-
-    // return_full_text isn't honoured by every build — if the prompt is
-    // still in there, strip it manually.
-    if(typeof text === "string" && text.startsWith(promptText)){
-      text = text.slice(promptText.length);
-    }
+    if(typeof text === "string" && text.startsWith(promptText)) text = text.slice(promptText.length);
     text = cleanUpAnswer(text);
-    return text || "I don't know that yet.";
+    return {text: text || "I don't know that yet.", trace, direct:false};
   }catch(e){
     console.error("askBot failed:", e);
-    return "Oops, my circuits got a bit tangled! Try asking again. (Check the browser console for the technical error.)";
+    return {text:"Oops, my circuits got a bit tangled! Try asking again. (Check the browser console for the technical error.)", trace, direct:true};
   }
 }
 
-// Small models sometimes still degrade into repeated words/punctuation even
-// with a repetition penalty. Trim anything that starts looping so students
-// never see a wall of nonsense text.
+// Small models sometimes degrade into repeated words even with a penalty.
+// Trim anything that starts looping so students never see a wall of nonsense.
 function cleanUpAnswer(raw){
   let text = (raw || "").trim();
   const words = text.split(/\s+/);
@@ -645,46 +874,41 @@ function cleanUpAnswer(raw){
     if(seenRecently.length===6 && uniqueCount<=2){ cutIndex = Math.max(1, i-5); break; }
   }
   text = words.slice(0, cutIndex).join(' ');
-  // Hard cap so one bad generation can't fill the whole chat window.
   if(text.length > 400) text = text.slice(0,400).replace(/\s+\S*$/, '') + '…';
   return text.trim() || "I don't know that yet.";
 }
 
-/* ---------- Navigation / stepper ---------- */
-const panels = ["welcome","meet","build","teach","chat","investigate","challenge","reflect"];
-const stepMap = { welcome:0, meet:0, build:0, teach:1, chat:2, investigate:3, challenge:4, reflect:5 };
+/* ---------- Navigation (3 stages) ---------- */
+const PANELS = ["build","teach","chat"];
+const STEP_OF = { build:0, teach:1, chat:2 };
 
 function showPanel(name){
-  panels.forEach(p=>document.getElementById('panel-'+p).classList.toggle('hidden', p!==name));
-  updateStepper(stepMap[name]);
-  state.currentPanel = name;
-  saveState();
-}
-function updateStepper(activeIdx){
+  if(!PANELS.includes(name)) name = "build";
+  if(name!=='build' && !state.bot.name.trim()) state.bot.name = "My Bot";
+  PANELS.forEach(p=>document.getElementById('panel-'+p).classList.toggle('hidden', p!==name));
   document.querySelectorAll('.step').forEach(el=>{
     const idx = Number(el.dataset.step);
-    el.classList.toggle('active', idx===activeIdx);
-    el.classList.toggle('done', idx<activeIdx);
+    el.classList.toggle('active', idx===STEP_OF[name]);
+    el.classList.toggle('done', idx<STEP_OF[name]);
   });
+  state.currentPanel = name;
+  saveState();
+  if(name==='build') loadBuildForm();
+  if(name==='teach'){ renderKnowledge(); renderPacks(); }
+  if(name==='chat') enterTest();
+  window.scrollTo({top:0, behavior:'smooth'});
 }
-
-/* ---------- Wire up welcome ---------- */
-document.querySelectorAll('#panel-welcome .suggestion-chip').forEach(chip=>{
-  chip.onclick = ()=>{
-    const box = document.getElementById('welcomeAnswer');
-    box.classList.remove('hidden');
-    box.textContent = "Good guess! The real answer is: an AI model combines information it already knows with instructions and information it's given, to generate a response. No mind-reading involved!";
-  };
+document.querySelectorAll('.step').forEach(el=>{
+  el.onclick = ()=>showPanel(PANELS[Number(el.dataset.step)]);
 });
-document.getElementById('toMeetBtn').onclick = ()=>showPanel('meet');
-document.getElementById('toBuildBtn').onclick = ()=>showPanel('build');
 
-/* ---------- Wire up build ---------- */
+/* ---------- Stage 1: Build ---------- */
 const botNameInput = document.getElementById('botName');
 const botDescInput = document.getElementById('botDesc');
 const sliderFriendly = document.getElementById('sliderFriendly');
 const sliderFunny = document.getElementById('sliderFunny');
 const sliderLength = document.getElementById('sliderLength');
+const sliderMemory = document.getElementById('sliderMemory');
 
 function loadBuildForm(){
   botNameInput.value = state.bot.name;
@@ -692,210 +916,384 @@ function loadBuildForm(){
   sliderFriendly.value = state.bot.friendly;
   sliderFunny.value = state.bot.funny;
   sliderLength.value = state.bot.length;
+  sliderMemory.value = state.bot.memory ?? 0;
   renderAvatars();
 }
 [botNameInput,botDescInput].forEach(el=>el.addEventListener('input', ()=>{
   state.bot.name = botNameInput.value; state.bot.desc = botDescInput.value; saveState();
 }));
-[[sliderFriendly,'friendly'],[sliderFunny,'funny'],[sliderLength,'length']].forEach(([el,key])=>{
+[[sliderFriendly,'friendly'],[sliderFunny,'funny'],[sliderLength,'length'],[sliderMemory,'memory']].forEach(([el,key])=>{
   let startVal = Number(el.value);
   el.addEventListener('change', ()=>{
     const val = Number(el.value);
-    if(Math.abs(val-startVal) >= 60) state.slidersMovedFar = true;
-    state.bot[key]=val; saveState();
+    if(key!=='memory' && Math.abs(val-startVal) >= 60) state.slidersMovedFar = true;
+    startVal = val;
+    state.bot[key] = val; saveState();
   });
 });
-document.getElementById('toTeachBtn').onclick = ()=>{
-  if(!state.bot.name.trim()) state.bot.name = "My Bot";
-  saveState();
-  showPanel('teach');
+document.getElementById('toTeachBtn').onclick = ()=>showPanel('teach');
+document.getElementById('resetBtn').onclick = ()=>{
+  if(confirm("This will erase your bot, its knowledge and your chat. Are you sure?")){
+    sessionStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
 };
 
-/* ---------- Wire up teach ---------- */
+/* ---------- Stage 2: Train ---------- */
 const knowledgeListEl = document.getElementById('knowledgeList');
+let editingId = null;
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
 function renderKnowledge(){
   knowledgeListEl.innerHTML = "";
   if(state.knowledge.length===0){
-    knowledgeListEl.innerHTML = `<p style="color:#8A80A8;">No knowledge cards yet — add your first one below!</p>`;
+    knowledgeListEl.innerHTML = `<p style="color:#8A80A8;">No knowledge cards yet — add your first one below, or click a pack.</p>`;
     return;
   }
   const label = document.createElement('div');
-  label.className='field-label'; label.textContent="Information you taught your bot:";
+  label.className='field-label'; label.textContent="Your bot's knowledge cards:";
   knowledgeListEl.appendChild(label);
-  state.knowledge.forEach((k,i)=>{
+
+  state.knowledge.forEach(k=>{
     const div = document.createElement('div');
-    div.className='kcard';
-    div.innerHTML = `<button class="remove" data-i="${i}">✕</button><div class="topic">${escapeHtml(k.topic)}</div><div>${escapeHtml(k.info)}</div>`;
+    div.className = 'kcard';
+    if(k.id===editingId){
+      div.classList.add('editing');
+      div.innerHTML = `<input type="text" class="e-topic" maxlength="60"><textarea class="e-info" maxlength="400"></textarea>
+        <div class="actions" style="margin-top:10px;"><button class="ghost-btn e-cancel">Cancel</button><button class="primary-btn e-save" style="padding:10px 20px;font-size:.95rem;">Save</button></div>`;
+      div.querySelector('.e-topic').value = k.topic;
+      div.querySelector('.e-info').value = k.info;
+      div.querySelector('.e-cancel').onclick = ()=>{ editingId=null; renderKnowledge(); };
+      div.querySelector('.e-save').onclick = ()=>{
+        const t = div.querySelector('.e-topic').value.trim();
+        const i = div.querySelector('.e-info').value.trim();
+        if(!t || !i) return;
+        const clash = state.knowledge.find(o=>o.id!==k.id && o.topic.toLowerCase()===t.toLowerCase());
+        if(clash){ alert(`You already have a card called “${clash.topic}”. Edit that one instead.`); return; }
+        if(k.pid && (t!==k.topic || i!==k.info)) k.edited = true;
+        k.topic = t; k.info = i; k.t = Date.now();
+        editingId = null; saveState(); renderKnowledge(); renderPacks(); taughtSomething();
+      };
+    } else {
+      const tag = k.pid ? `<span class="tag">📦 ${escapeHtml(k.pid.split('#')[0])}${k.edited?' · ✏️ edited':''}</span>` : '';
+      div.innerHTML = `<button class="edit" title="Edit this card">✏️</button><button class="remove" title="Remove">✕</button>
+        <div class="topic">${escapeHtml(k.topic)}</div><div>${escapeHtml(k.info)}</div>${tag}`;
+      div.querySelector('.edit').onclick = ()=>{ editingId = k.id; renderKnowledge(); };
+      div.querySelector('.remove').onclick = ()=>{
+        state.knowledge = state.knowledge.filter(o=>o.id!==k.id);
+        saveState(); renderKnowledge(); renderPacks();
+      };
+    }
     knowledgeListEl.appendChild(div);
   });
-  knowledgeListEl.querySelectorAll('.remove').forEach(btn=>{
-    btn.onclick = ()=>{ state.knowledge.splice(Number(btn.dataset.i),1); saveState(); renderKnowledge(); };
+}
+
+// Add a card — or UPDATE the existing one if the topic already exists (even a pack card)
+function upsertCard(topic, info){
+  const ex = state.knowledge.find(k=>k.topic.toLowerCase()===topic.toLowerCase());
+  if(ex){
+    if(ex.pid && ex.info!==info) ex.edited = true;
+    ex.topic = topic; ex.info = info; ex.t = Date.now();
+    return 'updated';
+  }
+  if(state.knowledge.length >= MAX_CARDS){ alert(`That's the maximum of ${MAX_CARDS} cards. Remove one first.`); return 'full'; }
+  state.knowledge.push({id:uid(), t:Date.now(), topic, info});
+  return 'added';
+}
+document.getElementById('addCardBtn').onclick = ()=>{
+  const topicEl = document.getElementById('newTopic'), infoEl = document.getElementById('newInfo');
+  const topic = topicEl.value.trim().slice(0,60), info = infoEl.value.trim().slice(0,400);
+  if(!topic || !info) return;
+  const res = upsertCard(topic, info);
+  if(res==='full') return;
+  topicEl.value = ""; infoEl.value = "";
+  const fb = document.getElementById('cardFeedback');
+  fb.textContent = res==='updated'
+    ? `Updated your “${topic}” card — your bot will use the new info straight away.`
+    : `Added “${topic}”.`;
+  fb.classList.remove('hidden');
+  saveState(); renderKnowledge(); renderPacks(); taughtSomething();
+};
+
+/* Packs: a shortcut for adding/removing a set of ordinary cards */
+const packHas = (p,i) => {
+  const pid = `${p.name}#${i}`, topic = p.cards[i].topic.toLowerCase();
+  return state.knowledge.some(k=>k.pid===pid || k.topic.toLowerCase()===topic);
+};
+const packActive = p => p.cards.every((c,i)=>packHas(p,i));
+function togglePack(p){
+  if(packActive(p)){
+    // remove only the untouched cards from this pack; edited ones stay
+    state.knowledge = state.knowledge.filter(k=>!(k.pid && k.pid.startsWith(p.name+'#') && !k.edited));
+  } else {
+    p.cards.forEach((c,i)=>{
+      if(!packHas(p,i) && state.knowledge.length < MAX_CARDS){
+        state.knowledge.push({id:uid(), t:Date.now()+i, topic:c.topic, info:c.info, pid:`${p.name}#${i}`});
+      }
+    });
+  }
+  saveState(); renderKnowledge(); renderPacks();
+}
+function renderPacks(){
+  const grid = document.getElementById('packGrid');
+  grid.innerHTML = "";
+  PACKS.forEach(p=>{
+    const b = document.createElement('button');
+    b.type='button'; b.className = 'pack' + (packActive(p) ? ' added' : '');
+    b.innerHTML = `<span>${p.icon}</span>${escapeHtml(p.name)}`;
+    b.onclick = ()=>togglePack(p);
+    grid.appendChild(b);
   });
 }
-function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+document.getElementById('backToBuildBtn').onclick = ()=>showPanel('build');
+document.getElementById('toChatBtn').onclick = ()=>showPanel('chat');
 
-document.getElementById('addCardBtn').onclick = ()=>{
-  const topic = document.getElementById('newTopic').value.trim();
-  const info = document.getElementById('newInfo').value.trim();
-  if(!topic || !info) return;
-  state.knowledge.push({topic, info});
-  document.getElementById('newTopic').value="";
-  document.getElementById('newInfo').value="";
-  saveState();
-  renderKnowledge();
-};
-document.getElementById('toChatBtn').onclick = ()=>{
-  document.getElementById('chatHeader').textContent = `Chat With ${state.bot.name} ${state.bot.avatar}`;
+/* ---------- Stage 3: Test ---------- */
+const chatWin = document.getElementById('chatWindow');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+let busy = false;
+
+function enterTest(){
+  document.getElementById('chatHeader').textContent = `Test ${state.bot.name || 'your bot'} ${state.bot.avatar}`;
   renderChatSuggestions();
-  renderChatWindow('chatWindow');
-  showPanel('chat');
-};
-
-/* ---------- Generic chat rendering ---------- */
-function renderChatWindow(elId){
-  const win = document.getElementById(elId);
-  win.innerHTML = "";
-  state.chatLog.forEach(m=>appendMsg(win, m.role, m.text, false));
-  win.scrollTop = win.scrollHeight;
+  renderChatWindow();
+  renderChallenges();
 }
-function appendMsg(win, role, text, withInvestigate){
-  const div = document.createElement('div');
-  div.className = 'msg ' + (role==='user'?'user':'bot');
-  div.textContent = text;
-  if(withInvestigate && role==='bot'){
-    const btn = document.createElement('button');
-    btn.className='investigate'; btn.textContent="🔍 How did my bot answer?";
-    btn.onclick = ()=>{ showPanel('investigate'); explainAnswer(text); };
-    div.appendChild(btn);
-  }
-  win.appendChild(div);
-  win.scrollTop = win.scrollHeight;
-  return div;
-}
-
-async function sendMessage(inputEl, winEl, opts={}){
-  const text = inputEl.value.trim();
-  if(!text) return;
-  inputEl.value="";
-  state.chatLog.push({role:'user', text});
-  appendMsg(document.getElementById(winEl), 'user', text);
-  saveState();
-  const thinking = appendMsg(document.getElementById(winEl), 'bot', "💭 thinking...");
-  const answer = await askBot(text);
-  thinking.textContent = answer;
-  if(opts.investigate){
-    const btn = document.createElement('button');
-    btn.className='investigate'; btn.textContent="🔍 How did my bot answer?";
-    btn.onclick = ()=>explainAnswer(text, answer);
-    thinking.appendChild(btn);
-  }
-  state.chatLog.push({role:'bot', text:answer});
-  saveState();
-  checkChallenges(text, answer);
-  return {question:text, answer};
-}
-
 function renderChatSuggestions(){
   const box = document.getElementById('chatSuggestions');
-  box.innerHTML="";
-  const examples = [
-    "What is Jupiter?",
-    state.knowledge[0] ? `What is my ${state.knowledge[0].topic}?` : "What did I teach you?",
-    "What is my favourite food?",
-    "What is the secret password of the Moon?"
-  ];
-  examples.forEach(ex=>{
+  box.innerHTML = "";
+  // Built from the CURRENT cards, so edits in Train show up here
+  const recent = [...state.knowledge].sort((a,b)=>(b.t||0)-(a.t||0)).slice(0,2).map(k=>`Tell me about ${k.topic}`);
+  ["What is Jupiter?", ...recent, "What is my favourite food?", "What is the secret password of the Moon?"].forEach(ex=>{
     const b = document.createElement('button');
     b.className='suggestion-chip'; b.textContent=ex;
-    b.onclick = ()=>{ document.getElementById('chatInput').value = ex; };
+    b.onclick = ()=>{ chatInput.value = ex; chatInput.focus(); };
     box.appendChild(b);
   });
 }
-document.getElementById('sendBtn').onclick = ()=>sendMessage(document.getElementById('chatInput'),'chatWindow');
-document.getElementById('chatInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(document.getElementById('chatInput'),'chatWindow'); });
-document.getElementById('toInvestigateBtn').onclick = ()=>{ renderChatWindow('investigateWindow'); showPanel('investigate'); };
 
-/* ---------- Investigate ---------- */
-document.getElementById('investigateSendBtn').onclick = async ()=>{
-  const result = await sendMessage(document.getElementById('investigateInput'), 'investigateWindow', {investigate:true});
-};
-document.getElementById('investigateInput').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('investigateSendBtn').click(); });
-
-function explainAnswer(question, answer){
-  const matched = state.knowledge.find(k=>question.toLowerCase().includes(k.topic.toLowerCase().split(' ')[0]));
-  const flow = document.getElementById('investigateFlow');
-  flow.innerHTML = `
-    <div class="flow">
-      <div class="flow-step"><span class="icon">❓</span><div>You asked: <b>"${escapeHtml(question)}"</b></div></div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-step"><span class="icon">🔎</span><div>${matched ? `Your bot found information you taught it about <b>${escapeHtml(matched.topic)}</b>.` : `Your bot checked — you hadn't taught it anything about this, so it used its own general knowledge (or said it didn't know).`}</div></div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-step"><span class="icon">🎛️</span><div>Your bot followed its personality instructions (${state.bot.friendly<50?'friendly':'serious'}, ${state.bot.funny<50?'a bit funny':'formal'}).</div></div>
-      <div class="flow-arrow">↓</div>
-      <div class="flow-step"><span class="icon">🧠</span><div>The AI model generated the final response: <i>"${escapeHtml(answer||"")}"</i></div></div>
-    </div>`;
+function whyHtml(t){
+  const names = a => a.map(x=>`<b>${escapeHtml(x)}</b>`).join(", ");
+  let look;
+  if(t.guard==='personal') look = "You asked about <b>you</b>, and none of your cards match — so your bot honestly said it doesn't know.";
+  else if(t.guard==='secret') look = "That needs a secret your bot was never taught — so it admitted it doesn't know instead of guessing.";
+  else if(t.guard==='none') look = "You haven't added any cards yet.";
+  else if(t.user.length) look = `It found ${t.user.length===1?'a card':'cards'} in your knowledge: ${names(t.user)}. Edit ${t.user.length===1?'it':'them'} in Train to change the answer.`;
+  else if(t.builtin.length) look = `No card matched, so it used its own notes on ${names(t.builtin)}.`;
+  else look = "Nothing matched your cards or its notes — it relied on what the AI model already knows.";
+  const mem = t.mem ? `Looked back at the last ${t.mem} exchange${t.mem===1?'':'s'}.` : "Didn't use any earlier messages.";
+  return `<div>🔎 ${look}</div><div>📖 ${mem}</div><div>🎛️ Style: ${escapeHtml(t.style)}.</div>`;
 }
-document.getElementById('toChallengeBtn').onclick = ()=>{ renderChatWindow('challengeWindow'); renderChallenges(); showPanel('challenge'); };
+function attachWhy(div, trace){
+  const btn = document.createElement('button');
+  btn.className='investigate'; btn.textContent="🔍 How did I answer?";
+  const box = document.createElement('div');
+  box.className='why hidden'; box.innerHTML = whyHtml(trace);
+  btn.onclick = ()=>box.classList.toggle('hidden');
+  div.appendChild(btn); div.appendChild(box);
+}
+function appendMsg(role, text, trace){
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role==='user' ? 'user' : 'bot');
+  div.textContent = text;
+  if(role==='bot' && trace) attachWhy(div, trace);
+  chatWin.appendChild(div);
+  chatWin.scrollTop = chatWin.scrollHeight;
+  return div;
+}
+function renderChatWindow(){
+  chatWin.innerHTML = "";
+  state.chatLog.forEach(m=>appendMsg(m.role, m.text, m.trace));
+  chatWin.scrollTop = chatWin.scrollHeight;
+}
 
-/* ---------- Challenges ---------- */
-document.getElementById('challengeSendBtn').onclick = ()=>sendMessage(document.getElementById('challengeInput'),'challengeWindow');
-document.getElementById('challengeInput').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('challengeSendBtn').click(); });
+async function sendMessage(){
+  const text = chatInput.value.trim();
+  if(!text || busy) return;
+  busy = true; sendBtn.disabled = true;
+  chatInput.value = "";
+  state.chatLog.push({role:'user', text});
+  appendMsg('user', text);
+  saveState();
 
-function checkChallenges(question, answer){
-  const qlc = question.toLowerCase();
-  if(state.knowledge.some(k=>qlc.includes(k.topic.toLowerCase().split(' ')[0]))) state.challenges.ch1 = true;
+  const thinking = appendMsg('bot', "");
+  thinking.classList.add('thinking');
+  const res = await askBot(text);
+  thinking.classList.remove('thinking');
+  thinking.textContent = res.text;
+  attachWhy(thinking, res.trace);
+
+  state.chatLog.push({role:'bot', text:res.text, trace:res.trace, direct:res.direct});
+  if(state.chatLog.length > 60) state.chatLog = state.chatLog.slice(-60);
+  saveState();
+  checkMissions(text, res.text, res.trace);
+  busy = false; sendBtn.disabled = false;
+  chatInput.focus();
+}
+sendBtn.onclick = sendMessage;
+chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(); });
+
+document.getElementById('clearChatBtn').onclick = ()=>{ state.chatLog = []; saveState(); renderChatWindow(); };
+document.getElementById('tweakBtn').onclick = ()=>showPanel('build');
+document.getElementById('retrainBtn').onclick = ()=>showPanel('teach');
+
+/* ---------- Mini-missions ---------- */
+function checkMissions(question, answer, trace){
+  if(trace.own) state.challenges.ch1 = true;                      // asked about a card they made themselves
   if(state.slidersMovedFar) state.challenges.ch2 = true;
-  if(/secret|password|moon|dragon|unicorn|impossible/.test(qlc) && /don't know|not sure|no idea/i.test(answer)) state.challenges.ch3 = true;
+  const idk = isIDK(answer);
+  if(idk && /secret|password|moon|dragon|unicorn|impossible/i.test(question)) state.challenges.ch3 = true;
+  if(idk) state.sawIDK = true;
   saveState();
   renderChallenges();
 }
-document.getElementById('r1'); // no-op ensures element exists before listener below
+function taughtSomething(){            // after an "I don't know", adding/editing a card completes mission 4
+  if(state.sawIDK && !state.challenges.ch4){ state.challenges.ch4 = true; saveState(); renderChallenges(); }
+}
+function burst(){
+  for(let i=0;i<36;i++){
+    const p = document.createElement('i'); p.className='confetti';
+    p.style.cssText = `left:${50+(Math.random()-.5)*30}vw;background:hsl(${Math.random()*360} 90% 60%);--dx:${(Math.random()-.5)*60}vw;--rot:${Math.random()*720}deg;animation-delay:${Math.random()*.2}s`;
+    document.body.appendChild(p); setTimeout(()=>p.remove(), 1900);
+  }
+}
 function renderChallenges(){
   Object.entries(state.challenges).forEach(([id,done])=>{
     const el = document.getElementById(id);
     if(!el) return;
+    const wasDone = el.dataset.seen==="1" ? el.classList.contains('done') : done; // no confetti on first render
+    el.dataset.seen = "1";
     el.classList.toggle('done', !!done);
     el.querySelector('.tick').classList.toggle('hidden', !done);
+    if(done && !wasDone && !document.getElementById('panel-chat').classList.contains('hidden')) burst();
   });
 }
-document.getElementById('backToBuildBtn').onclick = ()=>{ loadBuildForm(); showPanel('build'); };
-document.getElementById('toReflectBtn').onclick = ()=>showPanel('reflect');
-document.getElementById('backToChallengeBtn').onclick = ()=>showPanel('challenge');
 
-/* human vs AI challenge 4: any reflect text or a manual "I know" chat counts */
-document.getElementById('r3')?.addEventListener('input', ()=>{ state.challenges.ch4 = true; saveState(); renderChallenges(); });
-
-/* ---------- Reflection persistence ---------- */
-['r1','r2','r3'].forEach(id=>{
-  const el = document.getElementById(id);
-  el.addEventListener('input', ()=>{ state[id]=el.value; saveState(); });
+/* ---------- Saved bots (localStorage), export/import, share link ---------- */
+const SLOTS_KEY = "ailab_saved_bots_v1";
+const botsModal = document.getElementById('botsModal');
+const getSlots = ()=>{ try{ return JSON.parse(localStorage.getItem(SLOTS_KEY)) || []; }catch(e){ return []; } };
+const putSlots = s =>{ try{ localStorage.setItem(SLOTS_KEY, JSON.stringify(s)); }catch(e){ alert("Couldn't save — browser storage may be full or blocked."); } };
+const snapshot = ()=>({
+  v:2,
+  bot:state.bot,
+  knowledge:state.knowledge.map(k=>({topic:k.topic, info:k.info, ...(k.pid?{pid:k.pid}:{}), ...(k.edited?{edited:true}:{})}))
 });
 
-/* ---------- Reset ---------- */
-document.getElementById('resetBtn').onclick = ()=>{
-  if(confirm("This will erase your bot, its knowledge and your chat. Are you sure?")){
-    sessionStorage.removeItem(STORAGE_KEY);
-    state = structuredClone(defaultState);
-    location.reload();
-  }
+function applySnapshot(s){
+  if(!s || typeof s!=='object' || !s.bot || !Array.isArray(s.knowledge)) throw new Error("Not a bot file");
+  const b = s.bot;
+  state.bot = {
+    ...defaultState.bot,
+    name:String(b.name||"").slice(0,30),
+    desc:String(b.desc||"").slice(0,200),
+    avatar:AVATARS.includes(b.avatar) ? b.avatar : "🤖",
+    friendly:Math.min(100,Math.max(0,+b.friendly||0)),
+    funny:Math.min(100,Math.max(0,+b.funny||0)),
+    length:Math.min(100,Math.max(0,+b.length||0)),
+    memory:Math.min(3,Math.max(0,+b.memory||0))
+  };
+  state.knowledge = s.knowledge.slice(0,MAX_CARDS)
+    .map((k,i)=>({
+      id:uid(), t:i,
+      topic:String(k.topic||"").slice(0,60),
+      info:String(k.info||"").slice(0,400),
+      ...(typeof k.pid==='string' ? {pid:k.pid.slice(0,40)} : {}),
+      ...(k.edited ? {edited:true} : {})
+    }))
+    .filter(k=>k.topic && k.info);
+  state.chatLog = [];
+  editingId = null;
+  saveState(); loadBuildForm(); renderKnowledge(); renderPacks();
+}
+
+function renderSlots(){
+  const box = document.getElementById('slotList');
+  const slots = getSlots();
+  box.innerHTML = slots.length ? "" : `<p style="color:#8A80A8;">No saved bots yet — press “Save current bot”.</p>`;
+  slots.forEach((s,i)=>{
+    const row = document.createElement('div'); row.className='slot';
+    row.innerHTML = `<span class="slot-av">${escapeHtml(s.bot.avatar)}</span>
+      <div class="slot-txt"><b>${escapeHtml(s.bot.name||"Unnamed bot")}</b><small>${s.knowledge.length} knowledge cards</small></div>
+      <button class="ghost-btn" data-load="${i}">Load</button><button class="ghost-btn" data-del="${i}">🗑</button>`;
+    box.appendChild(row);
+  });
+  box.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>{ applySnapshot(getSlots()[+b.dataset.load]); botsModal.classList.add('hidden'); showPanel('build'); });
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ const s=getSlots(); s.splice(+b.dataset.del,1); putSlots(s); renderSlots(); });
+}
+
+function renderStarters(){
+  const box = document.getElementById('starterList');
+  box.innerHTML = "";
+  STARTERS.forEach(s=>{
+    const row = document.createElement('div'); row.className='slot';
+    row.innerHTML = `<span class="slot-av">${s.bot.avatar}</span>
+      <div class="slot-txt"><b>${escapeHtml(s.bot.name)}</b><small>${escapeHtml(s.bot.desc)}</small></div>
+      <button class="ghost-btn">Use</button>`;
+    row.querySelector('button').onclick = ()=>{ applySnapshot(JSON.parse(JSON.stringify(s))); botsModal.classList.add('hidden'); showPanel('build'); };
+    box.appendChild(row);
+  });
+}
+
+document.getElementById('saveMenuBtn').onclick = ()=>{ renderSlots(); renderStarters(); botsModal.classList.remove('hidden'); };
+document.getElementById('closeBots').onclick = ()=>botsModal.classList.add('hidden');
+document.getElementById('saveSlotBtn').onclick = ()=>{
+  const snap = snapshot(), slots = getSlots();
+  const i = slots.findIndex(x=>x.bot.name===snap.bot.name);
+  if(i>=0) slots[i] = snap; else slots.push(snap);
+  putSlots(slots.slice(-12)); renderSlots();
 };
+document.getElementById('clearSlotsBtn').onclick = ()=>{
+  if(confirm("Delete ALL saved bots on this device?")){ localStorage.removeItem(SLOTS_KEY); renderSlots(); }
+};
+
+document.getElementById('exportBtn').onclick = ()=>{
+  const blob = new Blob([JSON.stringify(snapshot(),null,2)], {type:"application/json"});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (state.bot.name||"my-bot").replace(/[^\w-]+/g,"-") + ".bot.json";
+  a.click(); URL.revokeObjectURL(a.href);
+};
+document.getElementById('importBtn').onclick = ()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange = e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ try{ applySnapshot(JSON.parse(r.result)); botsModal.classList.add('hidden'); showPanel('build'); }catch(err){ alert("That doesn't look like a bot file."); } };
+  r.readAsText(f); e.target.value = "";
+};
+
+const enc = o => btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o))));
+const dec = s => JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(s), c=>c.charCodeAt(0))));
+document.getElementById('shareBtn').onclick = async ()=>{
+  const url = location.origin + location.pathname + "#bot=" + enc(snapshot());
+  try{ await navigator.clipboard.writeText(url); alert("Share link copied! Anyone who opens it can load your bot."); }
+  catch(e){ prompt("Copy this link:", url); }
+};
+function loadFromHash(){
+  const m = location.hash.match(/^#bot=(.+)$/);
+  if(!m) return;
+  try{
+    const snap = dec(m[1]);
+    if(confirm(`Load the shared bot “${String(snap.bot?.name||"Unnamed").slice(0,30)}”? This replaces your current bot.`)){
+      applySnapshot(snap); showPanel('build');
+    }
+  }catch(e){ console.warn("Bad share link", e); }
+  history.replaceState(null, "", location.pathname + location.search);
+}
 
 /* ---------- Teacher modal ---------- */
 document.getElementById('teacherBtn').onclick = ()=>document.getElementById('teacherModal').classList.remove('hidden');
 document.getElementById('closeTeacherModal').onclick = ()=>document.getElementById('teacherModal').classList.add('hidden');
 
-/* ---------- Restore state on load ---------- */
-function restoreUI(){
-  loadBuildForm();
-  renderKnowledge();
-  ['r1','r2','r3'].forEach(id=>{ if(state[id]) document.getElementById(id).value = state[id]; });
-  renderChallenges();
-  showPanel(state.currentPanel || 'welcome');
-}
-
 /* ---------- Boot ---------- */
 (async function boot(){
-  restoreUI();
+  loadBuildForm();
+  renderKnowledge();
+  renderPacks();
+  renderChallenges();
+  showPanel(state.currentPanel);
+  loadFromHash();
   await initModel();
 })();
 </script>
