@@ -19,13 +19,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Build cluster-galaxy demo directly into its folder root
+      - name: Build Cluster Galaxy
+        run: |
+          cd cluster-galaxy
+          npm ci
+          npm run build
+          cp -r dist/* .
+      
+      - name: Build The Last Signal
+        run: |
+          cd the-last-signal
+          npm ci
+          npm run build
+          cp -r dist/* .
+          cd ..
+          
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # Deploys the root folder so your hub and all sub-labs go live
+          path: '.'
 
       - name: Deploy to GitHub Pages
         id: deployment

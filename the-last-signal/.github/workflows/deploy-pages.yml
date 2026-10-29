@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'the-next-game/**'
+      - 'the-last-signal/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
@@ -25,31 +25,40 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: the-next-game
+        working-directory: the-last-signal
+
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install dependencies
         run: npm install
+
       - name: Run tests
-        run: npm test
+        run: npm test --if-present
+
       - name: Build production site
         run: npm run build
+
       - name: Arrange nested Pages path
         run: |
-          mkdir -p ../_site/the-next-game
-          cp -R dist/. ../_site/the-next-game/
+          mkdir -p ../_site/the-last-signal
+          cp -R dist/. ../_site/the-last-signal/
           touch ../_site/.nojekyll
+
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
