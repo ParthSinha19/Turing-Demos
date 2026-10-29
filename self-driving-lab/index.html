@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en-GB" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Self-Driving Lab</title>
+<script>try{var t=JSON.parse(localStorage.getItem('sdl.theme'));if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Manrope:wght@500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1527'/%3E%3Crect x='5' y='10' width='22' height='12' rx='5' fill='%23ff6a3d'/%3E%3Crect x='13' y='12' width='8' height='8' rx='2' fill='%231b2740'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-screen="home">
+
+<!-- shared animated backdrop for the home and map screens -->
+<div class="world" aria-hidden="true">
+  <div class="stars"></div>
+  <div class="orb"></div>
+  <div class="clouds"></div>
+  <svg class="hills" viewBox="0 0 1200 300" preserveAspectRatio="none">
+    <g class="sk"><rect x="60" y="90" width="40" height="210"/><rect x="110" y="70" width="30" height="230"/><rect x="150" y="104" width="46" height="196"/><rect x="520" y="84" width="36" height="216"/><rect x="566" y="58" width="28" height="242"/><rect x="604" y="96" width="44" height="204"/><rect x="880" y="80" width="40" height="220"/><rect x="930" y="102" width="34" height="198"/><rect x="972" y="66" width="30" height="234"/><rect x="1040" y="96" width="44" height="204"/></g>
+    <path class="h1" d="M0 140Q150 60 320 120T640 100T960 120T1200 90V300H0Z"/>
+    <path class="h2" d="M0 190Q200 120 420 180T820 170T1200 160V300H0Z"/>
+    <path class="h3" d="M0 240Q240 190 520 235T1200 215V300H0Z"/>
+  </svg>
+</div>
+
+<!-- ============ HOME ============ -->
+<section class="screen" id="screenHome">
+  <div class="home-top">
+    <button class="icon-btn js-sound" type="button" aria-label="Sound"></button>
+    <button class="icon-btn js-theme" type="button" aria-label="Light or dark mode"></button>
+  </div>
+  <div class="hero">
+    <div class="logo-badge" data-mascot></div>
+    <h1>Self-Driving <span>Lab</span></h1>
+    <p class="tagline">Program a car. Test it. Improve it.</p>
+    <div class="home-actions">
+      <button class="btn big run" id="btnPlay" type="button" data-ic="play">Play</button>
+      <button class="btn big" id="btnContinue" type="button" data-ic="next" hidden>Continue</button>
+      <button class="btn big ghost" id="btnWorkshop" type="button" data-ic="wrench">Workshop</button>
+    </div>
+    <div class="loop" aria-label="How a self-driving car thinks">
+      <span class="lp s"><i></i>Perceive</span><em>›</em><span class="lp d"><i></i>Decide</span><em>›</em><span class="lp a"><i></i>Act</span><em>›</em><span class="lp t"><i></i>Test</span>
+    </div>
+  </div>
+  <div class="roadscene"><div id="heroCars"></div></div>
+</section>
+
+<!-- ============ CHAPTER MAP ============ -->
+<section class="screen" id="screenMap">
+  <header class="bar">
+    <button class="btn sm" id="mapBack" type="button" data-ic="back">Home</button>
+    <h2>Choose a chapter</h2>
+    <span class="starcount" id="mapStars" title="Stars collected"></span>
+    <button class="icon-btn js-sound" type="button" aria-label="Sound"></button>
+    <button class="icon-btn js-theme" type="button" aria-label="Light or dark mode"></button>
+  </header>
+  <div class="map-scroll">
+    <div class="chapters" id="chapters"></div>
+    <footer class="map-foot"><button id="btnWipe" class="link" type="button">Reset progress</button></footer>
+  </div>
+</section>
+
+<!-- ============ GAME ============ -->
+<section class="screen" id="screenGame">
+  <header class="top">
+    <button class="btn sm" id="gameBack" type="button" data-ic="back">Map</button>
+    <div class="brand">
+      <div class="mascot sm" data-mascot></div>
+      <div><b>Self-Driving Lab</b><small id="chipChapter">Chapter</small></div>
+    </div>
+    <nav id="tabs" class="tabs" aria-label="Levels"></nav>
+    <span class="starcount" id="gameStars" title="Stars collected"></span>
+    <button class="icon-btn js-sound" type="button" aria-label="Sound"></button>
+    <button class="icon-btn js-theme" type="button" aria-label="Light or dark mode"></button>
+  </header>
+
+  <main>
+    <section class="stage">
+      <div class="objective">
+        <div class="mascot" data-mascot></div>
+        <div class="obj-text"><span class="kicker" id="objKicker"></span><strong id="objTitle"></strong><p id="objText"></p></div>
+        <div class="obj-btns">
+          <button class="btn ghost sm" id="btnBrief" type="button" data-ic="book">Briefing</button>
+          <button class="btn ghost sm" id="btnHint" type="button" data-ic="bulb">Hint</button>
+        </div>
+      </div>
+
+      <div class="sim-wrap" id="wrap">
+        <canvas id="sim" aria-label="Driving simulation"></canvas>
+        <div class="hud-time" id="hudTime">0.0 s</div>
+        <div class="sensors" id="sensors" aria-live="off">
+          <h4>Car sensors</h4>
+          <div class="row"><i id="sObsD"></i><span>Obstacle</span><b id="sObs">no</b></div>
+          <div class="row"><i id="sPedD"></i><span>Pedestrian</span><b id="sPed">no</b></div>
+          <div class="row"><i id="sLightD"></i><span>Light</span><b id="sLight">none</b></div>
+          <div class="row"><i id="sDistD"></i><span>Distance</span><b id="sDist">clear</b></div>
+          <div class="row x"><i id="sSideD"></i><span>Sides L · R</span><b id="sSide">clear</b></div>
+          <div class="row x"><i id="sRoadD"></i><span>Road</span><b id="sRoad">none</b></div>
+          <div class="row x"><i id="sJuncD"></i><span>Junction</span><b id="sJunc">no</b></div>
+          <div class="row x"><i id="sFaceD"></i><span>Facing</span><b id="sFace">east</b></div>
+          <div class="row"><i id="sDestD"></i><span>At finish</span><b id="sDest">no</b></div>
+          <small class="legend">↑ ahead · ← left · → right · ↓ behind</small>
+        </div>
+        <div class="overlay" id="ovBrief" hidden></div>
+        <div class="overlay" id="ovResult" hidden></div>
+        <div class="toast" id="toast" hidden></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn run" id="btnRun" type="button" data-ic="play">Run</button>
+        <button class="btn" id="btnPause" type="button" data-ic="pause">Pause</button>
+        <button class="btn" id="btnReset" type="button" data-ic="reset">Reset</button>
+        <button class="btn" id="btnRetry" type="button" data-ic="retry">Retry</button>
+        <span class="sep"></span>
+        <div class="seg" id="speed" role="group" aria-label="Speed"><button data-m="1" class="on" type="button">1×</button><button data-m="2" type="button">2×</button><button data-m="4" type="button">4×</button></div>
+        <button class="btn ghost sm on" id="btnGrid" type="button" data-ic="grid">Grid</button>
+        <button class="btn ghost sm on" id="btnFan" type="button" data-ic="radar">Sensors</button>
+      </div>
+
+      <div class="sbbar" id="sbBar" hidden></div>
+
+      <div class="lower">
+        <div class="pipe" id="pipe">
+          <div class="chip" data-k="sense" title="Perception: sensors gather information about the world."><i></i><b>Perceive</b><small>sensors</small></div><span class="arr">›</span>
+          <div class="chip" data-k="decide" title="Decision-making: rules and conditions choose what to do."><i></i><b>Decide</b><small>rules</small></div><span class="arr">›</span>
+          <div class="chip" data-k="act" title="Control: the car moves, turns or stops."><i></i><b>Act</b><small>control</small></div><span class="arr">›</span>
+          <div class="chip" data-k="test" title="Testing: did it work in this situation? Change one thing and Retry."><i></i><b>Test</b><small>retry</small></div>
+        </div>
+        <div class="log" id="log" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="code">
+      <div class="code-head"><span>Your program</span><span id="blkCount">0 blocks</span></div>
+      <div id="blockly"></div>
+    </section>
+  </main>
+</section>
+
+<script src="https://unpkg.com/blockly@10/blockly_compressed.js"></script>
+<script src="https://unpkg.com/blockly@10/blocks_compressed.js"></script>
+<script src="https://unpkg.com/blockly@10/javascript_compressed.js"></script>
+<script src="https://unpkg.com/blockly@10/msg/en.js"></script>
+<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/chapters.js"></script>
+<script src="js/runtime.js"></script>
+<script src="js/render.js"></script>
+<script src="js/blocks.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
