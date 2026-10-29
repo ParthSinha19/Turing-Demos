@@ -458,6 +458,42 @@
                             </svg>
                         </template>
                     </li>
+                    <!-- 12 -->
+                    <li class="item" data-cat="ml play" data-tags="self driving lab car autonomous sensors navigation vision control reinforcement learning">
+                    <a class="row" href="./self-driving-lab/">
+                    <span class="num">12</span>
+                        <span class="body">
+                            <span class="title">Self Driving Lab</span>
+                            <span class="desc">Program sensors, train navigation models, and guide an autonomous vehicle through dynamic obstacles.</span>
+                        </span>
+                    <span class="meta">Autonomous</span>
+                    <span class="go" aria-hidden="true"><svg><use href="#i-arrow" /></svg></span>
+                    </a>
+                    <template>
+                        <svg class="fig" viewBox="0 0 400 300" aria-hidden="true">
+                        <!-- Road / Lane Lines -->
+                        <path class="s m draw" pathLength="1" d="M 60 40 L 60 260 M 340 40 L 340 260" />
+                        <path class="s m draw" style="stroke-dasharray: 12 12; opacity: 0.5;" pathLength="1" d="M 200 40 L 200 260" />
+
+                        <!-- Sensor / Radar Sweep Arcs -->
+                        <path class="s ac draw" style="stroke-width: 3; animation-delay: 0.3s;" pathLength="1" d="M 200 190 Q 150 130 110 110" />
+                        <path class="s ac draw" style="stroke-width: 3; animation-delay: 0.4s;" pathLength="1" d="M 200 190 Q 200 110 200 90" />
+                        <path class="s ac draw" style="stroke-width: 3; animation-delay: 0.5s;" pathLength="1" d="M 200 190 Q 250 130 290 110" />
+
+                        <!-- Target Waypoints / Obstacles -->
+                        <circle class="s fa pop" style="animation-delay: 0.6s;" cx="110" cy="110" r="12" />
+                        <circle class="s fa pop" style="animation-delay: 0.7s;" cx="200" cy="90" r="12" />
+                        <circle class="s fa pop" style="animation-delay: 0.8s;" cx="290" cy="110" r="12" />
+
+                        <!-- Vehicle Body -->
+                        <rect class="s fp pop" style="animation-delay: 0.1s;" x="165" y="180" width="70" height="100" rx="18" />
+                        <!-- Windshield / Cabin -->
+                        <rect class="s fa pop" style="animation-delay: 0.2s;" x="177" y="200" width="46" height="35" rx="8" />
+                        <!-- Sensor Dome / LIDAR Unit -->
+                        <circle class="fi pop" style="animation-delay: 0.3s;" cx="200" cy="230" r="7" />
+                        </svg>
+                    </template>
+                </li>
 
                 </ol>
 
