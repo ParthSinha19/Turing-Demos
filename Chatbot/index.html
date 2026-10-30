@@ -172,16 +172,6 @@
   .challenge.done{border-color:var(--mint);background:#F0FFFA;}
   .challenge .tick{float:right;color:var(--mint);font-weight:800;}
 
-  /* Loading overlay */
-  .loading-overlay{
-    position:fixed;inset:0;background:rgba(18,10,36,0.92);z-index:50;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px;
-  }
-  .brain{font-size:3.4rem;animation:pulse 1.4s infinite ease-in-out;}
-  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
-  .progress-track{width:min(320px,80vw);height:12px;background:rgba(255,255,255,0.15);border-radius:999px;margin-top:22px;overflow:hidden;}
-  .progress-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--mint));width:0%;transition:width .3s ease;}
-
   .badge{display:inline-block;background:var(--amber);color:#5B3A00;font-weight:800;font-size:0.7rem;padding:3px 10px;border-radius:999px;margin-left:8px;}
   .note{background:#FFF3DE;border-radius:12px;padding:12px 14px;font-size:0.88rem;color:#8A6200;margin-top:14px;}
 
@@ -333,14 +323,14 @@
 
     <div class="mini-flow">
       <span class="pill">❓ Your question</span><span class="arr">→</span>
-      <span class="pill">🧠 AI + your notes</span><span class="arr">→</span>
+      <span class="pill">🔎 Keyword match</span><span class="arr">→</span>
       <span class="pill">💬 Answer</span>
     </div>
 
     <div class="row">
       <div class="col">
         <label class="field-label">Bot name</label>
-        <input type="text" id="botName" placeholder="e.g. Astro, Nova, Pixel...">
+        <input type="text" id="botName" maxlength="30" placeholder="e.g. Astro, Nova, Pixel...">
       </div>
       <div class="col">
         <label class="field-label">Choose an avatar</label>
@@ -349,7 +339,7 @@
     </div>
 
     <label class="field-label" style="margin-top:16px;">What is your bot?</label>
-    <textarea id="botDesc" placeholder="e.g. A friendly space expert who helps people learn about planets."></textarea>
+    <textarea id="botDesc" maxlength="200" placeholder="e.g. A friendly space expert who helps people learn about planets."></textarea>
 
     <h3 style="margin:22px 0 10px;color:var(--navy);">Personality</h3>
     <div class="slider-block">
@@ -366,7 +356,7 @@
     </div>
     <div class="slider-block">
       <div class="slider-labels"><span>🐟 Forgets quickly</span><span>🐘 Remembers the chat</span></div>
-      <input type="range" min="0" max="3" step="1" value="0" id="sliderMemory">
+      <input type="range" min="0" max="3" step="1" value="1" id="sliderMemory">
     </div>
 
     <div class="actions spread">
@@ -378,7 +368,7 @@
   <!-- STAGE 2: TRAIN -->
   <div class="panel hidden" id="panel-teach">
     <h2>Train Your Bot 📚</h2>
-    <p class="sub">Stage 2 of 3 — add notes your bot can read when it answers. You are <b>not</b> retraining the AI. Every card is editable, <b>including pack cards</b>, and your bot's answers change straight away.</p>
+    <p class="sub">Stage 2 of 3 — add notes your bot searches when you ask it something. Every card is editable, <b>including pack cards</b>, and your bot's answers change straight away.</p>
 
     <div id="knowledgeList"></div>
 
@@ -387,7 +377,7 @@
       <input type="text" id="newTopic" maxlength="60" placeholder="e.g. My Favourite Game">
       <label class="field-label" style="margin-top:10px;">What should your bot know?</label>
       <textarea id="newInfo" maxlength="400" placeholder="e.g. My favourite game is Minecraft. I like building castles and exploring caves."></textarea>
-      <div class="note" style="margin-top:10px;">Tip: using a topic that already exists (even from a pack) <b>updates</b> that card.</div>
+      <div class="note" style="margin-top:10px;">Tip: using a topic that already exists (even from a pack) <b>updates</b> that card. Put the key words you expect in the topic!</div>
       <div id="cardFeedback" class="note hidden" style="background:#E4FBF2;color:#0A9A6C;"></div>
       <div class="actions" style="margin-top:12px;"><button class="secondary-btn" id="addCardBtn">➕ Add / update card</button></div>
     </div>
@@ -396,7 +386,7 @@
     <div class="pack-grid" id="packGrid"></div>
 
     <div class="venn">
-      <div class="box"><b>🧠 AI's built-in<br>knowledge</b></div>
+      <div class="box"><b>🧠 Built-in<br>notes</b></div>
       <div class="sym">+</div>
       <div class="box taught"><b>📚 Your<br>cards</b></div>
       <div class="sym">+</div>
@@ -439,37 +429,27 @@
   </div>
 </div>
 
-<!-- Loading overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="brain">🧠</div>
-  <h2 id="loadingText" style="margin:16px 0 4px;">Getting your AI brain ready...</h2>
-  <div id="loadingSub" style="opacity:0.75;font-size:0.9rem;">Getting the AI brain ready (this only happens once per session)</div>
-  <div class="progress-track"><div class="progress-fill" id="loadingFill"></div></div>
-</div>
-
 <!-- Teacher modal -->
 <div class="modal-backdrop hidden" id="teacherModal">
   <div class="modal">
     <h2>🧑‍🏫 Teacher Mode</h2>
     <dl>
       <dt>What are students learning?</dt>
-      <dd>The difference between an AI's built-in knowledge and information a person supplies, how instructions shape tone and behaviour, and why AI should admit uncertainty instead of guessing.</dd>
+      <dd>How a simple chatbot finds answers from information a person supplies, how instructions shape tone and behaviour, and why a bot should admit when it doesn't know instead of guessing.</dd>
       <dt>What are the three stages?</dt>
       <dd><b>Build</b> (name, avatar, personality), <b>Train</b> (add and edit knowledge cards) and <b>Test</b> (chat, check answers, then go back to Train to improve). The loop Train → Test → re-train is the point of the activity.</dd>
-      <dt>What AI model is this?</dt>
-      <dd>This activity uses SmolLM2-360M-Instruct, a small open language model (about 360 million parameters) chosen specifically because it's light and fast enough to run smoothly in a browser on ordinary school laptops. The <code>MODEL_ID</code> constant near the top of the script can be swapped for a larger model (e.g. a Qwen model) if you want stronger general knowledge and have faster classroom devices — replies will be slower.</dd>
-      <dt>What does Transformers.js do?</dt>
-      <dd>It's a JavaScript library that runs AI models inside the browser using ONNX Runtime Web, with WebGPU acceleration where available and a CPU/WASM fallback otherwise.</dd>
-      <dt>Why does it run in the browser?</dt>
-      <dd>No server, account or database is needed. Nothing a student types leaves their device — it's ideal for a classroom with safeguarding requirements.</dd>
-      <dt>What does "teaching" the bot actually mean?</dt>
-      <dd>Students are not retraining the model. Their knowledge cards and instructions are added as context alongside each question, which the model reads before answering. Only the cards relevant to the question are included each time.</dd>
+      <dt>What kind of chatbot is this?</dt>
+      <dd>A rule-based, keyword-matching chatbot. There is no AI model to download, so it loads instantly, works offline after the first visit and runs on any school laptop. Nothing a student types leaves their device.</dd>
+      <dt>How does it find an answer?</dt>
+      <dd>1) It splits the question into key words, ignoring little words like "the" and "is". 2) It scores every card: a match in the topic is worth 3 points, a match in the body text 1 point. 3) The best-scoring card wins; a student's card beats a built-in note on the same topic. 4) The answer is built from the card's own sentences and dressed in the bot's personality. The "How did I answer?" button under each reply shows the matched words.</dd>
+      <dt>How is this different from ChatGPT-style AI?</dt>
+      <dd>This bot can only repeat what is on its cards. A large language model generates new sentences from patterns in huge amounts of text. It's a good discussion point: which is more predictable, and which is more flexible?</dd>
       <dt>How do knowledge packs work?</dt>
-      <dd>A pack is just a quick way to add a set of ready-made cards. They are ordinary cards: students can edit them, and the bot's answers change immediately. There are no pre-written answers — everything the bot says is generated from the current card text.</dd>
+      <dd>A pack is just a quick way to add a set of ready-made cards. They are ordinary cards: students can edit them, and the bot's answers change immediately. There are no pre-written answers — every reply is built from the current card text.</dd>
       <dt>What does the "remembers the chat" slider do?</dt>
-      <dd>It controls how many of the previous question-and-answer pairs are shown to the model with each new question — a simple way to see how an AI's short-term memory works.</dd>
+      <dd>With memory on, the bot can follow up ("Tell me more", "Is it big?") by remembering the last topic. With memory off it forgets, which shows how an assistant's short-term memory works.</dd>
       <dt>Why does the bot sometimes say "I don't know"?</dt>
-      <dd>It's designed to only rely on its own general knowledge or what the student typed — and to say so honestly when neither covers the question. Questions about the student ("my favourite…") with no matching card always get an honest "I don't know".</dd>
+      <dd>When no card or built-in note matches, it says so honestly. Questions about the student ("my favourite…") with no matching card of their own always get an honest "I don't know".</dd>
       <dt>Where is a student's work saved?</dt>
       <dd>Their working bot lives in sessionStorage and clears when the tab closes. "Save current bot" stores it in localStorage on that device, and Export / Share link let them move it elsewhere. Nothing is sent to a server.</dd>
       <dt>How is it accessed?</dt>
@@ -501,8 +481,9 @@
   </div>
 </div>
 
-<script type="module">
-import { pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0";
+<script>
+(function(){
+'use strict';
 
 /* ---------- Starfield background ---------- */
 const canvas = document.getElementById('stars');
@@ -523,20 +504,20 @@ function drawStars(){
 drawStars();
 
 /* ---------- State (sessionStorage) ---------- */
-const STORAGE_KEY = "ailab_bot_state_v2";
+const STORAGE_KEY = "ailab_bot_state_v3";
 const MAX_CARDS = 40;
 const uid = ()=>Math.random().toString(36).slice(2,9);
 const defaultState = {
-  bot: { name:"", desc:"", avatar:"🤖", friendly:20, funny:30, length:40, memory:0 },
+  bot: { name:"", desc:"", avatar:"🤖", friendly:20, funny:30, length:40, memory:1 },
   knowledge: [],            // {id, topic, info, pid?, edited?, t}
-  chatLog: [],              // {role, text, trace?, direct?}
+  chatLog: [],              // {role, text, trace?}
   challenges: {ch1:false, ch2:false, ch3:false, ch4:false},
   slidersMovedFar: false,
   sawIDK: false,
   currentPanel: "build"
 };
 let state = loadState();
-ensureIds();
+state.knowledge.forEach(k=>{ if(!k.id) k.id = uid(); if(!k.t) k.t = 0; });
 
 function loadState(){
   try{
@@ -554,9 +535,6 @@ function loadState(){
 function saveState(){
   try{ sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
 }
-function ensureIds(){
-  state.knowledge.forEach(k=>{ if(!k.id) k.id = uid(); if(!k.t) k.t = 0; });
-}
 
 /* ---------- Avatars ---------- */
 const AVATARS = ["🤖","🦊","🐙","🚀","🐉","🦉","👾","🐱","🌟","🦄"];
@@ -572,7 +550,7 @@ function renderAvatars(){
   document.documentElement.style.setProperty('--bot-avatar', JSON.stringify(state.bot.avatar));
 }
 
-/* ---------- Built-in knowledge (the AI's own "notes") ---------- */
+/* ---------- Built-in notes (the bot's own knowledge) ---------- */
 // Keep `keys` specific. Generic words like "game", "food" or "planet" cause false matches.
 const BUILTIN = [
   {topic:"Jupiter", keys:"biggest largest giant", info:"Jupiter is the largest planet in the Solar System. It has a giant storm called the Great Red Spot."},
@@ -593,7 +571,7 @@ const BUILTIN = [
   {topic:"Dinosaurs", keys:"dinosaur fossils extinct", info:"Most dinosaurs died out about 66 million years ago. Fossils help scientists learn about them."},
   {topic:"Robots", keys:"robot", info:"Robots are machines that can sense and act in the world."},
   {topic:"Coding", keys:"code programming", info:"Coding means giving a computer step-by-step instructions."},
-  {topic:"Artificial intelligence", keys:"ai chatbot model", info:"AI models learn patterns from lots of examples. They do not think or feel like people. A chatbot is a program that chats with people."},
+  {topic:"Artificial intelligence", keys:"ai chatbot", info:"AI programs learn patterns from lots of examples. They do not think or feel like people. A chatbot is a program that chats with people."},
   {topic:"Binary", keys:"bits", info:"Computers store everything as 0s and 1s, called binary."},
   {topic:"Internet safety", keys:"password online private", info:"Never share your passwords or private details like your address online. Ask a trusted adult if unsure."},
   {topic:"Minecraft", keys:"blocks", info:"Minecraft is a building and exploration game where you place blocks and craft things."},
@@ -645,8 +623,7 @@ const PACKS = [
     {topic:"Orchestra", info:"An orchestra has families of instruments: strings, woodwind, brass and percussion."},
     {topic:"Tempo", info:"Tempo is how fast or slow a piece of music is played."}]}
 ];
-const packByName = n => PACKS.find(p=>p.name===n);
-const packCards = n => packByName(n).cards.map((c,i)=>({topic:c.topic, info:c.info, pid:`${n}#${i}`}));
+const packCards = n => PACKS.find(p=>p.name===n).cards.map((c,i)=>({topic:c.topic, info:c.info, pid:`${n}#${i}`}));
 
 const STARTERS = [
   {bot:{name:"Captain Cosmo", desc:"a cheerful space explorer who loves planets and rockets", avatar:"🚀", friendly:15, funny:20, length:40, memory:1}, knowledge:packCards("Space Mission")},
@@ -654,228 +631,231 @@ const STARTERS = [
   {bot:{name:"Pixel", desc:"a playful gaming buddy who loves building worlds", avatar:"👾", friendly:10, funny:10, length:30, memory:1}, knowledge:packCards("Minecraft")}
 ];
 
-/* ---------- Retrieval: only relevant cards go into the prompt ---------- */
-const STOP = new Set("what whats is are was the an of my your you me who how why when where does do did can tell about it in on to and for im favourite favorite please know think like love want hello hi hey thanks thank ok okay say said let lets get got make".split(" "));
+/* =====================================================================
+   THE BRAIN: keyword matching (no AI model)
+   ===================================================================== */
+const STOP = new Set("what whats is are was were the an of my your you me who how why when where does do did can could tell about it its in on to and for im i am be been favourite favorite please know think like love want hello hi hey thanks thank ok okay say said let lets get got make more else another continue elaborate explain really further many much there this that they them those these he she him her with so just any some also".split(" "));
+
 function tok(s){
   return (String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().match(/[a-z0-9]+/g)||[])
     .filter(w=>w.length>1 && !STOP.has(w))
     .map(w=> (w.length>3 && w.endsWith("s") && !w.endsWith("ss")) ? w.slice(0,-1) : w);
 }
-const near = (a,b) => a===b || (a.length>=4 && b.length>=4 && (a.startsWith(b)||b.startsWith(a)));
-function score(q, entry){
-  const head = tok(entry.topic+" "+(entry.keys||"")), body = tok(entry.info||"");
-  let s = 0;
-  q.forEach(w=>{ if(head.some(h=>near(w,h))) s+=3; else if(body.some(h=>near(w,h))) s+=1; });
-  return s;
+// same word, or one is the start of the other (volcano / volcanoe) — only for longer words
+const near = (a,b) => a===b || (Math.min(a.length,b.length)>=5 && (a.startsWith(b)||b.startsWith(a)));
+
+function score(q, e){
+  const head = tok(e.topic+" "+(e.keys||"")), body = tok(e.info||"");
+  let s = 0; const words = [];
+  q.forEach(w=>{
+    if(head.some(h=>near(w,h))){ s+=3; words.push(w); }
+    else if(body.some(h=>near(w,h))){ s+=1; words.push(w); }
+  });
+  return {s, words};
 }
 
-const DIRECT = {
-  personal:"I don't know that yet — nobody's taught me! Add a knowledge card in the Train stage and ask me again. 😊",
-  secret:"I don't know that yet — and I'm not sure that even exists! I only know what I've been taught or what's in my own notes. 🤔",
-  none:"You haven't taught me anything yet! Head to the Train stage and add a card or a pack. 📚"
-};
-const isIDK = t => /don't know|do not know|not sure|no idea/i.test(t||"");
+const sentences = t => (String(t).match(/[^.!?]+[.!?]*/g)||[]).map(x=>x.trim()).filter(Boolean);
+function bestIdx(ss, q){
+  let bi=0, bs=0;
+  ss.forEach((s,i)=>{
+    const t = tok(s);
+    const n = q.filter(w=>t.some(x=>near(w,x))).length;
+    if(n>bs){ bs=n; bi=i; }
+  });
+  return bi;
+}
 
 function retrieve(question){
   const q = tok(question);
-  const asksTaught = /\b(teach|taught)\b|your notes/i.test(question);
   const personal = /\b(my|mine|our)\b/i.test(question);
   const secret = /\bsecret\b/i.test(question);
-  const rank = (list,min)=>list.map(k=>({k,s:score(q,k)})).filter(x=>x.s>=min).sort((a,b)=>b.s-a.s);
+  const cards = state.knowledge.map(k=>({...k, src:'user'}));
+  // Questions about "me" only look at cards the student wrote or edited — never untouched pack cards
+  const pool = personal ? cards.filter(k=>!k.pid || k.edited) : cards;
+  const rank = (list,min)=>list.map(k=>{const r=score(q,k); return {k, s:r.s, words:r.words};})
+                               .filter(x=>x.s>=min).sort((a,b)=>b.s-a.s);
 
-  if(asksTaught && !state.knowledge.length) return {user:[],builtin:[],guard:'none'};
+  const u = rank(pool, q.length<=2 ? 1 : 2).slice(0,3);
+  if(secret && !u.some(x=>x.s>=3)) return {guard:'secret', user:[], builtin:[], matched:[], q};
+  if(personal && !u.length)        return {guard:'personal', user:[], builtin:[], matched:[], q};
 
-  const u = asksTaught ? state.knowledge.slice(0,5).map(k=>({k,s:9})) : rank(state.knowledge, personal?1:2).slice(0,3);
-  const strong = u.some(x=>x.s>=3);
-  if(secret && !strong) return {user:[],builtin:[],guard:'secret'};
-  if(personal && !u.length) return {user:[],builtin:[],guard:'personal'};
-
-  const user = u.map(x=>x.k);
-  // A student's card on the same topic OVERRIDES the AI's built-in note
-  const heads = user.flatMap(k=>tok(k.topic));
-  const builtin = rank(BUILTIN,3).slice(0,2).map(x=>x.k)
-    .filter(b=>!tok(b.topic).some(t=>heads.some(h=>near(t,h))));
-  return {user, builtin, guard:null};
-}
-
-/* ---------- Prompt construction ---------- */
-function personalityInstructions(bot){
-  const tone = bot.friendly < 50 ? "warm, friendly and encouraging" : "calm, precise and serious";
-  const humour = bot.funny < 50 ? "You enjoy the occasional light joke or fun exclamation." : "You keep a formal, matter-of-fact style with no jokes.";
-  const length = bot.length < 50 ? "Keep answers to 1-2 short sentences." : "Give a fuller, more detailed answer of 3-5 sentences.";
-  return `${tone}. ${humour} ${length}`;
-}
-const styleLabel = bot => `${bot.friendly<50?'friendly':'serious'}, ${bot.funny<50?'a bit funny':'formal'}, ${bot.length<50?'short':'detailed'} answers`;
-
-function buildSystemPrompt(r){
-  const bot = state.bot;
-  const taught = r.user.length ? r.user.map(k=>`- ${k.topic}: ${k.info}`).join("\n") : "(nothing relevant)";
-  const known  = r.builtin.length ? r.builtin.map(k=>`- ${k.info}`).join("\n") : "(nothing relevant)";
-  return `You are ${bot.name || "a chatbot"}, ${bot.desc || "a helpful assistant"}.
-Personality instructions: ${personalityInstructions(bot)}
-
-Notes the student gave you:
-${taught}
-
-General facts you know:
-${known}
-
-Rules:
-- If the question is about something in the student's notes, use ONLY that information and mention it comes from the notes they gave you.
-- If the question is answered by the general facts above, or by general knowledge you are sure about, answer briefly.
-- If you do not know the answer and it is not in your notes, honestly say "I don't know that yet." Do NOT invent an answer.
-- Always stay in character and follow your personality instructions.
-- Keep the language simple enough for a 9-11 year old.`;
-}
-
-function plan(question){
-  const r = retrieve(question);
-  const trace = {
-    user: r.user.map(k=>k.topic),
-    builtin: r.builtin.map(k=>k.topic),
-    own: r.user.some(k=>!k.pid),
-    mem: 0,
-    style: styleLabel(state.bot),
-    guard: r.guard
-  };
-  return {r, guard:r.guard, trace};
-}
-
-// Short-term memory: last N good exchanges. "I don't know" turns are left out
-// so a small model doesn't get stuck repeating them.
-function historyFor(){
-  const n = state.bot.memory ?? 0;
-  if(!n) return [];
-  const log = state.chatLog.slice(0,-1);          // exclude the question just asked
-  const picked = [];
-  for(let i=log.length-1; i>0 && picked.length<n*2; i--){
-    if(log[i].role==='bot' && log[i-1].role==='user'){
-      if(!isIDK(log[i].text) && !log[i].direct) picked.unshift(log[i-1], log[i]);
-      i--;
-    }
+  let builtin = [];
+  if(!personal){
+    // A student's card on the same topic OVERRIDES the built-in note
+    const heads = u.flatMap(x=>tok(x.k.topic));
+    builtin = rank(BUILTIN.map(b=>({...b, src:'builtin'})), 3).slice(0,2).map(x=>x)
+      .filter(x=>!tok(x.k.topic).some(t=>heads.some(h=>near(t,h))));
   }
-  return picked.map(m=>({role: m.role==='user' ? 'user' : 'assistant', content: String(m.text).slice(0,200)}));
+  const matched = [...new Set([...u.flatMap(x=>x.words), ...builtin.flatMap(x=>x.words)])];
+  return {guard:null, user:u.map(x=>x.k), builtin:builtin.map(x=>x.k), matched, q};
 }
 
-/* ---------- Model loading (Transformers.js + SmolLM2) ---------- */
-// Very small, fast instruct model — good enough for this demo since the
-// system prompt + knowledge cards do most of the work. Swap to a bigger
-// Qwen model here later if you want noticeably smarter general knowledge
-// at the cost of slower replies on weak laptops.
-const MODEL_ID = "HuggingFaceTB/SmolLM2-360M-Instruct";
-let generator = null;
-let usingFallback = false;
-const loadingOverlay = document.getElementById('loadingOverlay');
-const loadingFill = document.getElementById('loadingFill');
-const loadingSub = document.getElementById('loadingSub');
-const loadingText = document.getElementById('loadingText');
+/* ---------- Personality ---------- */
+const sKey = ()=> (state.bot.friendly<50 ? 'f' : 's') + (state.bot.funny<50 ? 'u' : 'o');   // fu, fo, su, so
+const by = o => o[sKey()];
+const isShort = ()=> state.bot.length < 50;
+const styleLabel = ()=> `${state.bot.friendly<50?'friendly':'serious'}, ${state.bot.funny<50?'a bit funny':'formal'}, ${isShort()?'short':'detailed'} answers`;
 
-async function detectWebGPU(){
-  try{
-    if(!navigator.gpu) return false;
-    const adapter = await navigator.gpu.requestAdapter();
-    return !!adapter;
-  }catch(e){ return false; }
+const OPEN = {
+  fu:["Ooh, great question! 🎉","Ha, I love this one! 😄","Zoom zoom — I know this! 🚀"],
+  fo:["Great question!","Happy to help!","Good one!"],
+  su:["Ahem. Behold, knowledge.","Fascinating. Even I'm impressed.","A question! How delightful. Truly."],
+  so:["Here is what I know.","The answer is as follows.","Certainly."]
+};
+const CLOSE = {
+  fu:["Ask me another! 🙌","Boom — brain power! 🧠","Fun, right? 😄"],
+  fo:["Anything else you'd like to know?","I hope that helps!","Ask me anything else!"],
+  su:["I'll be here all week.","That's my professional opinion.","Mic drop."],
+  so:["","",""]
+};
+const IDK = {
+  fu:"Hmm, my brain is blank on that one! 😅 I don't know that yet.",
+  fo:"I'm sorry, I don't know that yet.",
+  su:"That isn't in my files. I don't know that yet, and I'm devastated. Slightly.",
+  so:"I don't know that yet."
+};
+const hash = s => { let h=0; for(const c of String(s).toLowerCase()) h=(h*31+c.charCodeAt(0))>>>0; return h; };
+const pick = (list,h) => list[h % list.length];
+const isIDK = t => /don't know|do not know|not sure|no idea/i.test(t||"");
+
+function dress(core, q){
+  const k = sKey(), h = hash(q);
+  let open = pick(OPEN[k], h);
+  if(isShort() && k==='so') open = "";                       // serious + formal + short = just the answer
+  const close = isShort() ? "" : pick(CLOSE[k], h>>>3);
+  return [open, core, close].filter(Boolean).join(' ');
 }
+const idk = hint => by(IDK) + (hint ? ' '+hint : '');
 
-async function initModel(){
-  loadingOverlay.classList.remove('hidden');
-  const hasWebGPU = await detectWebGPU();
-  const device = hasWebGPU ? "webgpu" : "wasm";
-  if(!hasWebGPU){
-    usingFallback = true;
-    loadingSub.textContent = "Your device doesn't support WebGPU — using the lightweight CPU mode instead.";
+/* ---------- Memory ---------- */
+function remembered(){
+  const n = state.bot.memory || 0;
+  if(!n) return null;
+  const log = state.chatLog.slice(0,-1).slice(-n*2);          // drop the question being answered
+  for(let i=log.length-1; i>=0; i--){
+    if(log[i].role==='bot' && log[i].trace && log[i].trace.ref) return log[i].trace.ref;
   }
-  try{
-    generator = await pipeline(
-      "text-generation",
-      MODEL_ID,
-      {
-        // "q4" (not "q4f16") avoids a known WebGPU Float16 bug in some browsers.
-        dtype: "q4",
-        device,
-        progress_callback: (p)=>{
-          if(p.status === "progress" && p.total){
-            const pct = Math.round((p.loaded / p.total) * 100);
-            loadingFill.style.width = pct + "%";
-            loadingSub.textContent = `Loading ${p.file || "AI brain"}... ${pct}%`;
-          } else if (p.status === "ready"){
-            loadingFill.style.width = "100%";
-          }
-        }
+  return null;
+}
+function lookupRef(ref){
+  if(!ref) return null;
+  if(ref.src==='user'){
+    const k = state.knowledge.find(x=>x.topic.toLowerCase()===String(ref.topic).toLowerCase());
+    return k ? {...k, src:'user'} : null;
+  }
+  const b = BUILTIN.find(x=>x.topic===ref.topic);
+  return b ? {...b, src:'builtin'} : null;
+}
+const FOLLOW_PRON = /\b(it|its|that|this|they|them|those|these|he|she|him|her)\b/i;
+const FOLLOW_MORE = /\b(more|else|another|continue|elaborate|explain|why|really|further)\b|go on/i;
+
+/* ---------- Building an answer ---------- */
+function describe(entry, qTokens){
+  const ss = sentences(entry.info);
+  if(isShort()) return ss[bestIdx(ss, qTokens)] || entry.info;
+  return ss.slice(0,3).join(' ');
+}
+const lc = s => (s.length>1 && s[1]===s[1].toUpperCase() && s[1]!==s[1].toLowerCase()) ? s : s.charAt(0).toLowerCase()+s.slice(1);
+
+function baseTrace(){
+  return {guard:null, intent:null, user:[], builtin:[], matched:[], own:false, usedMem:false,
+          memOn:(state.bot.memory||0)>0, style:styleLabel(), ref:null};
+}
+const mk = (text, extra)=>({text, trace:{...baseTrace(), ...extra}});
+
+function answer(question){
+  const q = question.trim();
+  const words = q.split(/\s+/).length;
+  const n = state.bot.name || "your bot";
+  const d = state.bot.desc.trim().replace(/[.!\s]+$/,'');
+  const intro = d ? `${n}, ${lc(d)}` : n;
+
+  /* --- tiny chat rules --- */
+  if(/^\s*(hi|hello|hey|hiya|yo|howdy|good (morning|afternoon|evening))\b/i.test(q) && words<=4){
+    return mk(by({
+      fu:`Hiya! 👋 I'm ${intro}. Ask me anything!`,
+      fo:`Hello! I'm ${intro}. How can I help?`,
+      su:`Greetings, human. I'm ${intro}. Try not to break me.`,
+      so:`Hello. I am ${intro}. How can I help?`}), {guard:'intent', intent:'a greeting'});
+  }
+  if(/\b(thanks|thank you|cheers)\b/i.test(q) && words<=6){
+    return mk(by({fu:"You're welcome! 🎉", fo:"You're welcome!", su:"Don't mention it. Really, don't.", so:"You're welcome."}),
+              {guard:'intent', intent:'saying thanks'});
+  }
+  if(/how are you|how('s| is) it going/i.test(q)){
+    return mk(by({
+      fu:"I'm a program made of rules and notes, so no feelings — but I'm running great! 😄",
+      fo:"I'm a program made of rules and notes, so I don't have feelings, but I'm running well!",
+      su:"I'm a pile of rules and notes. Feelings: none. Performance: excellent.",
+      so:"I am a program made of rules and notes, so I have no feelings. I am running correctly."}),
+      {guard:'intent', intent:'a question about the bot'});
+  }
+  if(/\b(who|what) are you\b|your name|about yourself|introduce yourself/i.test(q)){
+    const cnt = state.knowledge.length;
+    return mk(`I'm ${intro}. I know ${cnt} thing${cnt===1?'':'s'} you taught me, plus some notes of my own.`,
+              {guard:'intent', intent:'a question about the bot'});
+  }
+  if(/^\s*(so )?(what (did|have) i (teach|taught)( you)?|what (do|can) you (know|do|answer))\s*\??\s*$/i.test(q)){
+    if(!state.knowledge.length)
+      return mk("You haven't taught me anything yet! Head to the Train stage and add a card or a pack. 📚", {guard:'none'});
+    const t = state.knowledge.map(k=>k.topic);
+    const list = t.slice(0,8).join(", ") + (t.length>8 ? ` and ${t.length-8} more` : "");
+    return mk(`You've taught me about: ${list}.`, {guard:'intent', intent:'a question about the bot'});
+  }
+
+  /* --- keyword search --- */
+  const r = retrieve(q);
+  if(r.guard==='secret')
+    return mk(idk("I'm not even sure that exists, so I won't guess!"), {guard:'secret'});
+  if(r.guard==='personal')
+    return mk(idk("Nobody has taught me that about you — add a card in the Train stage."), {guard:'personal'});
+
+  /* --- nothing matched: maybe a follow-up like "tell me more" / "is it big?" --- */
+  if(!r.user.length && !r.builtin.length){
+    const content = r.q.length;
+    const more = FOLLOW_MORE.test(q) && content<=1;
+    const pron = FOLLOW_PRON.test(q) && content<=2;
+    if(words<=8 && (more || pron)){
+      if(!(state.bot.memory||0)){
+        return mk(by({
+          fu:"Oops, I forget things super fast! 🐟 Tell me which topic you mean, or turn up my memory in the Build stage.",
+          fo:"I'm sorry, I can't remember what we were talking about. Please name the topic, or turn up my memory in the Build stage.",
+          su:"My memory is set to goldfish. Name the topic, or turn my memory up in Build.",
+          so:"My memory is switched off, so I cannot recall the earlier topic. Please name it, or turn my memory up in the Build stage."}),
+          {guard:'nomemory'});
       }
-    );
-  }catch(err){
-    console.error("Model load failed, retrying on wasm", err);
-    usingFallback = true;
-    try{
-      generator = await pipeline("text-generation", MODEL_ID, {dtype:"q4", device:"wasm"});
-    }catch(err2){
-      console.error("Fallback also failed", err2);
-      loadingText.textContent = "Hmm, the AI brain couldn't load.";
-      loadingSub.textContent = "Try refreshing the page, or ask your teacher for help.";
-      return;
+      const ent = lookupRef(remembered());
+      if(ent){
+        const ss = sentences(ent.info);
+        let core;
+        if(more){
+          const rest = ss.slice(isShort() ? 1 : 3).join(' ');
+          core = rest || `That's everything I know about ${ent.topic} so far! You could add more detail to its card in the Train stage. ✏️`;
+        } else {
+          core = describe(ent, r.q);
+        }
+        return mk(dress(core, q), {
+          user: ent.src==='user' ? [ent.topic] : [], builtin: ent.src==='builtin' ? [ent.topic] : [],
+          own: ent.src==='user' && (!ent.pid || !!ent.edited), usedMem:true, ref:{src:ent.src, topic:ent.topic}
+        });
+      }
+      return mk(idk("I don't remember us talking about anything yet."), {guard:'nomatch'});
     }
+    return mk(idk("You can teach me in the Train stage."), {guard:'nomatch'});
   }
-  loadingOverlay.classList.add('hidden');
-}
 
-async function askBot(question){
-  const {r, guard, trace} = plan(question);
-  if(guard) return {text:DIRECT[guard], trace, direct:true};
-  if(!generator) return {text:"My AI brain is still waking up — one moment!", trace, direct:true};
-
-  const sys = buildSystemPrompt(r);
-  const past = historyFor();
-  trace.mem = past.length/2;
-  const messages = [{role:"system", content:sys}, ...past, {role:"user", content:question}];
-
-  try{
-    let promptText;
-    try{
-      promptText = generator.tokenizer.apply_chat_template(messages, { tokenize:false, add_generation_prompt:true });
-    }catch(templateErr){
-      console.warn("Chat template unavailable, falling back to plain prompt", templateErr);
-      const hist = past.map(m=>`${m.role==='user'?'Student':'Bot'}: ${m.content}`).join("\n");
-      promptText = `${sys}\n\n${hist}\nStudent: ${question}\nBot:`;
-    }
-
-    // NOTE: no no_repeat_ngram_size — it counts the prompt too, which would stop
-    // the bot from repeating phrases out of the very notes we just gave it.
-    const output = await generator(promptText, {
-      max_new_tokens: state.bot.length < 50 ? 60 : 120,
-      do_sample: false,
-      repetition_penalty: 1.1,
-      return_full_text: false
-    });
-
-    let text = output?.[0]?.generated_text ?? "";
-    if(Array.isArray(text)) text = text[text.length-1]?.content ?? "";
-    if(typeof text === "string" && text.startsWith(promptText)) text = text.slice(promptText.length);
-    text = cleanUpAnswer(text);
-    return {text: text || "I don't know that yet.", trace, direct:false};
-  }catch(e){
-    console.error("askBot failed:", e);
-    return {text:"Oops, my circuits got a bit tangled! Try asking again. (Check the browser console for the technical error.)", trace, direct:true};
+  /* --- normal answer from the best card --- */
+  const main = r.user[0] || r.builtin[0];
+  let core = describe(main, r.q);
+  if(main.src==='user') core = (state.bot.friendly<50 ? "You taught me this: " : "Your notes say: ") + core;
+  if(!isShort()){
+    const other = [...r.user, ...r.builtin].find(e=>e!==main);
+    if(other) core += " Also: " + sentences(other.info)[0];
   }
-}
-
-// Small models sometimes degrade into repeated words even with a penalty.
-// Trim anything that starts looping so students never see a wall of nonsense.
-function cleanUpAnswer(raw){
-  let text = (raw || "").trim();
-  const words = text.split(/\s+/);
-  const seenRecently = [];
-  let cutIndex = words.length;
-  for(let i=0;i<words.length;i++){
-    seenRecently.push(words[i].toLowerCase());
-    if(seenRecently.length > 6) seenRecently.shift();
-    const uniqueCount = new Set(seenRecently).size;
-    if(seenRecently.length===6 && uniqueCount<=2){ cutIndex = Math.max(1, i-5); break; }
-  }
-  text = words.slice(0, cutIndex).join(' ');
-  if(text.length > 400) text = text.slice(0,400).replace(/\s+\S*$/, '') + '…';
-  return text.trim() || "I don't know that yet.";
+  return mk(dress(core, q), {
+    user:r.user.map(k=>k.topic), builtin:r.builtin.map(k=>k.topic), matched:r.matched,
+    own: r.user.some(k=>!k.pid || k.edited), ref:{src:main.src, topic:main.topic}
+  });
 }
 
 /* ---------- Navigation (3 stages) ---------- */
@@ -916,7 +896,7 @@ function loadBuildForm(){
   sliderFriendly.value = state.bot.friendly;
   sliderFunny.value = state.bot.funny;
   sliderLength.value = state.bot.length;
-  sliderMemory.value = state.bot.memory ?? 0;
+  sliderMemory.value = state.bot.memory ?? 1;
   renderAvatars();
 }
 [botNameInput,botDescInput].forEach(el=>el.addEventListener('input', ()=>{
@@ -1074,15 +1054,24 @@ function renderChatSuggestions(){
 }
 
 function whyHtml(t){
-  const names = a => a.map(x=>`<b>${escapeHtml(x)}</b>`).join(", ");
+  const nm = a => a.map(x=>`<b>${escapeHtml(x)}</b>`).join(", ");
+  const words = (t.matched && t.matched.length) ? ` The words that matched: ${nm(t.matched)}.` : "";
   let look;
-  if(t.guard==='personal') look = "You asked about <b>you</b>, and none of your cards match — so your bot honestly said it doesn't know.";
-  else if(t.guard==='secret') look = "That needs a secret your bot was never taught — so it admitted it doesn't know instead of guessing.";
-  else if(t.guard==='none') look = "You haven't added any cards yet.";
-  else if(t.user.length) look = `It found ${t.user.length===1?'a card':'cards'} in your knowledge: ${names(t.user)}. Edit ${t.user.length===1?'it':'them'} in Train to change the answer.`;
-  else if(t.builtin.length) look = `No card matched, so it used its own notes on ${names(t.builtin)}.`;
-  else look = "Nothing matched your cards or its notes — it relied on what the AI model already knows.";
-  const mem = t.mem ? `Looked back at the last ${t.mem} exchange${t.mem===1?'':'s'}.` : "Didn't use any earlier messages.";
+  switch(t.guard){
+    case 'intent':   look = `That was ${escapeHtml(t.intent||'a chat')} — one of my built-in chat rules, so no cards were searched.`; break;
+    case 'personal': look = "You asked about <b>you</b>, and none of your own cards match — so it honestly said it doesn't know.<br>👉 Add a card about it in Train!"; break;
+    case 'secret':   look = "That needs a secret your bot was never taught — so it admitted it doesn't know instead of guessing."; break;
+    case 'nomatch':  look = "None of your question's key words matched any card or built-in note."; break;
+    case 'nomemory': look = "That question depends on the earlier chat, but memory is switched off."; break;
+    case 'none':     look = "You haven't added any cards yet."; break;
+    default:
+      if(t.usedMem)            look = `It remembered you were talking about ${nm(t.user.concat(t.builtin))} and used that.`;
+      else if(t.user.length)   look = `It searched your cards and found ${t.user.length===1?'a match':'matches'}: ${nm(t.user)}.${words} Edit ${t.user.length===1?'it':'them'} in Train to change the answer.`;
+      else if(t.builtin.length)look = `No card of yours matched, so it used its own notes on ${nm(t.builtin)}.${words}`;
+      else                     look = "Nothing matched.";
+  }
+  const mem = t.usedMem ? "Used its memory of the chat." :
+              t.memOn   ? "Memory is on, but this question didn't need it." : "Memory is off — it only sees your latest question.";
   return `<div>🔎 ${look}</div><div>📖 ${mem}</div><div>🎛️ Style: ${escapeHtml(t.style)}.</div>`;
 }
 function attachWhy(div, trace){
@@ -1108,7 +1097,7 @@ function renderChatWindow(){
   chatWin.scrollTop = chatWin.scrollHeight;
 }
 
-async function sendMessage(){
+function sendMessage(){
   const text = chatInput.value.trim();
   if(!text || busy) return;
   busy = true; sendBtn.disabled = true;
@@ -1119,17 +1108,21 @@ async function sendMessage(){
 
   const thinking = appendMsg('bot', "");
   thinking.classList.add('thinking');
-  const res = await askBot(text);
-  thinking.classList.remove('thinking');
-  thinking.textContent = res.text;
-  attachWhy(thinking, res.trace);
+  setTimeout(()=>{
+    let res;
+    try{ res = answer(text); }
+    catch(e){ console.error(e); res = {text:"Hmm, something went wrong in my rules. Try asking a different way!", trace:{...baseTrace(), guard:'nomatch'}}; }
+    thinking.classList.remove('thinking');
+    thinking.textContent = res.text;
+    attachWhy(thinking, res.trace);
 
-  state.chatLog.push({role:'bot', text:res.text, trace:res.trace, direct:res.direct});
-  if(state.chatLog.length > 60) state.chatLog = state.chatLog.slice(-60);
-  saveState();
-  checkMissions(text, res.text, res.trace);
-  busy = false; sendBtn.disabled = false;
-  chatInput.focus();
+    state.chatLog.push({role:'bot', text:res.text, trace:res.trace});
+    if(state.chatLog.length > 60) state.chatLog = state.chatLog.slice(-60);
+    saveState();
+    checkMissions(text, res.text, res.trace);
+    busy = false; sendBtn.disabled = false;
+    chatInput.focus();
+  }, 350 + Math.random()*350);
 }
 sendBtn.onclick = sendMessage;
 chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(); });
@@ -1139,12 +1132,12 @@ document.getElementById('tweakBtn').onclick = ()=>showPanel('build');
 document.getElementById('retrainBtn').onclick = ()=>showPanel('teach');
 
 /* ---------- Mini-missions ---------- */
-function checkMissions(question, answer, trace){
+function checkMissions(question, ans, trace){
   if(trace.own) state.challenges.ch1 = true;                      // asked about a card they made themselves
   if(state.slidersMovedFar) state.challenges.ch2 = true;
-  const idk = isIDK(answer);
-  if(idk && /secret|password|moon|dragon|unicorn|impossible/i.test(question)) state.challenges.ch3 = true;
-  if(idk) state.sawIDK = true;
+  const idkNow = isIDK(ans);
+  if(idkNow && /secret|password|moon|dragon|unicorn|impossible/i.test(question)) state.challenges.ch3 = true;
+  if(idkNow) state.sawIDK = true;
   saveState();
   renderChallenges();
 }
@@ -1287,14 +1280,13 @@ document.getElementById('teacherBtn').onclick = ()=>document.getElementById('tea
 document.getElementById('closeTeacherModal').onclick = ()=>document.getElementById('teacherModal').classList.add('hidden');
 
 /* ---------- Boot ---------- */
-(async function boot(){
-  loadBuildForm();
-  renderKnowledge();
-  renderPacks();
-  renderChallenges();
-  showPanel(state.currentPanel);
-  loadFromHash();
-  await initModel();
+loadBuildForm();
+renderKnowledge();
+renderPacks();
+renderChallenges();
+showPanel(state.currentPanel);
+loadFromHash();
+
 })();
 </script>
 </body>
