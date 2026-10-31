@@ -1,179 +1,71 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Teach the Robot to Dance</title>
+<meta name="description" content="A classroom lab where students teach a robot to recognise dance styles they design, and see how machine learning really works.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🪩%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Mono:wght@400;500&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-/* Layout concept: a night-club dance floor. Left: sticky stage (robot on a tiled floor) plus the dance tray.
-   Right: a tabbed workbench for moves, styles, testing and the investigation lab. Committed to one dark look. */
-:root{
-  --bg:#100d22; --panel:#1a1636; --panel-2:#241e48; --line:#3a3270;
-  --ink:#f4f0ff; --muted:#aaa2d8; --accent:#ff58a8; --accent-ink:#1c0a15;
-  --good:#6df29a; --warn:#ffd23f; --bad:#ff6a6a;
-  --f-display:'Bagel Fat One','Arial Rounded MT Bold','Trebuchet MS',system-ui,sans-serif;
-  --f-body:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --f-mono:'DM Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
-  --glow:#ff58a8;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--f-body);padding-inline:16px;padding-block:14px 56px}
-button,select,input{font:inherit;color:inherit}
-button{cursor:pointer}
-:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
-h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.1;text-wrap:balance}
-p{margin:0}
-.wrap{max-width:1240px;margin-inline:auto}
-header.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
-h1{font-size:clamp(26px,4.4vw,40px);letter-spacing:.01em}
-h1 span{color:var(--accent)}
-.brainbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;min-width:0}
-.brain{display:flex;align-items:center;gap:8px;background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;min-width:0}
-.brain i{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
-.brain.ok i{background:var(--good)} .brain.stale{border-color:var(--warn)} .brain.stale i{background:var(--warn)}
-.btn{background:var(--panel-2);border:2px solid var(--line);border-bottom-width:5px;border-radius:14px;padding:8px 14px;font-weight:500;font-size:14px;transition:transform .08s}
-.btn:active{transform:translateY(2px);border-bottom-width:3px}
-.btn.primary{background:var(--accent);border-color:#ff9bcb;border-bottom-color:#b3256f;color:var(--accent-ink);font-weight:600}
-.btn.big{width:100%;padding:12px;font-size:16px}
-.btn.sm{padding:4px 10px;font-size:12px;border-bottom-width:3px;border-radius:10px}
-.btn.pulse{animation:pulse 1.6s ease-in-out infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(255,88,168,.25)}}
-.studio{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:20px;margin-top:18px;align-items:start}
-.stage-col{display:grid;gap:14px;min-width:0}
-@media(min-width:901px){.stage-col{position:sticky;top:12px}}
-@media(max-width:900px){.studio{grid-template-columns:minmax(0,1fr)}}
-.card{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:14px}
-.stage{position:relative;height:310px;border-radius:22px;overflow:hidden;background:linear-gradient(#1b1540,#0c0919);border:2px solid var(--line)}
-.stage .floor{position:absolute;left:-25%;right:-25%;bottom:-12%;height:58%;background:conic-gradient(#2c2562 25%,#1b1648 0 50%,#2c2562 0 75%,#1b1648 0) 0 0/70px 70px;transform:perspective(380px) rotateX(62deg);transform-origin:bottom;-webkit-mask-image:linear-gradient(to top,#000 45%,transparent);mask-image:linear-gradient(to top,#000 45%,transparent)}
-.stage .glow{position:absolute;inset:0;background:radial-gradient(ellipse 60% 38% at 50% 84%,var(--glow),transparent 70%);opacity:.5;transition:opacity .4s}
-.stage svg{position:absolute;left:0;right:0;bottom:10px;margin:auto;height:80%;width:100%}
-.idle{animation:bob 1.8s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-3px)}}
-.rb-limb{fill:#8e85e6}.rb-body{fill:#cdc6ff}.rb-dark{fill:#1b1540}.rb-screen{fill:var(--glow);transition:fill .3s}
-.eye{animation:blink 4s infinite;transform-origin:center;transform-box:fill-box}
-@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
-.thinking .eye{animation:think .35s ease-in-out infinite alternate}
-@keyframes think{from{transform:translateX(-3px)}to{transform:translateX(3px)}}
-.bubble{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:center}
-.bubble:empty{display:none}
-.bubble>div{background:var(--ink);color:#1b1540;border-radius:16px;padding:8px 12px;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:100%}
-.bubble .dot{width:14px;height:14px;border-radius:50%;background:var(--c);flex:none}
-.bubble button{background:#1b1540;color:var(--ink);border:0;border-radius:999px;padding:2px 10px;font-size:12px}
-.now{position:absolute;left:12px;bottom:10px;font-family:var(--f-mono);font-size:12px;color:var(--muted);background:rgba(16,13,34,.7);padding:3px 10px;border-radius:999px}
-.tray-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px}
-.tray-head h2{font-size:22px} .tray-head small{color:var(--muted);font-family:var(--f-mono);font-size:12px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;min-height:74px;align-content:flex-start}
-.chips .empty{color:var(--muted);font-size:14px;padding:8px 0}
-.chip{position:relative;width:68px;background:var(--panel-2);border:2px solid var(--line);border-radius:14px;padding:6px 4px 5px;text-align:center;display:grid;gap:0}
-.chip .ci{font-size:24px;line-height:1.2}.chip .cn{font-size:10.5px;line-height:1.15;color:var(--muted);overflow-wrap:anywhere}
-.chip i{position:absolute;top:-7px;left:-5px;background:var(--bg);border:1px solid var(--line);border-radius:999px;font:500 10px var(--f-mono);font-style:normal;padding:0 5px;color:var(--muted)}
-.chip.sel{border-color:var(--warn);background:#33295f}
-.chip.on{border-color:var(--accent);background:#4a2260;transform:translateY(-3px)}
-.tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
-.tools .tip{font-size:12px;color:var(--warn)}
-.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.teach{margin-top:14px;display:grid;gap:6px}
-.teach>span{font-size:12px;color:var(--muted)}
-.sty{display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:2px solid var(--c,var(--line));border-radius:999px;padding:3px 11px 3px 8px;font-size:13px}
-.sty:before{content:"";width:11px;height:11px;border-radius:50%;background:var(--c)}
-button.sty:hover{background:#33295f}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.tab{background:transparent;border:2px solid var(--line);border-radius:999px;padding:6px 16px;font-size:14px}
-.tab[aria-selected="true"]{background:var(--ink);color:#1b1540;border-color:var(--ink);font-weight:600}
-.panel{min-width:0;display:grid;gap:14px}
-.hint{color:var(--muted);font-size:14px;max-width:62ch}
-.cats{display:flex;flex-wrap:wrap;gap:6px}
-.cat{background:var(--panel-2);border:2px solid transparent;border-radius:10px;padding:4px 11px;font-size:13px}
-.cat[aria-pressed="true"]{border-color:var(--warn);color:var(--warn)}
-.moves{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
-.tile{position:relative}
-.tb{width:100%;background:var(--panel-2);border:2px solid var(--line);border-bottom:4px solid var(--c);border-radius:14px;padding:10px 4px 8px;text-align:center;display:grid;gap:2px}
-.tb:hover{background:#33295f}
-.tb .ti{font-size:28px;line-height:1.1}.tb .tn{font-size:12px;line-height:1.2}
-.tp{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(16,13,34,.7);font-size:9px;color:var(--muted);padding:0}
-.tp:hover{color:var(--ink)}
-.newstyle{display:flex;flex-wrap:wrap;gap:8px}
-.newstyle input{flex:1 1 180px;min-width:0;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:8px 12px}
-.scard{border-top:6px solid var(--c);padding-top:10px;display:grid;gap:10px;min-width:0}
-.shead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
-.shead h3{font-size:20px;overflow-wrap:anywhere}.shead small{color:var(--muted);font-size:13px}
-.shead .acts{display:flex;flex-wrap:wrap;gap:6px}
-.ex{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;background:var(--panel-2);border-radius:12px;padding:7px 10px}
-.ex .ic{flex:1 1 150px;min-width:0;font-size:20px;letter-spacing:2px;overflow-wrap:anywhere}
-.ex select{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 6px;font-size:12px;max-width:100%}
-.flag{flex-basis:100%;font-size:12px;color:var(--warn)}
-.note{font-size:13px;color:var(--muted)}
-.warnbox{background:#3a2d12;border:2px solid var(--warn);border-radius:12px;padding:8px 12px;font-size:13px}
-.confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#3a1730;border:2px solid var(--bad);border-radius:12px;padding:8px 12px;font-size:13px}
-.q{font-family:var(--f-body);font-weight:500}
-.steps{display:grid;gap:4px;font-size:14px;margin:6px 0}
-.steps b.y{color:var(--good)}.steps b.n{color:var(--bad)}
-.counts{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-.verdict{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.res{display:grid;gap:6px}
-.res .r{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;background:var(--panel-2);border-radius:12px;padding:6px 10px;font-size:13px}
-.res .r .ic{flex:1 1 140px;font-size:18px;letter-spacing:1px;min-width:0;overflow-wrap:anywhere}
-.ok-t{color:var(--good);font-weight:600}.no-t{color:var(--bad);font-weight:600}
-.bar{height:12px;border-radius:99px;background:var(--panel-2);overflow:hidden;min-width:60px;flex:1 1 90px}
-.bar>u{display:block;height:100%;background:var(--c,var(--accent));text-decoration:none;border-radius:99px}
-.hrow{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px;padding:4px 0}
-.hrow b{min-width:60px}
-.tree{overflow-x:auto;padding-bottom:6px}
-.node .br{margin-left:12px;border-left:2px solid var(--line);padding-left:12px;display:grid;gap:8px;margin-top:6px}
-.node .q{font-size:13px;background:var(--panel-2);display:inline-block;padding:3px 10px;border-radius:10px}
-.node.hl>.q{background:var(--accent);color:var(--accent-ink)}
-.node em{font-style:normal;font:500 11px var(--f-mono);color:var(--muted);margin-right:6px}
-.go>em{color:var(--accent)}
-.leaf{display:inline-flex;gap:8px;align-items:center;border:2px solid var(--c);border-radius:10px;padding:3px 10px;font-size:13px;flex-wrap:wrap}
-.leaf.hl{background:var(--c);color:#14102b}
-.yes,.no{min-width:0}
-.feat{display:flex;flex-wrap:wrap;gap:6px}
-.feat span{font:400 12px var(--f-mono);background:var(--panel-2);border-radius:8px;padding:3px 8px}
-.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
-.badge{border:2px dashed var(--line);border-radius:14px;padding:8px 12px;font-size:13px;color:var(--muted)}
-.badge.got{border-style:solid;border-color:var(--warn);color:var(--ink);background:#33290f}
-.badge b{display:block;font-family:var(--f-display);font-weight:400;font-size:16px}
-.exps{display:grid;gap:8px}
-.exp{background:var(--panel-2);border-radius:14px;padding:10px 12px;font-size:14px}
-.exp b{font-family:var(--f-display);font-weight:400;font-size:17px}
-.exp small{display:inline-block;margin-left:8px;color:var(--warn);font-family:var(--f-mono);font-size:11px}
-.sec{display:grid;gap:10px;min-width:0}
-.sec>h3{font-size:21px}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 18px);background:var(--ink);color:#1b1540;border-radius:14px;padding:10px 16px;font-size:14px;max-width:min(92vw,520px);z-index:9;box-shadow:0 8px 28px rgba(0,0,0,.5);transition:opacity .25s,transform .25s}
-#toast[hidden]{display:none!important}
-@media(prefers-reduced-motion:reduce){.idle,.eye,.btn.pulse,.thinking .eye{animation:none}.chip.on{transform:none}}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Mono:wght@400;500&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<a class="skip" href="#panel">Skip to workbench</a>
+
+<div class="bgfx" aria-hidden="true">
+  <span style="--x:4%;--d:19s;--dl:-2s;--s:34px">🎵</span><span style="--x:14%;--d:24s;--dl:-9s;--s:28px">⭐</span>
+  <span style="--x:26%;--d:21s;--dl:-14s;--s:40px">🪩</span><span style="--x:38%;--d:27s;--dl:-5s;--s:30px">✨</span>
+  <span style="--x:51%;--d:20s;--dl:-11s;--s:36px">👾</span><span style="--x:63%;--d:25s;--dl:-1s;--s:30px">🎶</span>
+  <span style="--x:74%;--d:22s;--dl:-16s;--s:38px">🔥</span><span style="--x:86%;--d:26s;--dl:-7s;--s:32px">💥</span>
+  <span style="--x:94%;--d:23s;--dl:-12s;--s:34px">🚀</span>
+</div>
 
 <div class="wrap">
   <header class="top">
-    <h1>Teach the Robot <span>to Dance</span></h1>
-    <div class="brainbar">
-      <div class="brain none" id="brain"><i></i><span id="brainTxt"></span></div>
+    <div class="logo">
+      <div class="logo-badge" aria-hidden="true">🤖</div>
+      <h1 id="title">Teach the Robot <span>to Dance</span></h1>
+    </div>
+    <div class="controls">
+      <div class="brainsw" id="brainsw" role="group" aria-label="Which brain to teach"></div>
+      <div class="brain" id="brain"><i></i><span id="brainTxt"></span></div>
       <button class="btn primary" id="trainBtn" data-act="train">Teach the robot</button>
+      <button class="btn sm" id="campBtn" data-act="camp" title="Step-by-step lessons for every feature">🎓 Training Camp</button>
+      <button class="btn sm icon" id="fxBtn" aria-pressed="true" aria-label="Fun effects on or off" title="Fun effects on or off">✨</button>
+      <button class="btn sm icon" id="soundBtn" data-act="sound" aria-pressed="false" aria-label="Sound" title="Sound on or off">🔇</button>
+      <button class="btn sm icon" id="themeBtn" data-act="theme" aria-label="Switch light or dark" title="Light or dark">🌗</button>
     </div>
   </header>
 
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>🪩 MAKE IT</span><span>🎓 TEACH IT</span><span>🔮 TEST IT</span><span>🔥 BEAT IT</span><span>🕺 DANCE!</span>
+      <span>🪩 MAKE IT</span><span>🎓 TEACH IT</span><span>🔮 TEST IT</span><span>🔥 BEAT IT</span><span>🕺 DANCE!</span>
+    </div>
+  </div>
+
   <main class="studio">
     <section class="stage-col" aria-label="Robot stage and your dance">
-      <div class="stage" id="stage">
-        <div class="floor"></div><div class="glow" id="glow"></div>
-        <svg id="robot" viewBox="0 0 200 250" role="img" aria-label="A dancing robot">
-          <ellipse cx="100" cy="238" rx="52" ry="7" fill="#000" opacity=".35"/>
-          <g class="idle"><g id="bot" style="transform-origin:100px 238px">
-            <g id="legL" style="transform-origin:82px 172px"><rect class="rb-limb" x="74" y="172" width="16" height="54" rx="6"/><rect class="rb-dark" x="68" y="222" width="28" height="13" rx="6"/></g>
-            <g id="legR" style="transform-origin:118px 172px"><rect class="rb-limb" x="110" y="172" width="16" height="54" rx="6"/><rect class="rb-dark" x="104" y="222" width="28" height="13" rx="6"/></g>
-            <g id="armL" style="transform-origin:56px 106px"><rect class="rb-limb" x="49" y="100" width="14" height="62" rx="7"/><circle class="rb-dark" cx="56" cy="164" r="9"/></g>
-            <g id="armR" style="transform-origin:144px 106px"><rect class="rb-limb" x="137" y="100" width="14" height="62" rx="7"/><circle class="rb-dark" cx="144" cy="164" r="9"/></g>
-            <rect class="rb-body" x="60" y="92" width="80" height="84" rx="18"/>
-            <rect class="rb-dark" x="74" y="106" width="52" height="34" rx="9"/><rect class="rb-screen" x="79" y="111" width="42" height="24" rx="6"/>
-            <circle class="rb-dark" cx="84" cy="156" r="5"/><circle class="rb-dark" cx="100" cy="156" r="5"/><circle class="rb-dark" cx="116" cy="156" r="5"/>
-            <rect class="rb-body" x="68" y="34" width="64" height="52" rx="15"/>
-            <rect class="rb-dark" x="97" y="20" width="6" height="16" rx="3"/><circle class="rb-screen" cx="100" cy="17" r="7"/>
-            <g id="eyes"><ellipse class="eye rb-dark" cx="85" cy="58" rx="7" ry="8"/><ellipse class="eye rb-dark" cx="115" cy="58" rx="7" ry="8"/></g>
-            <rect class="rb-dark" x="88" y="72" width="24" height="5" rx="2.5"/>
-          </g></g>
-        </svg>
+      <div class="stage" id="stage" data-theme="club">
+        <div class="scene" id="scene">
+          <div class="stars"></div>
+          <div class="backwall">
+            <div class="led" aria-hidden="true">
+              <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i>
+              <i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i><i style="--i:12"></i><i style="--i:13"></i><i style="--i:14"></i><i style="--i:15"></i>
+            </div>
+          </div>
+          <div class="beam b1"></div><div class="beam b2"></div>
+          <div class="discoball" aria-hidden="true"><span class="cord"></span><span class="ball"></span></div>
+          <div class="spk spk-l" aria-hidden="true"><i></i><i></i></div>
+          <div class="spk spk-r" aria-hidden="true"><i></i><i></i></div>
+          <div class="floor"></div><div class="glow" id="glow"></div>
+          <svg class="rig" id="robot" viewBox="0 0 200 250" role="img" aria-label="Your dancing character"></svg>
+        </div>
         <div class="bubble" id="bubble" aria-live="polite"></div>
+        <div class="nametag" id="nametag"></div>
         <div class="now" id="now">Ready for a dance</div>
       </div>
       <div class="card" id="tray"></div>
@@ -181,554 +73,25 @@ button.sty:hover{background:#33295f}
 
     <section aria-label="Workbench">
       <div class="tabs" role="tablist" id="tabs"></div>
-      <div class="panel" id="panel"></div>
+      <div class="panel" id="panel" tabindex="-1"></div>
     </section>
   </main>
+  <footer class="foot">Everything runs in this browser tab. Nothing is uploaded and nobody can see your robot or your photos.</footer>
 </div>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div id="coach" class="coach" hidden></div>
+<div id="campOv" class="camp-ov" hidden></div>
 <div id="toast" role="status" hidden></div>
+<noscript><p style="padding:24px">This lab needs JavaScript. Please turn it on and reload the page.</p></noscript>
 
-<script id="ml">
-/* The classifier: a small decision tree trained on features of a dance.
-   Features keep order information through first move, last move and neighbouring pairs. */
-const ML=(()=>{
-  function val(f,seq){
-    if(f.t==='c')return seq.filter(m=>m===f.a).length;
-    if(f.t==='b'){let n=0;for(let i=0;i<seq.length-1;i++)if(seq[i]===f.a&&seq[i+1]===f.b)n++;return n}
-    if(f.t==='f')return seq[0]===f.a?1:0;
-    if(f.t==='l')return seq[seq.length-1]===f.a?1:0;
-    return seq.length;
-  }
-  function candidates(rows){
-    const m=new Set(),bg=new Set(),fs=new Set(),ls=new Set();
-    rows.forEach(r=>{const s=r.seq;s.forEach(x=>m.add(x));for(let i=0;i<s.length-1;i++)bg.add(s[i]+'>'+s[i+1]);fs.add(s[0]);ls.add(s[s.length-1])});
-    const out=[];
-    [...m].sort().forEach(a=>out.push({t:'c',a}));
-    [...bg].sort().forEach(k=>{const[a,b]=k.split('>');out.push({t:'b',a,b})});
-    [...fs].sort().forEach(a=>out.push({t:'f',a}));
-    [...ls].sort().forEach(a=>out.push({t:'l',a}));
-    out.push({t:'n'});
-    return out;
-  }
-  const gini=(c,n)=>{if(!n)return 0;let s=1;for(const k in c){const p=c[k]/n;s-=p*p}return s};
-  const tally=rows=>{const c={};rows.forEach(r=>{c[r.cls]=(c[r.cls]||0)+1});return c};
-  function leaf(counts,n,order){
-    const es=Object.entries(counts).sort((a,b)=>b[1]-a[1]||order.indexOf(a[0])-order.indexOf(b[0]));
-    return{leaf:true,counts,n,cls:es[0][0],tie:es.length>1&&es[1][1]===es[0][1]};
-  }
-  function grow(rows,cands,depth,order){
-    const counts=tally(rows),n=rows.length,g=gini(counts,n);
-    if(g===0||depth>=6)return leaf(counts,n,order);
-    let best=null;
-    for(const f of cands){
-      const vals=rows.map(r=>val(f,r.seq));
-      const u=[...new Set(vals)].sort((a,b)=>a-b);
-      for(let i=0;i<u.length-1;i++){
-        const thr=(u[i]+u[i+1])/2,L={},R={};let nl=0,nr=0;
-        rows.forEach((r,j)=>{if(vals[j]>thr){R[r.cls]=(R[r.cls]||0)+1;nr++}else{L[r.cls]=(L[r.cls]||0)+1;nl++}});
-        const gain=g-(nl/n)*gini(L,nl)-(nr/n)*gini(R,nr);
-        if(gain>1e-9&&(!best||gain>best.gain+1e-12))best={f,thr,gain};
-      }
-    }
-    if(!best)return leaf(counts,n,order);
-    const R=rows.filter(r=>val(best.f,r.seq)>best.thr),L=rows.filter(r=>val(best.f,r.seq)<=best.thr);
-    return{f:best.f,thr:best.thr,yes:grow(R,cands,depth+1,order),no:grow(L,cands,depth+1,order),counts,n};
-  }
-  const build=(rows,order)=>grow(rows,candidates(rows),0,order);
-  function predict(tree,seq){
-    let node=tree;const path=[];
-    while(!node.leaf){const v=val(node.f,seq),yes=v>node.thr;path.push({f:node.f,thr:node.thr,yes});node=yes?node.yes:node.no}
-    return{cls:node.cls,leaf:node,path};
-  }
-  function evaluate(tree,rows){if(!rows.length)return 0;return rows.filter(r=>predict(tree,r.seq).cls===r.cls).length/rows.length}
-  function phrase(f,thr,nm){
-    const k=Math.ceil(thr);
-    if(f.t==='c')return thr<1?`contain ${nm(f.a)}`:`contain ${nm(f.a)} at least ${k} times`;
-    if(f.t==='b')return thr<1?`have ${nm(f.a)} straight before ${nm(f.b)}`:`have ${nm(f.a)} straight before ${nm(f.b)} at least ${k} times`;
-    if(f.t==='f')return`start with ${nm(f.a)}`;
-    if(f.t==='l')return`end with ${nm(f.a)}`;
-    return`have ${k} or more moves`;
-  }
-  function features(seq,nm){
-    const out=[],c={},b={};
-    seq.forEach((m,i)=>{c[m]=(c[m]||0)+1;if(i<seq.length-1){const k=m+'>'+seq[i+1];b[k]=(b[k]||0)+1}});
-    Object.entries(c).forEach(([m,n])=>out.push(`${nm(m)} x${n}`));
-    Object.entries(b).forEach(([k,n])=>{const[x,y]=k.split('>');out.push(`${nm(x)} then ${nm(y)}${n>1?' x'+n:''}`)});
-    if(seq.length){out.push(`starts: ${nm(seq[0])}`);out.push(`ends: ${nm(seq[seq.length-1])}`)}
-    out.push(`length: ${seq.length}`);
-    return out;
-  }
-  return{build,predict,evaluate,phrase,features};
-})();
-</script>
-
-<script>
-(()=>{
-/* ---------- Move vocabulary: stable id, name, icon, two pose frames [leftArm,rightArm,leftLeg,rightLeg,lift,tilt,flip] ---------- */
-const RAW=[
-['clap','Clap','👏','arms',[75,75,6,6,0,0],[25,25,6,6,0,0]],
-['wave','Wave','👋','arms',[8,150,6,6,0,0],[8,115,6,6,0,0]],
-['jazz','Jazz hands','🙌','arms',[140,140,8,8,0,0],[120,120,8,8,-3,0]],
-['reachup','Reach up','☝️','arms',[175,175,6,6,0,0],[165,165,6,6,-6,0]],
-['crossarms','Cross arms','🙅','arms',[-40,-40,6,6,0,0],[-30,-30,6,6,0,0]],
-['hips','Hands on hips','💁','arms',[38,38,8,8,0,0],[44,44,8,8,0,0]],
-['pointL','Point left','👈','arms',[90,8,8,6,0,-3],[100,8,8,6,0,-5]],
-['pointR','Point right','👉','arms',[8,90,6,8,0,3],[8,100,6,8,0,5]],
-['snap','Finger snap','🤏','arms',[8,100,6,6,0,0],[8,80,6,6,-3,0]],
-['armcircle','Arm circle','🔄','arms',[90,90,6,6,0,0],[180,180,6,6,0,0]],
-['punch','Punch the air','👊','arms',[75,8,6,6,0,-4],[8,75,6,6,0,4]],
-['jump','Jump','🦘','legs',[60,60,4,4,6,0],[140,140,18,18,-34,0]],
-['hop','Hop','🐇','legs',[30,30,2,40,-2,0],[30,30,2,40,-26,0]],
-['stomp','Stomp','🦶','legs',[30,30,40,4,-6,0],[30,30,4,40,-6,0]],
-['tiptoe','Tiptoe','👣','legs',[100,100,3,3,-10,0],[110,110,3,3,-14,0]],
-['kick','Kick','🥋','legs',[20,20,6,70,0,-4],[20,20,6,10,0,0]],
-['stepL','Side-step left','⬅️','legs',[30,30,45,4,0,-4],[20,20,6,6,0,0]],
-['stepR','Side-step right','➡️','legs',[30,30,4,45,0,4],[20,20,6,6,0,0]],
-['march','March','🥁','legs',[40,10,45,4,-4,0],[10,40,4,45,-4,0]],
-['squat','Squat','🏋️','legs',[60,60,30,30,18,0],[50,50,34,34,24,0]],
-['kneelift','Knee lift','🦵','legs',[30,30,6,60,-4,0],[30,30,60,6,-4,0]],
-['skip','Skip','🏃','legs',[60,20,50,4,-14,0],[20,60,4,50,-6,0]],
-['spin','Spin','🌀','body',[100,100,6,6,0,0,1],[100,100,6,6,0,0,-1]],
-['twirl','Twirl','🌪️','body',[160,160,4,4,-8,0,-1],[160,160,4,4,-8,0,1]],
-['sway','Sway','🌊','body',[40,40,8,8,0,-8],[40,40,8,8,0,8]],
-['wiggle','Wiggle','🪱','body',[50,30,8,8,0,-6],[30,50,8,8,0,6]],
-['shimmy','Shimmy','✨','body',[70,70,8,8,0,-4],[70,70,8,8,0,4]],
-['leanL','Lean left','↙️','body',[30,30,8,8,0,-18],[30,30,8,8,0,-22]],
-['leanR','Lean right','↘️','body',[30,30,8,8,0,18],[30,30,8,8,0,22]],
-['freeze','Freeze','🧊','body',[100,45,10,10,0,0],[100,45,10,10,0,0]],
-['bounce','Bounce','⚽','body',[40,40,8,8,6,0],[40,40,8,8,-14,0]],
-['crouch','Crouch','🐱','body',[20,20,30,30,24,0],[20,20,30,30,28,0]],
-['stretch','Stretch','🙆','body',[175,175,20,20,-6,0],[175,175,20,20,-14,0]],
-['balance','Balance','⚖️','body',[90,90,3,70,-2,0],[95,95,3,75,-2,0]],
-['robotarms','Robot arms','🤖','char',[90,180,6,6,0,0],[180,90,6,6,0,0]],
-['fly','Pretend to fly','🦅','char',[150,150,10,10,-20,0],[100,100,10,10,-30,0]],
-['sneak','Sneak','🥷','char',[30,10,20,4,10,-6],[10,30,4,20,10,6]],
-['wobble','Wobble','🍮','char',[60,60,10,10,0,-10],[60,60,10,10,0,10]],
-['hero','Superhero pose','🦸','char',[40,175,24,24,-2,0],[40,170,24,24,-4,0]],
-['monster','Monster stomp','👹','char',[110,110,40,4,-4,-3],[110,110,4,40,-4,3]],
-['sleepy','Sleepy sway','😴','char',[10,10,6,6,6,-10],[10,10,6,6,10,10]],
-['silly','Silly shake','🤪','char',[150,40,20,50,0,-8],[40,150,50,20,0,8]],
-['rope','Invisible jump rope','➰','char',[50,50,4,4,0,0],[50,50,4,4,-22,0]],
-['disco','Disco point','🪩','dance',[8,160,8,8,0,0],[160,8,8,8,0,0]],
-['shuffle','Shuffle','👟','dance',[30,30,30,4,-4,-3],[30,30,4,30,-4,3]],
-['grapevine','Grapevine','🍇','dance',[60,60,40,4,0,-6],[60,60,4,40,0,6]],
-['salsa','Salsa step','💃','dance',[60,60,25,25,0,-8],[60,60,6,6,0,8]],
-['ballet','Ballet turn','🩰','dance',[150,150,3,60,-8,0,1],[150,150,3,60,-8,0,-1]],
-['moonwalk','Moonwalk slide','🌙','dance',[20,50,30,4,0,6],[50,20,4,30,0,6]],
-['celebrate','Celebrate','🎉','dance',[160,160,15,15,-18,0],[140,140,10,10,-30,0]]
-];
-const M=RAW.map(([id,name,icon,cat,a,b])=>({id,name,icon,cat,a,b}));
-const MV=Object.fromEntries(M.map(m=>[m.id,m]));
-const STARTERS=new Set(['clap','wave','reachup','jump','stomp','spin','sway','freeze','bounce','robotarms','wobble','disco','shuffle','sleepy']);
-const CATC={arms:'#ff7ab6',legs:'#5ee0c0',body:'#ffd23f',char:'#a58bff',dance:'#5b8cff'};
-const CATS=[['starter','Starter set'],['arms','Arms & hands'],['legs','Legs & feet'],['body','Whole body'],['char','Characters'],['dance','Dance-inspired'],['all','All moves']];
-const PALETTE=['#a58bff','#ffd23f','#35d6f0','#ff5aa5','#6df29a','#ff8a3d','#5b8cff','#ff6a6a'];
-const MAXLEN=16,MAXSTYLES=8,REST=[12,12,6,6,0,0,1];
-const BADGES={
-  first:['First lesson','Trained a brain from your own examples.'],
-  mistake:['Mistake spotter','Found a dance the robot guessed wrong.'],
-  mixed:['Mixed signals','Gave the same dance two different labels.'],
-  stale:['Old brain','Asked the robot after the examples changed, without retraining.'],
-  fair:['Fair test','Scored two different brains on the same exam.'],
-  order:['Order detective','Found a dance whose answer changes when the moves are reversed.']
-};
-const EXPERIMENTS=[
-  ['The tiny dataset','Data quantity','Delete examples until each style has just one, press Teach the robot, and ask about a new dance. Then add more examples, teach again and compare.'],
-  ['The confusing dance','Class overlap','Make two styles that share lots of moves and pairs. Check the brain map to see where the robot struggles to tell them apart.'],
-  ['The misleading teacher','Label quality','Move one example into the wrong style, teach the robot, then run the exam. Did one wrong label change the brain?'],
-  ['The unfamiliar dance','Generalisation','Ask about a dance made of moves the robot never saw in training. The explanation will list them. Is its answer still a good one?'],
-  ['Before and after','Evaluation','Run the exam, change the examples, teach again and run the same exam. The Test tab lines up the scores for you.']
-];
-
-/* ---------- State ---------- */
-const KEY='robot-dance-v1';
-let S=null;
-const U={tab:'moves',cat:'starter',sel:null,replace:false,rename:null,delStyle:null,confirmReset:false,genre:null};
-function seed(){
-  const st=[
-    {id:'s1',name:'Alien Shuffle',color:PALETTE[0]},
-    {id:'s2',name:'Superhero Groove',color:PALETTE[1]},
-    {id:'s3',name:'Sleepy Robot',color:PALETTE[2]}];
-  const ex=[
-    ['s1','wobble robotarms freeze wobble'],['s1','robotarms wobble freeze robotarms wobble'],['s1','wobble robotarms wobble freeze'],['s1','robotarms freeze wobble robotarms'],
-    ['s2','hero jump reachup freeze'],['s2','hero reachup jump hero'],['s2','jump hero reachup celebrate'],['s2','hero bounce jump reachup'],
-    ['s3','sway stretch sway crouch'],['s3','sleepy sway crouch sleepy'],['s3','stretch sleepy sway crouch'],['s3','sway sleepy sway stretch']
-  ].map(([s,q],i)=>({id:'e'+(i+1),seq:q.split(' '),styleId:s}));
-  const exam=[
-    ['s1','wobble freeze robotarms robotarms wobble'],['s1','robotarms wobble wobble freeze'],['s1','wobble robotarms hero freeze'],
-    ['s2','hero jump jump reachup'],['s2','reachup hero freeze jump'],
-    ['s3','sleepy sleepy sway stretch'],['s3','crouch sleepy sway sleepy']
-  ].map(([s,q],i)=>({id:'x'+(i+1),seq:q.split(' '),styleId:s}));
-  return{styles:st,examples:ex,exam,dsVersion:1,examVersion:1,model:null,history:[],badges:{},last:null,log:[],order:null,lastExam:null,
-    tray:['robotarms','wobble','freeze','wobble','robotarms'],nid:100,nmodel:1};
-}
-function load(){try{const r=localStorage.getItem(KEY);if(!r)return null;const o=JSON.parse(r);if(o&&Array.isArray(o.styles)&&Array.isArray(o.examples)&&Array.isArray(o.exam)&&Array.isArray(o.tray))return o}catch(e){}return null}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-S=load()||seed();
-
-/* ---------- Helpers ---------- */
-const $=s=>document.querySelector(s);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const nm=id=>MV[id]?MV[id].name:String(id);
-const icons=seq=>seq.map(m=>MV[m]?MV[m].icon:'?').join('');
-const sty=id=>S.styles.find(s=>s.id===id);
-function cinfo(id){
-  const s=sty(id);if(s)return{name:s.name,color:s.color};
-  const c=S.model&&S.model.classes.find(c=>c.id===id);
-  return c?{name:c.name+' (deleted)',color:c.color}:{name:'Unknown style',color:'#888'};
-}
-const chipOf=id=>{const c=cinfo(id);return`<span class="sty" style="--c:${c.color}">${esc(c.name)}</span>`};
-const key=s=>s.join(',');
-const status=()=>!S.model?'none':(S.model.dsVersion===S.dsVersion?'current':'stale');
-const pct=x=>Math.round(x*100)+'%';
-function uid(p){return p+(S.nid++)}
-let toastT=0;
-function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{e.hidden=true},3600)}
-function badge(id){if(!S.badges[id]){S.badges[id]=1;toast('Discovery unlocked: '+BADGES[id][0]+'. '+BADGES[id][1])}}
-function conflicts(){
-  const by={},out={};
-  S.examples.forEach(e=>{(by[key(e.seq)]=by[key(e.seq)]||[]).push(e)});
-  Object.values(by).forEach(g=>{
-    const ids=new Set(g.map(e=>e.styleId));
-    if(ids.size>1)g.forEach(e=>{out[e.id]=[...ids].filter(i=>i!==e.styleId)});
-  });
-  return out;
-}
-function dataChanged(){S.dsVersion++;if(Object.keys(conflicts()).length)badge('mixed')}
-
-/* ---------- Robot ---------- */
-const el=id=>document.getElementById(id);
-function setPose(f){
-  const[la,ra,ll,rl,y,r,sx]=f;
-  el('armL').style.transform=`rotate(${la}deg)`;
-  el('armR').style.transform=`rotate(${-ra}deg)`;
-  el('legL').style.transform=`rotate(${ll}deg)`;
-  el('legR').style.transform=`rotate(${-rl}deg)`;
-  el('bot').style.transform=`translateY(${y}px) rotate(${r}deg) scaleX(${sx==null?1:sx})`;
-}
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-let token=0;
-function setGlow(c){document.documentElement.style.setProperty('--glow',c||'#ff58a8')}
-function showBubble(html){$('#bubble').innerHTML=html?`<div>${html}</div>`:''}
-async function perform(seq,opt={}){
-  const my=++token,beat=opt.beat||680;
-  setGlow(null);showBubble('');
-  for(let i=0;i<seq.length;i++){
-    if(my!==token)return false;
-    const mv=MV[seq[i]];
-    if(opt.onStep)opt.onStep(i);
-    $('#now').textContent=`Move ${i+1} of ${seq.length}: ${mv.name}`;
-    setPose(mv.a);await sleep(beat/2);
-    if(my!==token)return false;
-    setPose(mv.b);await sleep(beat/2);
-  }
-  if(my!==token)return false;
-  setPose(REST);if(opt.onStep)opt.onStep(-1);
-  $('#now').textContent='Ready for a dance';
-  return true;
-}
-function hlChip(i){document.querySelectorAll('#tray .chip').forEach((c,k)=>c.classList.toggle('on',k===i))}
-function preview(id){perform([id],{beat:900})}
-
-/* ---------- Rendering ---------- */
-function renderHead(){
-  const st=status(),b=$('#brain'),t=$('#brainTxt'),btn=$('#trainBtn');
-  b.className='brain '+(st==='current'?'ok':st==='stale'?'stale':'none');
-  if(st==='none')t.textContent='Brain empty. Nothing learned yet.';
-  else if(st==='current')t.textContent=`Brain ${S.model.v} is up to date. It learned ${S.model.classes.length} styles from ${S.model.nTrain} dances.`;
-  else t.textContent=`Brain ${S.model.v} is out of date. The examples changed after it learned.`;
-  btn.textContent=st==='none'?'Teach the robot':'Teach the robot again';
-  btn.classList.toggle('pulse',st!=='current');
-}
-function renderTray(){
-  const t=S.tray;
-  const chips=t.length?t.map((m,i)=>`<button class="chip ${U.sel===i?'sel':''}" data-act="sel" data-i="${i}" aria-label="Move ${i+1}: ${esc(nm(m))}"><i>${i+1}</i><span class="ci">${MV[m].icon}</span><span class="cn">${esc(nm(m))}</span></button>`).join(''):`<div class="empty">No moves yet. Pick moves from the Moves tab to build a dance.</div>`;
-  let tools='';
-  if(U.sel!=null&&t[U.sel]){
-    tools=`<div class="tools"><button class="btn sm" data-act="left">Earlier</button><button class="btn sm" data-act="right">Later</button><button class="btn sm" data-act="repeat">Repeat</button><button class="btn sm" data-act="replace" ${U.replace?'style="border-color:var(--warn)"':''}>Replace</button><button class="btn sm" data-act="remove">Remove</button><button class="btn sm" data-act="done">Done</button>${U.replace?'<span class="tip">Now pick a move to swap in.</span>':'<span class="tip">New moves go after the selected one.</span>'}</div>`;
-  }
-  const teach=S.styles.length?S.styles.map(s=>`<button class="sty" style="--c:${s.color}" data-act="saveEx" data-id="${s.id}">${esc(s.name)}</button>`).join(''):'<span class="note">Create a style in the Styles tab first.</span>';
-  $('#tray').innerHTML=`<div class="tray-head"><h2>Your dance</h2><small>${t.length}/${MAXLEN} moves</small></div><div class="chips">${chips}</div>${tools}
-  <div class="row"><button class="btn" data-act="play">Play it</button><button class="btn" data-act="clear">Clear</button></div>
-  <div class="teach"><span>Save this dance as an example of:</span><div class="counts">${teach}</div></div>
-  <div class="row"><button class="btn primary big" data-act="ask">Ask the robot which style this is</button></div>`;
-}
-function renderTabs(){
-  const T=[['moves','Moves'],['styles','Styles'],['test','Test'],['lab','Lab']];
-  $('#tabs').innerHTML=T.map(([id,l])=>`<button class="tab" role="tab" aria-selected="${U.tab===id}" data-act="tab" data-id="${id}">${l}</button>`).join('');
-}
-function pMoves(){
-  const list=M.filter(m=>U.cat==='all'||(U.cat==='starter'?STARTERS.has(m.id):m.cat===U.cat));
-  return`<p class="hint">Tap a move to add it to your dance. The small play button shows the move without adding it. There are ${M.length} moves. The starter set has ${STARTERS.size}.</p>
-  <div class="cats">${CATS.map(([id,l])=>`<button class="cat" aria-pressed="${U.cat===id}" data-act="cat" data-id="${id}">${l}</button>`).join('')}</div>
-  <div class="moves">${list.map(m=>`<div class="tile" style="--c:${CATC[m.cat]}"><button class="tb" data-act="pick" data-id="${m.id}"><span class="ti">${m.icon}</span><span class="tn">${esc(m.name)}</span></button><button class="tp" data-act="look" data-id="${m.id}" aria-label="Preview ${esc(m.name)}">▶</button></div>`).join('')}</div>`;
-}
-function pStyles(){
-  const cf=conflicts();
-  const cards=S.styles.map(s=>{
-    const ex=S.examples.filter(e=>e.styleId===s.id);
-    const head=U.rename===s.id
-      ?`<div class="newstyle" style="flex:1 1 220px"><input id="renameIn" value="${esc(s.name)}" maxlength="24" aria-label="New name for ${esc(s.name)}"><button class="btn sm" data-act="renameSave" data-id="${s.id}">Save</button><button class="btn sm" data-act="renameCancel">Cancel</button></div>`
-      :`<div><h3>${esc(s.name)}</h3><small>${ex.length} example${ex.length===1?'':'s'}</small></div><div class="acts"><button class="btn sm" data-act="saveEx" data-id="${s.id}">Add my dance</button><button class="btn sm" data-act="renameStart" data-id="${s.id}">Rename</button><button class="btn sm" data-act="delAsk" data-id="${s.id}">Delete</button></div>`;
-    const conf=U.delStyle===s.id?`<div class="confirm">Delete ${esc(s.name)} and its ${ex.length} example${ex.length===1?'':'s'}? <button class="btn sm" data-act="delYes" data-id="${s.id}">Yes, delete</button><button class="btn sm" data-act="delNo">Keep it</button></div>`:'';
-    const rows=ex.map(e=>`<div class="ex"><span class="ic" title="${esc(e.seq.map(nm).join(', '))}">${icons(e.seq)}</span><button class="btn sm" data-act="exPlay" data-id="${e.id}" aria-label="Play example">Play</button><select data-chg="reassign" data-id="${e.id}" aria-label="Style of this example">${S.styles.map(o=>`<option value="${o.id}" ${o.id===s.id?'selected':''}>${esc(o.name)}</option>`).join('')}</select><button class="btn sm" data-act="exDel" data-id="${e.id}" aria-label="Remove example">Remove</button>${cf[e.id]?`<span class="flag">Same dance is also labelled ${cf[e.id].map(i=>esc(cinfo(i).name)).join(', ')}. One dance with two answers makes the robot's job ambiguous.</span>`:''}</div>`).join('');
-    return`<div class="card scard" style="--c:${s.color}"><div class="shead">${head}</div>${conf}${ex.length?rows:'<p class="note">No examples yet. The robot cannot learn this style until it has at least one dance to study.</p>'}</div>`;
-  }).join('');
-  const reset=U.confirmReset?`<div class="confirm">Clear every style, example and exam dance? <button class="btn sm" data-act="resetYes">Yes, start fresh</button><button class="btn sm" data-act="resetNo">Keep everything</button></div>`:`<div class="row"><button class="btn sm" data-act="sample">Reload the sample dances</button><button class="btn sm" data-act="resetAsk">Start with a clean slate</button></div>`;
-  return`<p class="hint">You decide what the styles are. Add examples, change your mind, then press Teach the robot. Changing examples does not change what the robot already learned.</p>
-  <div class="newstyle"><input id="newStyle" placeholder="Invent a style, like Lava Dance" maxlength="24" aria-label="Name for a new style"><button class="btn" data-act="newStyle">Add style</button></div>
-  ${cards||'<p class="note">No styles yet. Invent one above.</p>'}${reset}`;
-}
-function explain(L){
-  const m=S.model;
-  const steps=L.path.length?L.path.map(p=>`<div>Does it ${esc(ML.phrase(p.f,p.thr,nm))}? <b class="${p.yes?'y':'n'}">${p.yes?'Yes':'No'}</b></div>`).join(''):'<div>All my training dances were one style, so I had no questions to ask.</div>';
-  const counts=Object.entries(L.counts).map(([id,n])=>`<span class="sty" style="--c:${cinfo(id).color}">${n} ${esc(cinfo(id).name)}</span>`).join('');
-  let warn='';
-  if(L.tie)warn+='<p class="note">It was a tie in this group, so my pick is close to a coin flip.</p>';
-  else if(L.n<3)warn+=`<p class="note">Only ${L.n} training dance${L.n===1?'':'s'} back this guess. That is thin evidence.</p>`;
-  if(L.unseen.length)warn+=`<p class="note">I never saw ${L.unseen.map(i=>esc(nm(i))).join(', ')} in training, so I could not learn anything about ${L.unseen.length===1?'it':'them'}.</p>`;
-  return`<div class="steps">${steps}</div><p class="note">I landed in a group of ${L.n} training dance${L.n===1?'':'s'}:</p><div class="counts">${counts}</div>${warn}`;
-}
-function pTest(){
-  const L=S.last;
-  let free;
-  if(!L)free='<p class="note">Build a dance, then press "Ask the robot which style this is". The reasoning appears here.</p>';
-  else{
-    const c=cinfo(L.cls);
-    const reveal=L.intended==null
-      ?`<p class="note">What did you mean it to be?</p><div class="counts">${S.styles.map(s=>`<button class="sty" style="--c:${s.color}" data-act="reveal" data-id="${s.id}">${esc(s.name)}</button>`).join('')}</div>`
-      :`<div class="verdict">${L.intended===L.cls?'<span class="ok-t">The robot got it.</span>':`<span class="no-t">A mistake. You meant</span> ${chipOf(L.intended)}`}</div>${L.intended!==L.cls?`<div class="row"><button class="btn sm" data-act="lastToTrain">Add as a training example</button><button class="btn sm" data-act="lastToExam">Save to the exam</button></div><p class="note">Adding an example does not teach the robot until you press Teach the robot again.</p>`:''}`;
-    free=`<div class="verdict"><span class="ic" style="font-size:22px">${icons(L.seq)}</span></div>
-    <div class="verdict"><b>My guess:</b> ${chipOf(L.cls)}</div>
-    <p class="note">Made by Brain ${L.mv}${L.stale?', which was already out of date when I guessed':''}.</p>${explain(L)}${reveal}`;
-  }
-  const log=S.log.length?`<p class="note">Recent guesses</p><div class="res">${S.log.slice(0,6).map(l=>`<div class="r"><span class="ic">${icons(l.seq)}</span>${chipOf(l.cls)}${l.intended!=null?(l.intended===l.cls?'<span class="ok-t">right</span>':'<span class="no-t">wrong</span>'):'<span class="note">not revealed</span>'}</div>`).join('')}</div>`:'';
-  /* exam */
-  const cf=n=>S.examples.some(e=>key(e.seq)===key(n.seq));
-  const items=S.exam.map(x=>`<div class="r"><span class="ic">${icons(x.seq)}</span>${sty(x.styleId)?chipOf(x.styleId):'<span class="note">style deleted, not scored</span>'}<button class="btn sm" data-act="examPlay" data-id="${x.id}">Play</button><button class="btn sm" data-act="examToTrain" data-id="${x.id}">Use for training</button><button class="btn sm" data-act="examDel" data-id="${x.id}">Remove</button>${cf(x)?'<span class="flag">Also in the training examples, so this is not a fair test.</span>':''}</div>`).join('');
-  let results='';
-  const le=S.lastExam;
-  if(le){
-    const cur=le.exam===S.examVersion;
-    results=`<h3 style="font-size:18px">Latest result: Brain ${le.mv}, ${le.correct} of ${le.total} correct</h3>${cur?'':'<p class="warnbox">The exam has changed since this result.</p>'}<div class="res">${le.rows.map(r=>`<div class="r"><span class="ic">${icons(r.seq)}</span><span class="note">meant</span>${chipOf(r.want)}<span class="note">guessed</span>${chipOf(r.got)}${r.ok?'<span class="ok-t">right</span>':'<span class="no-t">wrong</span>'}</div>`).join('')}</div>`;
-  }
-  const groups={};
-  S.history.forEach(h=>Object.keys(h.scores).forEach(ev=>{(groups[ev]=groups[ev]||[]).push({h,sc:h.scores[ev]})}));
-  const gk=Object.keys(groups).map(Number).sort((a,b)=>b-a);
-  const hist=gk.length?gk.map(ev=>{
-    const rows=groups[ev].sort((a,b)=>a.h.v-b.h.v);
-    return`<div class="card" style="background:var(--panel-2)"><b>Exam ${ev}</b> <span class="note">${ev===S.examVersion?'current exam. Scores below use the same questions, so they can be compared.':'an older exam. Do not compare these with the current one.'}</span>${rows.map((r,i)=>{const f=r.sc.correct/r.sc.total,d=i?r.sc.correct-rows[i-1].sc.correct:null;return`<div class="hrow"><b>Brain ${r.h.v}</b><span class="note">${r.h.nTrain} dances</span><div class="bar" style="--c:var(--good)"><u style="width:${f*100}%"></u></div><span>${r.sc.correct}/${r.sc.total}</span>${d==null?'':`<span class="${d>0?'ok-t':d<0?'no-t':'note'}">${d>0?'+':''}${d} vs Brain ${rows[i-1].h.v}</span>`}</div>`}).join('')}</div>`;
-  }).join(''):'';
-  const add=S.styles.length?`<span class="note">Add your current dance to the exam as:</span><div class="counts">${S.styles.map(s=>`<button class="sty" style="--c:${s.color}" data-act="examAdd" data-id="${s.id}">${esc(s.name)}</button>`).join('')}</div>`:'';
-  return`<div class="card sec"><h3>Free play</h3><p class="hint">Invent any dance and see what the robot makes of it. You choose when to reveal what you meant.</p>${free}${log}</div>
-  <div class="card sec"><h3>Fair exam</h3><p class="hint">To tell whether a change really helped, score every brain on the same set of dances that were never used for training. These dances stay out of training unless you move them in yourself.</p>
-  ${items||'<p class="note">The exam is empty.</p>'}${add}
-  <div class="row"><button class="btn primary" data-act="runExam">Run the exam on the current brain</button></div>${results}${hist}</div>`;
-}
-function tr(node,d,on,path){
-  if(node.leaf){
-    const c=cinfo(node.cls);
-    const ct=Object.entries(node.counts).map(([id,n])=>`${n} ${cinfo(id).name}`).join(', ');
-    return`<div class="leaf ${on?'hl':''}" style="--c:${c.color}"><b>${esc(c.name)}</b><span>${esc(ct)}</span></div>`;
-  }
-  const st=on&&path?path[d]:null;
-  return`<div class="node ${on?'hl':''}"><div class="q">Does it ${esc(ML.phrase(node.f,node.thr,nm))}?</div><div class="br"><div class="yes ${st&&st.yes?'go':''}"><em>Yes</em>${tr(node.yes,d+1,!!(st&&st.yes),path)}</div><div class="no ${st&&!st.yes?'go':''}"><em>No</em>${tr(node.no,d+1,!!(st&&!st.yes),path)}</div></div></div>`;
-}
-function pLab(){
-  const m=S.model;
-  let brain='<p class="note">Teach the robot first and its learned questions appear here.</p>';
-  if(m){
-    const path=S.last&&S.last.mv===m.v?S.last.path:null;
-    brain=`<p class="hint">These are the questions the robot learned to ask. Each end box shows how many training dances landed there.${path?' The pink route is your latest guess.':''}</p><div class="tree">${tr(m.tree,0,!!path,path)}</div>${status()==='stale'?'<p class="warnbox">This is Brain '+m.v+'. Your examples have changed since, so teach the robot again to see a new map.</p>':''}`;
-  }
-  const feats=S.tray.length?`<div class="feat">${ML.features(S.tray,nm).map(f=>`<span>${esc(f)}</span>`).join('')}</div><p class="note">This list is all the robot sees of your dance. It keeps counts, neighbouring pairs, the first move and the last move. It cannot see how far apart two moves are, so some patterns are invisible to it.</p>`:'<p class="note">Build a dance to see how the robot describes it.</p>';
-  let ord='';
-  if(S.order){
-    const o=S.order;
-    ord=`<div class="res"><div class="r"><span class="ic">${icons(o.a)}</span>${chipOf(o.ca)}</div><div class="r"><span class="ic">${icons(o.b)}</span>${chipOf(o.cb)}</div></div><p class="note">${o.ca===o.cb?'Same answer for both orders. For this dance the order did not matter to the robot.':'Different answers. Order matters here, because the robot looks at which moves come straight after which.'}</p>`;
-  }
-  const cnt=S.styles.map(s=>({s,n:S.examples.filter(e=>e.styleId===s.id).length}));
-  const mx=Math.max(1,...cnt.map(c=>c.n)),nz=cnt.filter(c=>c.n>0).map(c=>c.n);
-  const unbal=nz.length>1&&Math.max(...nz)/Math.min(...nz)>=2;
-  const bal=`${cnt.map(c=>`<div class="hrow"><b style="min-width:130px;font-weight:500">${esc(c.s.name)}</b><div class="bar" style="--c:${c.s.color}"><u style="width:${c.n/mx*100}%"></u></div><span>${c.n}</span></div>`).join('')}<p class="note">${unbal?'Some styles have at least twice as many examples as others. The robot may lean towards the biggest style.':'The styles have a similar number of examples.'}</p>`;
-  let over='<p class="note">Teach the robot, then run the exam on the Test tab to compare.</p>';
-  if(m){
-    const h=S.history.find(h=>h.v===m.v),sc=h&&h.scores[S.examVersion];
-    over=`<div class="hrow"><b style="min-width:150px;font-weight:500">Dances it studied</b><div class="bar" style="--c:var(--good)"><u style="width:${m.trainAcc*100}%"></u></div><span>${pct(m.trainAcc)}</span></div>`+(sc?`<div class="hrow"><b style="min-width:150px;font-weight:500">Unseen exam dances</b><div class="bar" style="--c:var(--warn)"><u style="width:${sc.correct/sc.total*100}%"></u></div><span>${pct(sc.correct/sc.total)}</span></div><p class="note">${m.trainAcc-sc.correct/sc.total>=.25?'Big gap. The robot may have memorised its examples more than it learned a pattern.':'The two scores are close, so the robot is handling new dances about as well as old ones.'}</p>`:'<p class="note">Run the exam on this brain to see how it does on dances it never studied.</p>');
-  }
-  return`<div class="card sec"><h3>The robot's brain</h3>${brain}</div>
-  <div class="card sec"><h3>How the robot sees your dance</h3>${feats}</div>
-  <div class="card sec"><h3>Does order matter?</h3><p class="hint">Ask about your dance, then the same moves backwards.</p><div class="row" style="margin:0"><button class="btn" data-act="orderTest">Compare with reversed</button></div>${ord}</div>
-  <div class="card sec"><h3>Is the data balanced?</h3>${bal}</div>
-  <div class="card sec"><h3>Studied or understood?</h3>${over}</div>
-  <div class="card sec"><h3>Experiments to try</h3><div class="exps">${EXPERIMENTS.map(e=>`<div class="exp"><b>${e[0]}</b><small>${e[1]}</small><p>${e[2]}</p></div>`).join('')}</div></div>
-  <div class="card sec"><h3>Discoveries</h3><div class="badges">${Object.entries(BADGES).map(([k,v])=>`<div class="badge ${S.badges[k]?'got':''}"><b>${v[0]}</b>${v[1]}</div>`).join('')}</div></div>`;
-}
-function renderPanel(){
-  const p=$('#panel'),f=U.tab==='moves'?pMoves:U.tab==='styles'?pStyles:U.tab==='test'?pTest:pLab;
-  p.innerHTML=f();
-  if(U.tab==='styles'&&U.rename){const i=el('renameIn');if(i){i.focus();i.select()}}
-}
-function render(){renderHead();renderTray();renderTabs();renderPanel();save()}
-
-/* ---------- Actions ---------- */
-function train(){
-  const order=S.styles.filter(s=>S.examples.some(e=>e.styleId===s.id)).map(s=>s.id);
-  if(order.length<2){toast('Give at least two styles one dance each, then teach the robot.');return}
-  const rows=S.examples.filter(e=>order.includes(e.styleId)).map(e=>({seq:e.seq,cls:e.styleId}));
-  const tree=ML.build(rows,order);
-  const acc=ML.evaluate(tree,rows);
-  const v=S.nmodel++;
-  S.model={v,tree,classes:order.map(id=>({id,name:sty(id).name,color:sty(id).color})),dsVersion:S.dsVersion,nTrain:rows.length,trainAcc:acc,vocab:[...new Set(rows.flatMap(r=>r.seq))]};
-  S.history.push({v,dsVersion:S.dsVersion,nTrain:rows.length,trainAcc:acc,scores:{}});
-  badge('first');
-  const svg=el('robot');svg.classList.add('thinking');token++;setPose(REST);setGlow(null);
-  showBubble('Thinking…');$('#now').textContent='Learning from '+rows.length+' dances';
-  render();
-  setTimeout(()=>{svg.classList.remove('thinking');showBubble(`I learned ${order.length} styles from ${rows.length} dances.`);$('#now').textContent='Ready for a dance'},900);
-}
-function ask(){
-  if(!S.model){toast('The robot has not learned anything yet. Press Teach the robot first.');return}
-  if(!S.tray.length){toast('Build a dance first.');return}
-  const seq=[...S.tray],p=ML.predict(S.model.tree,seq),stale=status()==='stale';
-  if(stale)badge('stale');
-  const vocab=new Set(S.model.vocab),unseen=[...new Set(seq.filter(x=>!vocab.has(x)))];
-  const id=S.nid++;
-  S.last={id,seq,cls:p.cls,path:p.path,counts:p.leaf.counts,n:p.leaf.n,tie:p.leaf.tie,mv:S.model.v,stale,unseen,intended:null};
-  S.log.unshift({id,seq,cls:p.cls,intended:null});S.log=S.log.slice(0,8);
-  render();
-  const c=cinfo(p.cls);
-  perform(seq,{onStep:hlChip}).then(ok=>{
-    if(!ok)return;
-    setGlow(c.color);
-    showBubble(`<span class="dot" style="--c:${c.color}"></span>I guess <b>${esc(c.name)}</b><button data-act="tab" data-id="test">Why?</button>`);
-  });
-}
-function addEx(styleId){
-  if(S.tray.length<2){toast('A dance needs at least two moves.');return}
-  S.examples.push({id:uid('e'),seq:[...S.tray],styleId});
-  dataChanged();
-  toast(`Added to ${sty(styleId).name}. The robot only learns it after you teach it again.`);
-  render();
-}
-function scoreExam(){
-  if(!S.model){toast('Teach the robot first.');return}
-  const items=S.exam.filter(x=>sty(x.styleId));
-  if(!items.length){toast('Add dances to the exam first.');return}
-  const rows=items.map(x=>{const g=ML.predict(S.model.tree,x.seq).cls;return{seq:x.seq,want:x.styleId,got:g,ok:g===x.styleId}});
-  const correct=rows.filter(r=>r.ok).length;
-  S.lastExam={mv:S.model.v,exam:S.examVersion,correct,total:rows.length,rows};
-  const h=S.history.find(h=>h.v===S.model.v);
-  if(h)h.scores[S.examVersion]={correct,total:rows.length};
-  const vs=new Set(S.history.filter(h=>h.scores[S.examVersion]).map(h=>h.v));
-  if(vs.size>=2)badge('fair');
-  if(status()==='stale')toast('This scored the old brain. The examples have changed since it learned.');
-  render();
-}
-const A={
-  tab:(id)=>{U.tab=id;render()},
-  cat:(id)=>{U.cat=id;render()},
-  pick:(id)=>{
-    if(U.sel!=null&&U.replace&&S.tray[U.sel]){S.tray[U.sel]=id;U.replace=false}
-    else if(S.tray.length>=MAXLEN){toast('Dances can have up to '+MAXLEN+' moves.');return}
-    else if(U.sel!=null&&S.tray[U.sel]){S.tray.splice(U.sel+1,0,id);U.sel++}
-    else S.tray.push(id);
-    preview(id);render();
-  },
-  look:(id)=>preview(id),
-  sel:(_,i)=>{U.sel=U.sel===i?null:i;U.replace=false;render()},
-  left:()=>{const i=U.sel;if(i>0){[S.tray[i-1],S.tray[i]]=[S.tray[i],S.tray[i-1]];U.sel=i-1}render()},
-  right:()=>{const i=U.sel;if(i<S.tray.length-1){[S.tray[i+1],S.tray[i]]=[S.tray[i],S.tray[i+1]];U.sel=i+1}render()},
-  repeat:()=>{if(S.tray.length>=MAXLEN){toast('Dances can have up to '+MAXLEN+' moves.');return}S.tray.splice(U.sel+1,0,S.tray[U.sel]);U.sel++;render()},
-  replace:()=>{U.replace=!U.replace;render()},
-  remove:()=>{S.tray.splice(U.sel,1);U.sel=null;U.replace=false;render()},
-  done:()=>{U.sel=null;U.replace=false;render()},
-  clear:()=>{S.tray=[];U.sel=null;U.replace=false;token++;setPose(REST);render()},
-  play:()=>{if(!S.tray.length){toast('Add some moves first.');return}perform(S.tray,{onStep:hlChip})},
-  saveEx:(id)=>addEx(id),
-  ask,train,
-  newStyle:()=>{
-    const inp=el('newStyle'),n=inp.value.trim();
-    if(!n){toast('Type a name for your style first.');return}
-    if(S.styles.length>=MAXSTYLES){toast('That is the most styles for now: '+MAXSTYLES+'.');return}
-    if(S.styles.some(s=>s.name.toLowerCase()===n.toLowerCase())){toast('You already have a style with that name.');return}
-    const used=new Set(S.styles.map(s=>s.color)),color=PALETTE.find(c=>!used.has(c))||PALETTE[0];
-    S.styles.push({id:uid('s'),name:n,color});render();
-  },
-  renameStart:(id)=>{U.rename=id;render()},
-  renameCancel:()=>{U.rename=null;render()},
-  renameSave:(id)=>{
-    const n=el('renameIn').value.trim();
-    if(!n){toast('A style needs a name.');return}
-    if(S.styles.some(s=>s.id!==id&&s.name.toLowerCase()===n.toLowerCase())){toast('You already have a style with that name.');return}
-    sty(id).name=n;U.rename=null;render();
-  },
-  delAsk:(id)=>{U.delStyle=id;render()},
-  delNo:()=>{U.delStyle=null;render()},
-  delYes:(id)=>{
-    S.examples=S.examples.filter(e=>e.styleId!==id);
-    S.styles=S.styles.filter(s=>s.id!==id);
-    if(S.exam.some(x=>x.styleId===id))S.examVersion++;
-    U.delStyle=null;dataChanged();render();
-  },
-  exPlay:(id)=>{const e=S.examples.find(e=>e.id===id);if(e)perform(e.seq)},
-  exDel:(id)=>{S.examples=S.examples.filter(e=>e.id!==id);dataChanged();render()},
-  reveal:(id)=>{
-    const L=S.last;if(!L)return;
-    L.intended=id;const l=S.log.find(l=>l.id===L.id);if(l)l.intended=id;
-    if(id!==L.cls){badge('mistake');toast('A mistake. That tells you something about the examples.')}else toast('The robot got it.');
-    render();
-  },
-  lastToTrain:()=>{const L=S.last;if(L.seq.length<2){toast('A dance needs at least two moves.');return}S.examples.push({id:uid('e'),seq:[...L.seq],styleId:L.intended});dataChanged();toast('Added as a training example. Teach the robot again to learn from it.');render()},
-  lastToExam:()=>{const L=S.last;S.exam.push({id:uid('x'),seq:[...L.seq],styleId:L.intended});S.examVersion++;toast('Saved to the exam. This starts a new exam, so older scores are not comparable.');render()},
-  examAdd:(id)=>{
-    if(!S.tray.length){toast('Build a dance first.');return}
-    S.exam.push({id:uid('x'),seq:[...S.tray],styleId:id});S.examVersion++;
-    if(S.examples.some(e=>key(e.seq)===key(S.tray)))toast('Added, but this exact dance is also a training example.');
-    else toast('Added to the exam. This starts a new exam, so older scores are not comparable.');
-    render();
-  },
-  examDel:(id)=>{S.exam=S.exam.filter(x=>x.id!==id);S.examVersion++;render()},
-  examPlay:(id)=>{const x=S.exam.find(x=>x.id===id);if(x)perform(x.seq)},
-  examToTrain:(id)=>{
-    const x=S.exam.find(x=>x.id===id);if(!x)return;
-    if(!sty(x.styleId)){toast('Its style was deleted. Remove it or pick a style first.');return}
-    S.exam=S.exam.filter(y=>y.id!==id);S.examVersion++;
-    S.examples.push({id:uid('e'),seq:x.seq,styleId:x.styleId});dataChanged();
-    toast('Moved into training. The exam lost a dance, so it is a new exam.');render();
-  },
-  runExam:scoreExam,
-  orderTest:()=>{
-    if(!S.model){toast('Teach the robot first.');return}
-    if(S.tray.length<2){toast('Build a dance with at least two moves.');return}
-    const a=[...S.tray],b=[...a].reverse();
-    const ca=ML.predict(S.model.tree,a).cls,cb=ML.predict(S.model.tree,b).cls;
-    S.order={a,b,ca,cb};
-    if(ca!==cb)badge('order');
-    render();
-  },
-  sample:()=>{const n=seed();S={...n,badges:S.badges,nmodel:S.nmodel,history:S.history,model:null,dsVersion:S.dsVersion+1,examVersion:S.examVersion+1};U.sel=null;toast('Sample dances reloaded. Teach the robot to learn from them.');render()},
-  resetAsk:()=>{U.confirmReset=true;render()},
-  resetNo:()=>{U.confirmReset=false;render()},
-  resetYes:()=>{S={styles:[],examples:[],exam:[],dsVersion:S.dsVersion+1,examVersion:S.examVersion+1,model:null,history:S.history,badges:S.badges,last:null,log:[],order:null,lastExam:null,tray:[],nid:S.nid,nmodel:S.nmodel};U.confirmReset=false;U.sel=null;U.tab='styles';token++;setPose(REST);showBubble('');render()}
-};
-document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-act]');if(!b)return;
-  const f=A[b.dataset.act];if(f)f(b.dataset.id,b.dataset.i!=null?+b.dataset.i:null,b);
-});
-document.addEventListener('change',e=>{
-  const s=e.target.closest('[data-chg]');if(!s||s.dataset.chg!=='reassign')return;
-  const ex=S.examples.find(x=>x.id===s.dataset.id);if(!ex)return;
-  ex.styleId=s.value;dataChanged();render();
-});
-document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&e.target.id==='newStyle'){e.preventDefault();A.newStyle()}
-  else if(e.key==='Enter'&&e.target.id==='renameIn'){e.preventDefault();A.renameSave(U.rename)}
-  else if(e.key==='Escape'&&e.target.id==='renameIn'){A.renameCancel()}
-});
-
-setPose(REST);
-render();
-})();
-</script>
-
-</body></html>
+<script src="js/config.js"></script>
+<script src="js/ml.js"></script>
+<script src="js/moves.js"></script>
+<script src="js/packs.js"></script>
+<script src="js/character.js"></script>
+<script src="js/app.js"></script>
+<script src="js/tutorial.js"></script>
+<script src="js/fx.js"></script>
+</body>
+</html>
