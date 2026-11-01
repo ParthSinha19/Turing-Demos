@@ -1,12 +1,106 @@
 <!DOCTYPE html>
-<html lang="en-GB"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Recommendation Lab</title><link rel="stylesheet" href="styles.css"></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RecLab — Collaborative Filtering Studio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
 <body>
-<nav><b>RECOMMENDATION LAB</b><span id="info" class="mu"></span><button class="btn g" onclick="leave()">LEAVE</button></nav>
-<main id="m"></main>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase.js"></script>
-<script src="app.js"></script>
-</body></html>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="nav">
+    <div class="brand"><span class="logo">R</span>RecLab<span class="brand-sub">Collaborative Filtering</span></div>
+    <div class="telemetry">
+      <span class="status" id="connStatus"><i class="dot"></i><span>Connecting…</span></span>
+      <span class="chip-stat">Room <b id="roomId">—</b></span>
+      <span class="chip-stat"><b id="peerCount">0</b> students</span>
+      <span class="chip-stat"><b id="ratingCount">0</b> films rated</span>
+      <span class="avatar" id="meAvatar" title="You">?</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero glass">
+      <div>
+        <p class="eyebrow">Live session</p>
+        <h1>Rate films. Watch the <span class="grad">similarity matrix</span> learn.</h1>
+        <p class="muted">Rate every film on four vectors. Your vector decides your top pick — and streams to every peer in the room without a reload.</p>
+      </div>
+      <form id="profileForm" class="profile" autocomplete="off">
+        <label for="studentName">Your name &amp; class code</label>
+        <div class="row">
+          <input id="studentName" maxlength="24" placeholder="Your name" required />
+          <input id="classCode" inputmode="numeric" maxlength="6" placeholder="Class code" required />
+          <button type="submit" class="btn">Join</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="pick glass" id="topPick">
+    <div class="pick-emoji" id="tpEmoji">🦇</div>
+    <div>
+    <p class="eyebrow" id="tpEyebrow">Starter pick · rate films to personalise</p>
+    <h2 id="tpTitle">The Dark Knight</h2>
+    <p class="muted small" id="tpVec">Your vector: —</p>
+    <div class="pick-stats">
+      <span class="chip-stat"><b id="tpMatch">—</b> match</span>
+      <span class="chip-stat"><b id="tpConf">—</b> confidence</span>
+      </div>
+      <div class="pick-stats parts">
+      <span class="chip-stat">Liking <b id="tpL">—</b></span>
+      <span class="chip-stat">Consistency <b id="tpC">—</b></span>
+      <span class="chip-stat">Crowd evidence <b id="tpR">—</b></span>
+      </div>
+      <p class="muted small" id="tpWhy"></p>
+    </div>
+    </section>
+
+    <section class="rail-section">
+      <div class="rail-head"><h2>Recommended For You</h2><span class="muted small">Closest to your vector · with confidence</span></div>
+      <div class="rail" id="railTrending"></div>
+    </section>
+
+    <section class="rail-section">
+      <div class="rail-head"><h2>Class Favourites</h2><span class="muted small">Highest average across all four vectors</span></div>
+      <div class="rail" id="railTop"></div>
+    </section>
+
+    <section class="rail-section">
+      <div class="rail-head"><h2>Add a Movie</h2><span class="muted small">Name, genre and an emoji — everyone sees it instantly</span></div>
+      <form id="addForm" class="addbox glass" autocomplete="off">
+        <div class="row wrap">
+          <input id="mvTitle" maxlength="40" placeholder="Movie name" required />
+          <select id="mvGenre" aria-label="Genre">
+            <option>Action</option><option>Comedy</option><option>Drama</option><option>Thriller</option>
+          </select>
+          <input id="mvEmoji" class="emoji-in" placeholder="🎬" aria-label="Emoji" />
+        </div>
+        <div class="emoji-pick" id="emojiPicker" aria-label="Pick an emoji"></div>
+        <label class="check"><input type="checkbox" id="rateNow" checked /> Rate it now</label>
+        <div id="rateBox" class="rate-box">
+          <label>Action <b id="rs0v">3</b><input type="range" min="1" max="5" value="3" id="rs0" class="rs" /></label>
+          <label>Comedy <b id="rs1v">3</b><input type="range" min="1" max="5" value="3" id="rs1" class="rs" /></label>
+          <label>Drama <b id="rs2v">3</b><input type="range" min="1" max="5" value="3" id="rs2" class="rs" /></label>
+          <label>Thriller <b id="rs3v">3</b><input type="range" min="1" max="5" value="3" id="rs3" class="rs" /></label>
+        </div>
+        <button type="submit" class="btn">Add movie</button>
+      </form>
+    </section>
+
+    <section class="rail-section">
+      <div class="rail-head"><h2>Rate the Catalogue</h2><span class="muted small">Four stars rows per film — saved instantly</span></div>
+      <div class="rail" id="railCatalogue"></div>
+    </section>
+
+    <section class="rail-section">
+      <div class="rail-head"><h2>Student Vectors</h2><span class="muted small">Live peer taste vectors</span></div>
+      <div class="rail" id="railVectors"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
