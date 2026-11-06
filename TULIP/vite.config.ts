@@ -2,7 +2,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // GitHub Pages: https://parthsinha19.github.io/Turing-Demos/tulip/
 // Override with VITE_BASE_PATH (e.g. "/" for local preview).
-const base = process.env["VITE_BASE_PATH"] ?? "/Turing-Demos/tulip/";
+const base = process.env["VITE_BASE_PATH"] ?? "/Turing-Demos/TULIP/";
 
 const config = defineConfig({
   nitro: false, // static hosting: no server/Cloudflare build
