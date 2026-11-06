@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       # Build cluster-galaxy demo directly into its folder root
       - name: Build Cluster Galaxy
@@ -51,3 +51,14 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Build TULIP
+        run: |
+          cd TULIP
+          bun install --frozen-lockfile
+          bun run build
+          cp -r dist/client/. .
+          rm -rf node_modules dist
