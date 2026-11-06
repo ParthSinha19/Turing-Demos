@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
       # Build cluster-galaxy demo directly into its folder root
       - name: Build Cluster Galaxy
         run: |
@@ -31,7 +34,7 @@ jobs:
           npm ci
           npm run build
           cp -r dist/* .
-      
+
       - name: Build The Last Signal
         run: |
           cd the-last-signal
@@ -39,7 +42,15 @@ jobs:
           npm run build
           cp -r dist/* .
           cd ..
-          
+
+      - name: Build TULIP
+        run: |
+          cd TULIP
+          bun install --frozen-lockfile
+          bun run build
+          cp -r dist/client/. .
+          rm -rf node_modules dist
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
@@ -51,14 +62,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Build TULIP
-        run: |
-          cd TULIP
-          bun install --frozen-lockfile
-          bun run build
-          cp -r dist/client/. .
-          rm -rf node_modules dist
