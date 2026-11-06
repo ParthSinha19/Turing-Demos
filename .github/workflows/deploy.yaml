@@ -27,6 +27,12 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Cache Bun packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('TULIP/bun.lock') }}
+
       # Build cluster-galaxy demo directly into its folder root
       - name: Build Cluster Galaxy
         run: |
@@ -51,6 +57,11 @@ jobs:
           cp -r dist/client/. .
           rm -rf node_modules dist
 
+      - name: Clean up build leftovers
+        run: |
+          find . -name node_modules -type d -prune -exec rm -rf {} +
+          rm -rf cluster-galaxy/dist the-last-signal/dist
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
@@ -62,3 +73,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 1200000
