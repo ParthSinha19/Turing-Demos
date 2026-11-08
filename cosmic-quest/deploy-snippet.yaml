@@ -1,0 +1,6 @@
+      - name: Build Cosmic Quest
+        run: |
+          cd cosmic-quest
+          npm ci
+          npm run build
+          cp -r dist/* .
