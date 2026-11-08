@@ -101,7 +101,7 @@
       dots(14) + '#', dots(14) + '#', dots(14) + rep('#', 7), dots(20) + '#', dots(20) + 'F'],
     branch: ['', '', '', dots(6) + '#', dots(6) + '#', dots(6) + '#', dots(6) + 'x', '.>' + rep('#', 5) + dots(6) + rep('#', 7) + 'F',
       dots(6) + '#' + dots(6) + '#', dots(6) + '#' + dots(6) + '#', dots(6) + '#' + dots(6) + '#', dots(6) + rep('#', 8), dots(13) + 'x', dots(13) + '#'],
-    rush: ['', '', '', '.>###L#####', dots(10) + '#', dots(10) + '#', dots(10) + 'T', dots(10) + '#', dots(10) + '#', dots(10) + '####L####',
+    rush: ['', '', '', '.>###L#####', dots(10) + '#', dots(10) + '#', dots(6) + '#######T#', dots(10) + '#', dots(10) + '#', dots(10) + '####L####',
       dots(18) + '#', dots(18) + '#', dots(18) + 'F'],
     cross: ['', '', dots(10) + '#', dots(10) + '#', dots(10) + '#', dots(10) + '#', '.>###L' + rep('#', 14) + 'F', dots(10) + '#', dots(10) + '#', dots(10) + '#', dots(10) + '#'],
   };
@@ -206,7 +206,7 @@
   ];
 
   // Sandbox: presets that reuse the same engine. Settings: green length, pedestrian frequency, trolley, extra cones, custom level.
-  SDL.sandboxDefaults = { preset: 'lights', green: 6, ped: 'normal', trolley: true, cones: [], custom: null };
+  SDL.sandboxDefaults = { preset: 'lights', green: 6, ped: 'normal', trolley: true, cones: [], removed: [], custom: null };
   SDL.sandboxDef = function (s) {
     if (s.preset === 'custom')
       return SDL.levelFromAscii(s.custom || LV.straight, { townKey: 'custom', nocache: true, gridAll: true, grid: true, seed: 7, limit: 120, green: s.green });
@@ -218,6 +218,8 @@
       d.obstacles = [{ kind: 'cone', tx: 7, ty: 6 }, { kind: 'crate', tx: 11, ty: 7 }];
       if (s.trolley) d.movers = [trolley()];
     }
+    const gone = s.removed || [];  // preset cones and crates the player has erased
+    d.obstacles = d.obstacles.filter((o) => !gone.includes(o.tx + ',' + o.ty));
     for (const k of s.cones || []) { const [tx, ty] = k.split(',').map(Number); d.obstacles.push({ kind: 'cone', tx, ty }); }
     return d;
   };

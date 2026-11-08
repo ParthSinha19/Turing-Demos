@@ -332,13 +332,13 @@
         + `<div class="opts"><select id="sbTpl"><option value="">Load an example…</option>${Object.keys(SDL.TEMPLATES).map((n) => `<option>${esc(n)}</option>`).join('')}</select>`
         + `<label>Green light <input type="range" id="sbGreen" min="3" max="12" value="${s.green}"><output id="sbGreenO">${s.green} s</output></label>`
         + `<button class="link" id="sbClearAll" type="button">Clear all</button><button class="link" id="sbExport" type="button">Export code</button><button class="link" id="sbImport" type="button">Import code</button>`
-        + `<span class="note">Drag to paint road · click Start car again to turn it · lights face right</span></div>`;
+        + `<span class="note">Drag to paint road · Erase removes objects first, then road · click Start car again to turn it · lights face right</span></div>`;
     } else {
       h += '<div class="opts">'
         + (s.preset === 'lights' ? `<label>Green light <input type="range" id="sbGreen" min="3" max="12" value="${s.green}"><output id="sbGreenO">${s.green} s</output></label>` : '')
         + (s.preset === 'ped' ? `<label>Pedestrians <select id="sbPed">${['calm', 'normal', 'busy'].map((v) => `<option ${s.ped === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>` : '')
         + (s.preset === 'obstacles' ? `<label class="chk"><input type="checkbox" id="sbTrolley" ${s.trolley ? 'checked' : ''}> Runaway trolley</label>` : '')
-        + `<button class="link" id="sbClear" type="button">Clear cones</button><span class="note">Click the road to add or remove cones</span></div>`;
+        + `<button class="link" id="sbClear" type="button">Reset obstacles</button><span class="note">Click the road to add a cone. Click any cone or crate to remove it.</span></div>`;
     }
     $('#sbBar').innerHTML = h;
   }
@@ -354,7 +354,7 @@
     const ch = S.sb.custom[t.ty][t.tx], tool = S.tool, isStart = STARTS.includes(ch);
     let n = ch;
     if (tool === 'road') { if (ch === '.') n = '#'; }
-    else if (tool === 'erase') n = '.';
+    else if (tool === 'erase') { if (ch === '.') return false; n = ch === '#' ? '.' : '#'; } // objects first, then the road under them
     else if (ch === '.') return false; // everything else needs a road tile
     else if (tool === 'start') {
       if (isStart) n = STARTS[(STARTS.indexOf(ch) + 1) % 4];
@@ -426,6 +426,7 @@
     updateHud(); S.ren.draw(sim, { grid: S.grid, hover: S.hover, fan: S.fan }, now);
   }
 
+  const markView = () => document.querySelectorAll('#viewSeg button').forEach((x) => x.classList.toggle('on', x.dataset.v === S.view));
   function fit() {
     if (!S.ren) return;
     const w = $('#wrap'), pad = 12, k = Math.min((w.clientWidth - pad) / SDL.W, (w.clientHeight - pad) / SDL.H);
@@ -454,6 +455,10 @@
     $('#btnBrief').onclick = showBrief;
     $('#btnHint').onclick = () => { const hs = cur() ? cur().hints : SB_HINTS; toast(`Hint ${S.hintI % hs.length + 1} of ${hs.length}`, hs[S.hintI % hs.length]); S.hintI++; };
     $('#btnGrid').onclick = (e) => { S.grid = !S.grid; e.currentTarget.classList.toggle('on', S.grid); };
+    $('#viewSeg').onclick = (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      S.view = b.dataset.v; store.set('view', S.view); if (S.ren) S.ren.setView(S.view); markView();
+    };
     $('#btnFan').onclick = (e) => { S.fan = !S.fan; e.currentTarget.classList.toggle('on', S.fan); };
     $('#speed').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; S.mult = +b.dataset.m; document.querySelectorAll('#speed button').forEach((x) => x.classList.toggle('on', x === b)); };
     $('#toast').onclick = hideToast;
@@ -476,7 +481,7 @@
       const p = e.target.closest('[data-p]');
       if (p) { S.sb.preset = p.dataset.p; sbChanged(true); return; }
       const id = e.target.id;
-      if (id === 'sbClear') { S.sb.cones = []; sbChanged(false); }
+      if (id === 'sbClear') { S.sb.cones = []; S.sb.removed = []; sbChanged(false); }
       if (id === 'sbClearAll' && confirm('Clear the whole level?')) { S.sb.custom = SDL.padGrid([]); sbChanged(false); }
       if (id === 'sbExport') exportLevel();
       if (id === 'sbImport') importLevel();
@@ -501,12 +506,18 @@
       return tx < 0 || ty < 0 || tx >= SDL.COLS || ty >= SDL.ROWS ? null : { tx, ty };
     };
     const coneToggle = (t) => {
-      const d = S.sim.def, cx = t.tx * SDL.TILE + 20, cy = t.ty * SDL.TILE + 20;
+      const d = S.sim.def, cx = t.tx * SDL.TILE + 20, cy = t.ty * SDL.TILE + 20, k = t.tx + ',' + t.ty;
+      S.sb.removed = S.sb.removed || [];
+      const preset = SDL.sandboxDef(Object.assign({}, S.sb, { cones: [], removed: [] })).obstacles.some((o) => o.tx === t.tx && o.ty === t.ty);
+      if (preset) {                                   // a built-in cone or crate: erase it, or put it back
+        const r = S.sb.removed.indexOf(k);
+        if (r >= 0) S.sb.removed.splice(r, 1); else S.sb.removed.push(k);
+        return sbChanged(false);
+      }
       const blocked = !SDL.inRoad(d.roads, cx, cy) || (t.tx === d.car.tx && t.ty === d.car.ty)
-        || (t.tx >= d.dest.x && t.tx < d.dest.x + d.dest.w && t.ty >= d.dest.y && t.ty < d.dest.y + d.dest.h)
-        || (SDL.sandboxDef(Object.assign({}, S.sb, { cones: [] })).obstacles.some((o) => o.tx === t.tx && o.ty === t.ty));
+        || (t.tx >= d.dest.x && t.tx < d.dest.x + d.dest.w && t.ty >= d.dest.y && t.ty < d.dest.y + d.dest.h);
       if (blocked) return;
-      const k = t.tx + ',' + t.ty, i = S.sb.cones.indexOf(k);
+      const i = S.sb.cones.indexOf(k);
       if (i >= 0) S.sb.cones.splice(i, 1); else S.sb.cones.push(k);
       sbChanged(false);
     };
@@ -545,6 +556,7 @@
       SDL.Blocks.init();
       S.bt = { dark: mkTheme('dark'), light: mkTheme('light') };
       S.ren = new SDL.Renderer($('#sim')); S.ren.setTheme(S.theme);
+      S.view = store.get('view', '3d'); if (!['3d', '2d', 'follow'].includes(S.view)) S.view = '3d'; S.ren.setView(S.view); markView();
       S.ws = SDL.Blocks.create($('#blockly')); S.ws.setTheme(S.bt[S.theme]);
       S.ws.addChangeListener((e) => { if (e.isUiEvent || S.loading) return; clearTimeout(S.saveT); S.saveT = setTimeout(saveWs, 300); countBlocks(); });
       S.ready = true;

@@ -160,10 +160,13 @@
       for (const r of roads) gx.rect(r.x * TILE, r.y * TILE, r.w * TILE, r.h * TILE);
       gx.clip();
     }
-    gx.strokeStyle = 'rgba(255,255,255,.28)'; gx.lineWidth = 1; gx.beginPath();
+    gx.strokeStyle = 'rgba(0,0,0,.35)'; gx.lineWidth = 3.4; gx.beginPath();   // dark under-stroke keeps the lines visible on light paving
     for (let x = 0; x <= W; x += TILE) { gx.moveTo(x, 0); gx.lineTo(x, H); }
     for (let y = 0; y <= H; y += TILE) { gx.moveTo(0, y); gx.lineTo(W, y); }
     gx.stroke();
+    gx.strokeStyle = 'rgba(255,255,255,.92)'; gx.lineWidth = 1.8; gx.stroke();
+    gx.fillStyle = 'rgba(255,255,255,.95)';                                  // a dot in the middle of every tile
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) { gx.beginPath(); gx.arc(x * TILE + TILE / 2, y * TILE + TILE / 2, 1.8, 0, 7); gx.fill(); }
     const gridMesh = new THREE.Mesh(new THREE.PlaneGeometry(W, H), bas('#ffffff', { map: tex(gcv, aniso), transparent: true, depthWrite: false }));
     gridMesh.rotation.x = -PI / 2; gridMesh.position.set(W / 2, 0.3, H / 2); grp.add(gridMesh);
     grp.userData.grid = gridMesh;
@@ -325,7 +328,7 @@
       r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
       this.aniso = r.capabilities.getMaxAnisotropy();
       const sc = (this.scene = new THREE.Scene());
-      this.cam = new THREE.PerspectiveCamera(38, 1, 10, 4000); this.el = 58 * PI / 180; this.base = new THREE.Vector3();
+      this.cam = new THREE.PerspectiveCamera(38, 1, 10, 4000); this.el = 58 * PI / 180; this.base = new THREE.Vector3(); this.look = new THREE.Vector3(W / 2, 0, H / 2); this.view = '3d'; this.cp = null; this.cl = null; this.snap = true;
 
       this.hemi = new THREE.HemisphereLight('#ffffff', '#86a878', 0.78); sc.add(this.hemi);
       const sun = (this.sun = new THREE.DirectionalLight('#fff3dc', 0.62));
@@ -365,9 +368,37 @@
       for (let i = 0; i < 140; i++) { const pm = new THREE.Mesh(boxG(5, 5, 5), bas('#ffffff')); pm.visible = false; this.dyn.add(pm); this.pool.push(pm); }
 
       this.ray = new THREE.Raycaster(); this.plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      this.buildMarker(); this.buildNumbers();
       this.setTheme('dark');
-      this.fit();
+      this.fit(true);
     }
+
+    /** Always-on-top ring + arrow so the car can never get lost behind a building. */
+    buildMarker() {
+      const mat = () => new THREE.MeshBasicMaterial({ color: '#ffd24a', transparent: true, opacity: 0.95, depthTest: false, depthWrite: false, side: THREE.DoubleSide });
+      const g = (this.marker = new THREE.Group());
+      const ring = new THREE.Mesh(new THREE.RingGeometry(19, 23, 40).rotateX(-PI / 2), mat());
+      const sh = new THREE.Shape(); sh.moveTo(40, 0); sh.lineTo(28, 9); sh.lineTo(28, -9); sh.closePath();
+      const arrow = new THREE.Mesh(new THREE.ShapeGeometry(sh).rotateX(-PI / 2), mat());
+      ring.renderOrder = arrow.renderOrder = 999;
+      this.markRing = ring; this.markArrow = arrow; g.add(ring, arrow); g.visible = false; this.scene.add(g);
+    }
+    /** Step counters 1, 2, 3 ... painted on the road ahead of the car (they match "drive forward N steps"). */
+    buildNumbers() {
+      this.nums = [];
+      const gr = (this.numGroup = new THREE.Group()); this.scene.add(gr);
+      for (let n = 1; n <= 20; n++) {
+        const c = document.createElement('canvas'); c.width = c.height = 64;
+        const x = c.getContext('2d');
+        x.fillStyle = 'rgba(10,16,32,.72)'; x.beginPath(); x.arc(32, 32, 26, 0, 7); x.fill();
+        x.lineWidth = 3; x.strokeStyle = '#ffd24a'; x.stroke();
+        x.fillStyle = '#fff'; x.font = '800 30px Manrope, system-ui, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(String(n), 32, 34);
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(24, 24).rotateX(-PI / 2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }));
+        m.position.y = 0.8; m.visible = false; gr.add(m); this.nums.push(m);
+      }
+    }
+    /** '3d' tilted town, '2d' straight down, 'follow' chase camera. */
+    setView(v) { this.view = v; this.fit(false); }
 
     /** 'dark' = night scene (glowing windows, lamps, headlights), 'light' = sunny day. */
     setTheme(mode) {
@@ -380,19 +411,21 @@
       lampMat.color.set(n ? '#fff1a8' : '#d8d2b0');
     }
 
-    fit() {
-      const asp = this.aw / this.ah, cam = this.cam, vf = (cam.fov * PI) / 360, el = this.el;
+    fit(snap) {
+      const asp = this.aw / this.ah, cam = this.cam, vf = (cam.fov * PI) / 360, top = this.view === '2d', el = top ? (88.6 * PI) / 180 : this.el;
       cam.aspect = asp; cam.updateProjectionMatrix();
       const dv = (H / 2 * Math.sin(el) + 70 * Math.cos(el)) / Math.tan(vf), dh = W / 2 / (Math.tan(vf) * asp);
-      const d = Math.max(dv, dh) * 1.15;
+      const d = Math.max(dv, dh) * (top ? 1.06 : 1.15);
       this.base.set(W / 2, d * Math.sin(el), H / 2 + d * Math.cos(el));
-      cam.position.copy(this.base); cam.lookAt(W / 2, 0, H / 2); cam.updateMatrixWorld();
+      this.look.set(W / 2, 0, H / 2);
+      if (snap) this.snap = true;
+      if (!this.cp) { cam.position.copy(this.base); cam.lookAt(this.look); cam.updateMatrixWorld(); }
     }
     resize(w, h) {
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       this.cv.style.width = w + 'px'; this.cv.style.height = h + 'px';
       this.r.setPixelRatio(dpr); this.r.setSize(w, h, false);
-      this.aw = w; this.ah = h; this.fit();
+      this.aw = w; this.ah = h; this.fit(true);
     }
     /** Screen -> world (sim coordinates). Use this for click / hover picking. */
     pick(clientX, clientY) {
@@ -410,7 +443,7 @@
       this.town = t; this.scene.add(t);
       // per-mission props
       disposeTree(this.defG); this.defG.clear(); this.flag = null;
-      for (const mp of Object.values(this.maps)) mp.clear();
+            for (const mp of Object.values(this.maps)) { for (const m of mp.values()) this.dyn.remove(m); mp.clear(); }
       this.parts = []; this.shake = 0;
       this.buildDest(def.dest); this.buildLights(def.lights || []);
     }
@@ -522,6 +555,18 @@
       const ca = rad(car.h);
       this.carLight.position.set(car.x + Math.cos(ca) * 30, 26, car.y + Math.sin(ca) * 30);
 
+      // car marker (always visible) + step counters ahead of the car
+      const mk = this.marker; mk.visible = true; mk.position.set(car.x, 2.5, car.y); this.markArrow.rotation.y = -rad(car.h);
+      this.markRing.scale.setScalar(1 + 0.08 * Math.sin(now / 220));
+      const dirI = ((Math.round(car.h / 90) % 4) + 4) % 4, VX = [1, 0, -1, 0][dirI], VY = [0, 1, 0, -1][dirI];
+      const showN = !!ui.grid && Math.abs(car.th - car.h) < 1 && sim.state !== 'fail';
+      let cx = Math.round((car.x - TILE / 2) / TILE), cy = Math.round((car.y - TILE / 2) / TILE), alive = showN;
+      this.nums.forEach((m, i) => {
+        const k = i + 1, tx = cx + VX * k, ty = cy + VY * k;
+        alive = alive && tx >= 0 && ty >= 0 && tx < COLS && ty < ROWS && SDL.inRoad(sim.def.roads, tx * TILE + TILE / 2, ty * TILE + TILE / 2);
+        m.visible = alive; if (alive) m.position.set(tx * TILE + TILE / 2, 0.8, ty * TILE + TILE / 2);
+      });
+
       // sensor fans + hit rings
       const se = sim.sense || {}, hit = se.obs || se.ped, showFan = ui.fan !== false && sim.state !== 'fail';
       this.fan3.visible = showFan;
@@ -557,11 +602,20 @@
       });
 
       // camera (with crash shake)
-      this.cam.position.copy(this.base);
+      let tp = this.base, tl = this.look;
+      if (this.view === 'follow') {
+        tp = new THREE.Vector3(car.x - Math.cos(ca) * 125, 110, car.y - Math.sin(ca) * 125);
+        tl = new THREE.Vector3(car.x + Math.cos(ca) * 70, 0, car.y + Math.sin(ca) * 70);
+      }
+      if (!this.cp) { this.cp = tp.clone(); this.cl = tl.clone(); }
+      const kk = this.snap ? 1 : 1 - Math.exp(-dt * 6); this.snap = false;
+      this.cp.lerp(tp, kk); this.cl.lerp(tl, kk);
+      this.cam.position.copy(this.cp);
       if (this.shake > 0) {
         this.cam.position.x += (Math.random() - 0.5) * this.shake * 10; this.cam.position.y += (Math.random() - 0.5) * this.shake * 6;
         this.shake = Math.max(0, this.shake - dt * 3);
       }
+      this.cam.lookAt(this.cl); this.cam.updateMatrixWorld();
       this.r.render(this.scene, this.cam);
     }
   }
