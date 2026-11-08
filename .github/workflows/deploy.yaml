@@ -3,11 +3,16 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -15,6 +20,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,44 +37,59 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ hashFiles('TULIP/bun.lock') }}
+          key: bun-${{ hashFiles('**/bun.lock') }}
 
-      # Build cluster-galaxy demo directly into its folder root
-      - name: Build Cluster Galaxy
+      # Builds every top-level folder that has a package.json with a "build" script.
+      # - bun.lock / bun.lockb  -> bun
+      # - package-lock.json     -> npm ci
+      # - anything else         -> npm install
+      # Built files are copied into the game's own folder, so the URL is /Turing-Demos/<folder>/
+      # Skipped: folders ending in "-src", and folders containing a file named ".nobuild"
+      # A failed build prints a warning and the deploy continues.
+      - name: Build all games
+        shell: bash
         run: |
-          cd cluster-galaxy
-          npm ci
-          npm run build
-          cp -r dist/* .
+          set -uo pipefail
+          for pkg in */package.json; do
+            [ -f "$pkg" ] || continue
+            dir=$(dirname "$pkg")
+            case "$dir" in *-src|node_modules|_site) echo "Skipping $dir"; continue;; esac
+            [ -f "$dir/.nobuild" ] && { echo "Skipping $dir (.nobuild)"; continue; }
+            node -e "process.exit(require('./$pkg').scripts?.build ? 0 : 1)" || { echo "Skipping $dir (no build script)"; continue; }
 
-      - name: Build The Last Signal
-        run: |
-          cd the-last-signal
-          npm ci
-          npm run build
-          cp -r dist/* .
-          cd ..
-      
-      - name: Build Cosmic Quest
-        run: |
-          cd cosmic-quest
-          npm ci
-          npm run build
-          cp -r dist/* .
-          cd ..
+            echo "::group::Build $dir"
+            (
+              set -e
+              cd "$dir"
+              if [ -f bun.lock ] || [ -f bun.lockb ]; then
+                bun install --frozen-lockfile
+                bun run build
+              elif [ -f package-lock.json ]; then
+                npm ci
+                npm run build
+              else
+                npm install
+                npm run build
+              fi
+              if   [ -f dist/client/index.html ]; then out=dist/client
+              elif [ -f dist/index.html ];        then out=dist
+              elif [ -f build/index.html ];       then out=build
+              else echo "No built index.html found"; exit 1; fi
+              cp -r "$out"/. .
+              rm -rf node_modules dist build
+            ) || echo "::warning::Build failed for $dir - deploying anyway"
+            echo "::endgroup::"
+          done
 
-      - name: Build TULIP
+      - name: Assemble site
         run: |
-          cd TULIP
-          bun install --frozen-lockfile
-          bun run build
-          cp -r dist/client/. .
-          rm -rf node_modules dist
-
-      - name: Clean up build leftovers
-        run: |
-          find . -name node_modules -type d -prune -exec rm -rf {} +
-          rm -rf cluster-galaxy/dist the-last-signal/dist
+          mkdir _site
+          rsync -a \
+            --exclude='/_site' --exclude='.git' --exclude='.github' \
+            --exclude='node_modules' ./ _site/
+          touch _site/.nojekyll
+          echo "Files: $(find _site -type f | wc -l)"
+          du -sh _site
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -76,10 +97,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          timeout: 1200000
