@@ -7,8 +7,14 @@ import { computePhysicsProfile } from "@/rover/physicsProfile";
 import { chooseAutonomousInput, createInitialSnapshot, stepSimulation } from "@/simulation/physics";
 
 describe("mission definitions and objectives", () => {
-  it("defines the five required missions", () => {
-    expect(MISSIONS.map((mission) => mission.number)).toEqual(["01", "02", "03", "04", "05"]);
+  it("defines eight ordered missions", () => {
+    expect(MISSIONS.map((mission) => mission.number)).toEqual(["01", "02", "03", "04", "05", "06", "07", "08"]);
+  });
+
+  it.each(MISSIONS.slice(5))("provides a 15–20 minute sensor investigation for $title", (mission) => {
+    expect(mission.estimatedDuration).toBe("15–20 min");
+    expect(mission.sensorFocus?.length).toBeGreaterThan(0);
+    expect(mission.activitySteps).toHaveLength(4);
   });
 
   it("completes First Contact when the rover reaches the beacon", () => {
@@ -66,6 +72,26 @@ function simulateMission(missionId: string, config = DEFAULT_CONFIGURATION, maxS
   return { ...context, snapshot };
 }
 
+function simulateAutonomousMission(missionId: string, sensorId = "sensor-lidar", maxSteps = 9000) {
+  const mission = MISSIONS.find((item) => item.id === missionId)!;
+  let config = applyComponent(DEFAULT_CONFIGURATION, sensorId).config;
+  if (mission.requirements?.attachment) config = applyComponent(config, mission.requirements.attachment[0]).config;
+  if (["final-ascent", "relay-ridge-traverse"].includes(missionId)) config = applyComponent(config, "motors-torque").config;
+  const context = missionContext(missionId, config);
+  let snapshot = createInitialSnapshot(context.profile, context.stats, context.world);
+  for (let i = 0; i < maxSteps && !evaluateMission(context.mission, snapshot, config).complete; i++) {
+    const decision = chooseAutonomousInput(snapshot, context.profile, context.world);
+    snapshot.autonomousStage = decision.stage;
+    snapshot.autonomousTurn = decision.turn;
+    if (decision.turnStartYaw !== undefined) snapshot.autonomousTurnStartYaw = decision.turnStartYaw;
+    if (decision.resetBypassDistance) snapshot.autonomousBypassDistanceM = 0;
+    snapshot.autonomousDecision = decision.message;
+    snapshot = stepSimulation(snapshot, decision.input, 1 / 30, context);
+  }
+  return { ...context, snapshot };
+}
+
+
 describe("mission simulation integration", () => {
   it("drives from the assembly pad to the First Contact beacon", () => {
     const result = simulateMission("first-contact");
@@ -120,4 +146,25 @@ describe("mission simulation integration", () => {
     expect(result.stats.maxSlopeDeg).toBeGreaterThan(30);
     expect(evaluateMission(result.mission, result.snapshot, config).complete).toBe(true);
   });
+  it.each(MISSIONS)("can complete $title in autonomous mode with suitable hardware", (mission) => {
+    const result = simulateAutonomousMission(mission.id);
+    expect(evaluateMission(result.mission, result.snapshot, result.config).complete).toBe(true);
+    expect(result.snapshot.batteryRemainingWh).toBeGreaterThan(0);
+    for (const checkpoint of mission.checkpoints ?? []) {
+      expect(result.snapshot.checkpointsReached).toContain(checkpoint.id);
+    }
+    if (mission.kind === "sample") expect(result.snapshot.collectedSamples).toBe(1);
+    if (mission.kind === "sensor-route") expect(result.snapshot.hasDetectedObstacle).toBe(true);
+  });
+
+  it.each(MISSIONS)("can complete $title with front distance and side sensors", (mission) => {
+    const result = simulateAutonomousMission(mission.id, "sensor-side");
+    expect(evaluateMission(result.mission, result.snapshot, result.config).complete).toBe(true);
+    for (const checkpoint of mission.checkpoints ?? []) {
+      expect(result.snapshot.checkpointsReached).toContain(checkpoint.id);
+    }
+    if (mission.kind === "sample") expect(result.snapshot.collectedSamples).toBe(1);
+    if (mission.kind === "sensor-route") expect(result.snapshot.hasDetectedObstacle).toBe(true);
+  });
+
 });

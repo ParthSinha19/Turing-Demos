@@ -119,7 +119,7 @@ describe("Sandbox differential-drive physics", () => {
     const snapshot = createInitialSnapshot(profile, stats, world);
     const decision = chooseAutonomousInput(snapshot, profile, world);
     expect(decision.input.brake).toBe(true);
-    expect(decision.message).toContain("side sensors or LiDAR");
+    expect(decision.message).toContain("LiDAR scanner");
   });
 
   it("allows the autonomy controller when front and side sensors are installed", () => {
@@ -130,6 +130,37 @@ describe("Sandbox differential-drive physics", () => {
     const decision = chooseAutonomousInput(snapshot, profile, world);
     expect(decision.input.throttle).toBeGreaterThan(0);
     expect(decision.stage).toBe("drive");
+  });
+
+  it("allows LiDAR to satisfy both front and side coverage for autonomous driving", () => {
+    const config = applyComponent(DEFAULT_CONFIGURATION, "sensor-lidar").config;
+    config.sensors = config.sensors.filter((id) => id !== "sensor-distance");
+    const { stats, profile } = model(config);
+    const world = worldWith();
+    const decision = chooseAutonomousInput(createInitialSnapshot(profile, stats, world), profile, world);
+    expect(decision.input.throttle).toBeGreaterThan(0);
+    expect(decision.stage).toBe("drive");
+  });
+
+  it("reassesses a blocked route when sensors miss a close obstacle", () => {
+    const config = applyComponent(DEFAULT_CONFIGURATION, "sensor-side").config;
+    const { stats, profile } = model(config);
+    const world = worldWith();
+    const snapshot = createInitialSnapshot(profile, stats, world);
+    snapshot.blockedSeconds = 0.5;
+    const decision = chooseAutonomousInput(snapshot, profile, world);
+    expect(decision.stage).toBe("stop");
+    expect(decision.message).toContain("sensors have no clear reading");
+  });
+
+  it("uses full throttle when autonomous control detects a steep uphill grade", () => {
+    const config = applyComponent(DEFAULT_CONFIGURATION, "sensor-lidar").config;
+    const { stats, profile } = model(config);
+    const world = worldWith();
+    const snapshot = createInitialSnapshot(profile, stats, world);
+    snapshot.telemetry.slopeDeg = 8;
+    const decision = chooseAutonomousInput(snapshot, profile, world);
+    expect(decision.input.throttle).toBe(1);
   });
 
   it("resets pose and attempt progress while retaining the remaining battery", () => {

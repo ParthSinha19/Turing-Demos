@@ -131,13 +131,13 @@ export const MOTORS: MotorSpec[] = [
   {
     id: "motors-standard", category: "motors", variant: "standard", name: "Standard motors",
     summary: "Balanced speed and pulling force.",
-    massKg: 2.2, powerW: 40, torqueNm: 10, wheelRpm: 55,
+    massKg: 2.2, powerW: 48, torqueNm: 12, wheelRpm: 55,
     pros: ["Balanced", "Efficient"], cons: ["Limited on steep climbs"],
   },
   {
     id: "motors-torque", category: "motors", variant: "torque", name: "High-torque motors",
     summary: "Slow but very strong. Built for climbing.",
-    massKg: 3.6, powerW: 55, torqueNm: 20, wheelRpm: 30,
+    massKg: 3.6, powerW: 60, torqueNm: 24, wheelRpm: 30,
     pros: ["Double the turning force", "Climbs steep slopes"], cons: ["Slow", "Heavier, uses more power"],
   },
   {

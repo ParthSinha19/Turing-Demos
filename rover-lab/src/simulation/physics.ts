@@ -409,6 +409,17 @@ export interface AutonomyDecision {
   resetBypassDistance?: boolean;
 }
 
+function getAutonomousWaypoint(snapshot: SimulationSnapshot, world: SimulationWorld) {
+  const checkpoint = world.checkpoints?.find((point) => !snapshot.checkpointsReached.includes(point.id));
+  if (checkpoint) return checkpoint;
+  if (world.sample && snapshot.collectedSamples < 1) return world.sample;
+  return world.target ?? null;
+}
+
+function autonomousCruiseThrottle(snapshot: SimulationSnapshot) {
+  return snapshot.telemetry.slopeDeg > 6 ? 1 : 0.72;
+}
+
 export function chooseAutonomousInput(
   snapshot: SimulationSnapshot,
   profile: RoverPhysicsProfile,
@@ -418,9 +429,10 @@ export function chooseAutonomousInput(
   const hasFront = profile.sensors.some((sensor) => sensor.kind === "distance" || sensor.kind === "lidar");
   const hasSide = profile.sensors.some((sensor) => sensor.kind === "side");
   if (!hasFront || (!hasLidar && !hasSide)) {
-    return { input: { throttle: 0, steer: 0, brake: true }, stage: "stop", turn: 0, message: "Autonomy needs a front distance sensor and either side sensors or LiDAR. Install the missing sensor hardware in the Design Lab." };
+    return { input: { throttle: 0, steer: 0, brake: true }, stage: "stop", turn: 0, message: "Autonomy needs either a LiDAR scanner, or a front distance sensor paired with side sensors. Install the missing sensor hardware in the Design Lab." };
   }
 
+  const waypoint = getAutonomousWaypoint(snapshot, world);
   const front = snapshot.telemetry.frontDistanceM;
   const readings = snapshot.telemetry.sensors;
   const leftReading = readings.filter((reading) =>
@@ -437,20 +449,28 @@ export function chooseAutonomousInput(
   const stopDistance = Math.max(1.4, snapshot.telemetry.speedMs * 1.8);
   const headingError = wrapAngle(snapshot.pose.yaw - snapshot.autonomousTurnStartYaw);
 
-  if (snapshot.autonomousStage === "drive" && front !== null && front < stopDistance) {
-    return { input: { throttle: 0, steer: 0, brake: true }, stage: "stop", turn: 0, message: `Obstacle detected at ${front.toFixed(1)} m. Stopping.` };
+  if (snapshot.autonomousStage === "drive" && ((front !== null && front < stopDistance) || snapshot.blockedSeconds > 0.35)) {
+    const message = front !== null && front < stopDistance
+      ? `Obstacle detected at ${front.toFixed(1)} m. Stopping.`
+      : "Movement is blocked even though the sensors have no clear reading. Stopping to reassess the route.";
+    return { input: { throttle: 0, steer: 0, brake: true }, stage: "stop", turn: snapshot.autonomousTurn, message };
   }
   if (snapshot.autonomousStage === "stop") {
-    return { input: { throttle: 0, steer: 0, brake: true }, stage: "inspect", turn: 0, message: "Stopped. Checking the left and right sensor readings." };
+    return { input: { throttle: 0, steer: 0, brake: true }, stage: "inspect", turn: snapshot.autonomousTurn, message: "Stopped. Checking the left and right sensor readings." };
   }
   if (snapshot.autonomousStage === "inspect") {
-    const turn: -1 | 1 = leftClearance >= rightClearance ? -1 : 1;
+    const blockedPreviousBypass = (snapshot.autonomousBypassDistanceM > 0.35 || snapshot.blockedSeconds > 0.35) && snapshot.autonomousTurn !== 0;
+    const turn: -1 | 1 = blockedPreviousBypass
+      ? snapshot.autonomousTurn === -1 ? 1 : -1
+      : leftClearance >= rightClearance ? -1 : 1;
     return {
       input: { throttle: 0, steer: turn, brake: true },
       stage: "turn",
       turn,
       turnStartYaw: snapshot.pose.yaw,
-      message: `${turn < 0 ? "Left" : "Right"} side has more clear space (${Math.max(leftClearance, rightClearance).toFixed(1)} m). Turning away from the obstacle.`,
+      message: blockedPreviousBypass
+        ? `The previous bypass is blocked. Trying the ${turn < 0 ? "left" : "right"} side instead.`
+        : `${turn < 0 ? "Left" : "Right"} side has more clear space (${Math.max(leftClearance, rightClearance).toFixed(1)} m). Turning away from the obstacle.`,
     };
   }
   if (snapshot.autonomousStage === "turn") {
@@ -466,14 +486,25 @@ export function chooseAutonomousInput(
     };
   }
   if (snapshot.autonomousStage === "bypass") {
+    if ((front !== null && front < stopDistance) || snapshot.blockedSeconds > 0.35) {
+      const message = front !== null && front < stopDistance
+        ? `The bypass is blocked ahead at ${front.toFixed(1)} m. Stopping to reassess the route.`
+        : "The bypass has stalled. Stopping to try another direction.";
+      return {
+        input: { throttle: 0, steer: 0, brake: true },
+        stage: "stop",
+        turn: snapshot.autonomousTurn,
+        message,
+      };
+    }
     const nearestDetection = readings.reduce((nearest, reading) =>
       reading.distanceM === null ? nearest : Math.min(nearest, reading.distanceM), Infinity,
     );
     const clearOfObstacle = nearestDetection > 5.5 && snapshot.autonomousBypassDistanceM >= 1.6;
     const maximumBypass = snapshot.autonomousBypassDistanceM >= 4.5;
     if (clearOfObstacle || maximumBypass) {
-      const targetHeading = world.target
-        ? Math.atan2(world.target.z - snapshot.pose.z, world.target.x - snapshot.pose.x)
+      const targetHeading = waypoint
+        ? Math.atan2(waypoint.z - snapshot.pose.z, waypoint.x - snapshot.pose.x)
         : snapshot.autonomousTurnStartYaw;
       return {
         input: { throttle: 0, steer: 0, brake: true },
@@ -483,25 +514,26 @@ export function chooseAutonomousInput(
         message: "Obstacle passed. Aligning with the route to the destination.",
       };
     }
-    return { input: { throttle: 0.55, steer: 0, brake: false }, stage: "bypass", turn: snapshot.autonomousTurn, message: "Moving past the obstacle. Checking that the rover has enough clearance." };
+    return { input: { throttle: autonomousCruiseThrottle(snapshot), steer: 0, brake: false }, stage: "bypass", turn: snapshot.autonomousTurn, message: "Moving past the obstacle. Checking that the rover has enough clearance." };
   }
   if (snapshot.autonomousStage === "return") {
     if (Math.abs(headingError) > 0.08) {
       const steer: -1 | 1 = headingError > 0 ? -1 : 1;
       return { input: { throttle: 0, steer, brake: true }, stage: "return", turn: snapshot.autonomousTurn, message: "Aligning with the route to the destination." };
     }
-    return { input: { throttle: 0.65, steer: 0, brake: false }, stage: "drive", turn: 0, message: "Path clear. Resuming movement towards the destination." };
+    return { input: { throttle: autonomousCruiseThrottle(snapshot), steer: 0, brake: false }, stage: "drive", turn: 0, message: "Path clear. Resuming movement towards the next marker." };
   }
-  const targetHeading = world.target
-    ? Math.atan2(world.target.z - snapshot.pose.z, world.target.x - snapshot.pose.x)
+  const targetHeading = waypoint
+    ? Math.atan2(waypoint.z - snapshot.pose.z, waypoint.x - snapshot.pose.x)
     : snapshot.pose.yaw;
   const targetHeadingError = wrapAngle(targetHeading - snapshot.pose.yaw);
   const targetSteer = clamp(targetHeadingError * 1.8, -0.7, 0.7);
+  const targetName = waypoint && "label" in waypoint ? waypoint.label : "destination";
   return {
-    input: { throttle: 0.65, steer: targetSteer, brake: false },
+    input: { throttle: autonomousCruiseThrottle(snapshot), steer: targetSteer, brake: false },
     stage: "drive",
     turn: 0,
-    message: Math.abs(targetHeadingError) > 0.12 ? "Path clear. Adjusting heading towards the destination." : "Path clear. Moving forward.",
+    message: Math.abs(targetHeadingError) > 0.12 ? `Path clear. Adjusting heading towards ${targetName}.` : `Path clear. Moving towards ${targetName}.`,
   };
 }
 

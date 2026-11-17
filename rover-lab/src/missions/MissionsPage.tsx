@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ArrowLeft, ArrowRight, Check, RotateCcw, Target } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SandboxPage } from "@/simulation/SandboxPage";
 import { useMissionStore } from "./missionStore";
@@ -37,6 +37,16 @@ export function MissionsPage() {
                     {done && <span className="flex items-center gap-1 rounded bg-positive/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-positive"><Check className="h-3 w-3" /> Complete</span>}
                   </div>
                   <p className="mt-3 flex-1 text-[12px] leading-relaxed text-muted-foreground">{item.briefing}</p>
+                  {(item.estimatedDuration || item.sensorFocus?.length || item.activitySteps?.length) && <div className="mt-3 rounded border border-white/10 bg-white/[0.025] p-2.5">
+                    {item.estimatedDuration && <div className="text-[10px] font-semibold text-signal">Estimated activity: {item.estimatedDuration}</div>}
+                    {item.sensorFocus?.length ? <div className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Sensor focus: {item.sensorFocus.join(" · ")}</div> : null}
+                    {item.activitySteps?.length ? <div className="mt-2">
+                      <div className="label-caps">Investigation plan</div>
+                      <ol className="mt-1 list-decimal space-y-1 pl-4 text-[10px] leading-relaxed text-muted-foreground">
+                        {item.activitySteps.map((step) => <li key={step}>{step}</li>)}
+                      </ol>
+                    </div> : null}
+                  </div>}
                   <div className="mt-3 border-t border-white/10 pt-3">
                     <div className="label-caps">Engineering focus</div>
                     <div className="mt-1 flex flex-wrap gap-1.5">{item.learning.map((label) => <span key={label} className="rounded bg-white/[0.045] px-2 py-1 text-[10px] text-foreground/80">{label}</span>)}</div>
@@ -64,7 +74,6 @@ function MissionRun({ mission, world }: { mission: ReturnType<typeof getMission>
   const hintIndex = useMissionStore((s) => s.hintIndex);
   const nextHint = useMissionStore((s) => s.nextHint);
   const snapshot = useSimulationStore((s) => s.snapshot);
-  const completed = useMissionStore((s) => s.completed.includes(mission.id));
   const returnToList = () => {
     useMissionStore.getState().leave();
     useSimulationStore.getState().setPaused(true);
@@ -83,7 +92,7 @@ function MissionRun({ mission, world }: { mission: ReturnType<typeof getMission>
       <div className="pointer-events-none fixed inset-x-0 top-12 z-20 flex justify-center px-3 pt-2">
         <div className="pointer-events-auto panel w-full max-w-[570px] p-3">
           <div className="flex items-center justify-between gap-3">
-            <div><div className="label-caps">{mission.number} / 05 · {mission.title}</div><p className="mt-0.5 text-[11px] text-foreground/90">{snapshot?.missionMessage || mission.objective}</p></div>
+            <div><div className="label-caps">{mission.number} / {String(MISSIONS.length).padStart(2, "0")} · {mission.title}</div><p className="mt-0.5 text-[11px] text-foreground/90">{snapshot?.missionMessage || mission.objective}</p></div>
             <div className="font-mono text-sm font-semibold text-signal">{Math.round((snapshot?.missionProgress ?? 0) * 100)}%</div>
           </div>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-signal transition-all" style={{ width: `${Math.round((snapshot?.missionProgress ?? 0) * 100)}%` }} /></div>
@@ -92,6 +101,12 @@ function MissionRun({ mission, world }: { mission: ReturnType<typeof getMission>
             <p className="min-w-0 text-[10px] text-muted-foreground"><span className="font-semibold text-signal">Hint {hintIndex + 1}:</span> {mission.hints[hintIndex]}</p>
             <button className="shrink-0 rounded px-2 py-1 text-[10px] font-semibold text-signal hover:bg-white/10" onClick={() => nextHint(mission.hints.length)}>{hintIndex === mission.hints.length - 1 ? "Restart hints" : "Next hint"}</button>
           </div>
+          {mission.activitySteps?.length ? <details className="mt-2 max-h-36 overflow-y-auto rounded border border-white/10 bg-white/[0.025] px-2.5 py-1.5">
+            <summary className="cursor-pointer text-[10px] font-semibold text-signal">Investigation plan · {mission.estimatedDuration}</summary>
+            <ol className="mt-1 list-decimal space-y-1 pl-4 text-[10px] leading-relaxed text-muted-foreground">
+              {mission.activitySteps.map((step) => <li key={step}>{step}</li>)}
+            </ol>
+          </details> : null}
           {snapshot?.missionComplete && <div className="mt-2 rounded border border-positive/25 bg-positive/10 p-2">
             <div className="text-[11px] font-semibold text-positive">Mission complete</div>
             <p className="mt-0.5 text-[10px] text-foreground/80">You achieved the objective. {mission.learning.join(" · ")}.</p>
