@@ -1,0 +1,252 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* WonderPaws design system — "Tin & Timber": painted tin machinery, warm
+   timber, copper trim, parchment labels. All colours are oklch tokens. */
+
+@theme inline {
+  --font-display: "Lilita One", "Trebuchet MS", sans-serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-teal: var(--teal);
+  --color-teal-deep: var(--teal-deep);
+  --color-copper: var(--copper);
+  --color-copper-deep: var(--copper-deep);
+  --color-sun: var(--sun);
+  --color-sun-deep: var(--sun-deep);
+  --color-tomato: var(--tomato);
+  --color-tomato-deep: var(--tomato-deep);
+  --color-parchment: var(--parchment);
+  --color-parchment-deep: var(--parchment-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-plum: var(--plum);
+  --color-leaf: var(--leaf);
+  --color-ice: var(--ice);
+  --color-glow: var(--glow);
+}
+
+:root {
+  --radius: 0.75rem;
+  /* Core palette */
+  --ink: oklch(0.24 0.04 250);          /* deep navy ink: text, outlines */
+  --ink-soft: oklch(0.36 0.04 245);
+  --parchment: oklch(0.96 0.03 85);     /* label paper */
+  --parchment-deep: oklch(0.88 0.05 75);
+  --teal: oklch(0.62 0.09 185);         /* factory paint */
+  --teal-deep: oklch(0.42 0.07 195);
+  --copper: oklch(0.66 0.13 55);        /* pipes & trim */
+  --copper-deep: oklch(0.46 0.11 45);
+  --sun: oklch(0.85 0.16 85);           /* primary action */
+  --sun-deep: oklch(0.64 0.15 65);
+  --tomato: oklch(0.63 0.2 30);         /* alerts / hearts */
+  --tomato-deep: oklch(0.45 0.16 28);
+  --plum: oklch(0.55 0.15 310);         /* mythical accent */
+  --leaf: oklch(0.7 0.16 140);          /* success */
+  --ice: oklch(0.85 0.08 220);
+  --glow: oklch(0.95 0.1 90);
+
+  --background: oklch(0.2 0.035 245);
+  --foreground: var(--parchment);
+  --card: var(--parchment);
+  --card-foreground: var(--ink);
+  --popover: var(--parchment);
+  --popover-foreground: var(--ink);
+  --primary: var(--sun);
+  --primary-foreground: var(--ink);
+  --secondary: var(--teal);
+  --secondary-foreground: var(--parchment);
+  --muted: var(--parchment-deep);
+  --muted-foreground: oklch(0.45 0.04 60);
+  --accent: var(--copper);
+  --accent-foreground: var(--parchment);
+  --destructive: var(--tomato);
+  --destructive-foreground: var(--parchment);
+  --border: oklch(0.75 0.06 70);
+  --input: oklch(0.75 0.06 70);
+  --ring: var(--sun);
+
+  --shadow-drop: 0 18px 40px -16px oklch(0.15 0.04 250 / 0.7);
+  --shadow-char: drop-shadow(0 14px 14px oklch(0.15 0.05 250 / 0.45));
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body { background: var(--color-background); color: var(--color-foreground); font-family: var(--font-sans); }
+  h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: 0.01em; font-weight: 400; }
+}
+
+/* ---------- Panels ---------- */
+@utility cw-panel {
+  position: relative;
+  background:
+    radial-gradient(120% 80% at 50% 0%, oklch(1 0 0 / 0.55), transparent 60%),
+    var(--parchment);
+  color: var(--ink);
+  border-radius: 1.1rem;
+  border: 3px solid var(--copper-deep);
+  box-shadow:
+    inset 0 0 0 3px var(--parchment),
+    inset 0 0 0 5px oklch(0.75 0.08 60 / 0.6),
+    inset 0 -6px 0 0 oklch(0.8 0.05 70 / 0.6),
+    var(--shadow-drop);
+}
+@utility cw-panel-dark {
+  position: relative;
+  background:
+    linear-gradient(180deg, oklch(0.36 0.06 200), oklch(0.27 0.05 210));
+  color: var(--parchment);
+  border-radius: 1.1rem;
+  border: 3px solid oklch(0.18 0.04 220);
+  box-shadow:
+    inset 0 2px 0 0 oklch(1 0 0 / 0.18),
+    inset 0 -5px 0 0 oklch(0 0 0 / 0.25),
+    var(--shadow-drop);
+}
+@utility cw-plate {
+  /* engraved name plate */
+  background: linear-gradient(180deg, var(--copper), var(--copper-deep));
+  color: var(--parchment);
+  border: 2px solid oklch(0.32 0.08 40);
+  border-radius: 0.6rem;
+  box-shadow: inset 0 2px 0 oklch(1 0 0 / 0.35), inset 0 -3px 0 oklch(0 0 0 / 0.25), 0 4px 0 oklch(0.3 0.07 40);
+  text-shadow: 0 2px 0 oklch(0.3 0.08 40);
+}
+
+/* ---------- Buttons ---------- */
+@utility cw-btn {
+  font-family: var(--font-display);
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  color: var(--ink);
+  background: linear-gradient(180deg, oklch(0.92 0.14 92), var(--sun) 55%, oklch(0.78 0.16 75));
+  border: 3px solid var(--ink);
+  border-radius: 1rem;
+  padding: 0.6rem 1.4rem;
+  box-shadow: inset 0 3px 0 oklch(1 0 0 / 0.6), inset 0 -4px 0 var(--sun-deep), 0 6px 0 var(--ink), 0 14px 18px -6px oklch(0 0 0 / 0.45);
+  text-shadow: 0 1px 0 oklch(1 0 0 / 0.6);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.2s;
+  cursor: pointer;
+  &:hover { filter: brightness(1.06); transform: translateY(-2px); }
+  &:active { transform: translateY(5px); box-shadow: inset 0 3px 0 oklch(1 0 0 / 0.5), inset 0 -2px 0 var(--sun-deep), 0 1px 0 var(--ink); }
+}
+@utility cw-btn-teal {
+  color: var(--parchment);
+  background: linear-gradient(180deg, oklch(0.72 0.1 182), var(--teal) 55%, oklch(0.52 0.09 190));
+  box-shadow: inset 0 3px 0 oklch(1 0 0 / 0.35), inset 0 -4px 0 var(--teal-deep), 0 6px 0 var(--ink), 0 14px 18px -6px oklch(0 0 0 / 0.45);
+  text-shadow: 0 2px 0 var(--teal-deep);
+}
+@utility cw-btn-tomato {
+  color: var(--parchment);
+  background: linear-gradient(180deg, oklch(0.72 0.18 35), var(--tomato) 55%, oklch(0.54 0.19 28));
+  box-shadow: inset 0 3px 0 oklch(1 0 0 / 0.35), inset 0 -4px 0 var(--tomato-deep), 0 6px 0 var(--ink), 0 14px 18px -6px oklch(0 0 0 / 0.45);
+  text-shadow: 0 2px 0 var(--tomato-deep);
+}
+@utility cw-btn-ghost {
+  color: var(--ink);
+  background: linear-gradient(180deg, oklch(0.98 0.02 85), var(--parchment-deep));
+  box-shadow: inset 0 3px 0 oklch(1 0 0 / 0.7), inset 0 -4px 0 oklch(0.78 0.05 70), 0 6px 0 var(--ink), 0 14px 18px -6px oklch(0 0 0 / 0.4);
+}
+@utility cw-round {
+  width: 3.25rem; height: 3.25rem; padding: 0; border-radius: 999px;
+}
+
+/* ---------- Text ---------- */
+@utility cw-title-stroke {
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+}
+@utility text-shadow-ink { text-shadow: 0 3px 0 var(--ink), 0 6px 14px oklch(0 0 0 / 0.4); }
+
+/* ---------- Characters ---------- */
+@utility cw-char { filter: var(--shadow-char); user-select: none; -webkit-user-drag: none; }
+
+/* ---------- Backdrops ---------- */
+@utility cw-vignette {
+  background: radial-gradient(120% 90% at 50% 40%, transparent 50%, oklch(0.12 0.04 250 / 0.75));
+}
+@utility cw-wood {
+  background:
+    repeating-linear-gradient(90deg, oklch(0 0 0 / 0.06) 0 2px, transparent 2px 46px),
+    repeating-linear-gradient(0deg, oklch(1 0 0 / 0.04) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, oklch(0.5 0.08 55), oklch(0.4 0.07 50));
+}
+@utility cw-belt {
+  background:
+    repeating-linear-gradient(90deg, oklch(0.3 0.02 220) 0 18px, oklch(0.38 0.02 220) 18px 22px);
+  background-size: 22px 100%;
+  animation: belt 0.8s linear infinite;
+}
+
+@keyframes belt { to { background-position: 22px 0; } }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
+@keyframes sway { 0%,100% { transform: rotate(-3deg) } 50% { transform: rotate(3deg) } }
+@keyframes hop { 0%,60%,100% { transform: translateY(0) scale(1,1) } 70% { transform: translateY(0) scale(1.06,0.94) } 82% { transform: translateY(-28px) scale(0.96,1.05) } }
+@keyframes ride { from { transform: translateX(-20%) } to { transform: translateX(120%) } }
+@keyframes spin { to { transform: rotate(360deg) } }
+@keyframes twinkle { 0%,100% { opacity: 0.2; transform: scale(0.6) } 50% { opacity: 1; transform: scale(1) } }
+@keyframes drift { from { transform: translateX(0) } to { transform: translateX(-60px) } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: none } }
+@keyframes shine { from { transform: translateX(-150%) skewX(-20deg) } to { transform: translateX(250%) skewX(-20deg) } }
+@keyframes pulse-glow { 0%,100% { opacity: 0.5 } 50% { opacity: 1 } }
+
+.anim-bob { animation: bob 3.2s ease-in-out infinite; }
+.anim-sway { animation: sway 4s ease-in-out infinite; transform-origin: 50% 100%; }
+.anim-hop { animation: hop 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+.anim-spin { animation: spin 8s linear infinite; }
+.anim-spin-rev { animation: spin 6s linear infinite reverse; }
+.anim-rise { animation: rise-in 0.6s cubic-bezier(.2,.8,.2,1) both; }
+.anim-pulse { animation: pulse-glow 2s ease-in-out infinite; }
+.shine { position: relative; overflow: hidden; }
+.shine::after { content: ""; position: absolute; inset: 0; width: 40%; background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.55), transparent); animation: shine 3.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+.cw-select {
+  min-height: 2.1rem;
+  border: 2px solid var(--ink);
+  border-radius: 0.55rem;
+  background: var(--parchment);
+  padding: 0.25rem 0.55rem;
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.2;
+  outline-offset: 2px;
+}
+
+.cw-select:focus-visible {
+  outline: 3px solid var(--sun);
+}
+
+.cw-select option {
+  color: var(--ink);
+  background: var(--parchment);
+}
