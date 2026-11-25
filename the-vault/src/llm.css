@@ -1,0 +1,16 @@
+.llm{max-width:780px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:0 1rem}
+.llm-top{display:flex;align-items:center;gap:.7rem;padding:1rem 0;border-bottom:1px solid #DDE8DF}.llm-top b{font-size:1.05rem}
+.llm-badge{margin-left:auto;font-size:.72rem;letter-spacing:.1em;color:#159447;border:1px solid #159447;padding:.2rem .5rem}
+.llm-main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.2rem;padding:1.5rem 0}
+.llm-hero{text-align:center;animation:rise 520ms var(--out) both}.llm-hero h1{font-size:clamp(2rem,5vw,3rem);letter-spacing:-.03em;margin:.8rem 0 .4rem}.llm-hero p{color:#41564A;margin:0}
+.llm-chips{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+.llm-chips button{font:inherit;background:#fff;border:1px solid #CFDCD2;border-radius:999px;padding:.55rem 1rem;cursor:pointer;transition:transform 140ms var(--out),border-color 140ms ease}
+.llm-chips button:active{transform:scale(.97)}@media(hover:hover) and (pointer:fine){.llm-chips button:hover{border-color:#159447}}
+.llm-log{display:grid;gap:.8rem;align-content:start}
+.lm{max-width:85%;padding:.8rem 1rem;line-height:1.55;border-radius:14px;animation:rise 260ms var(--out) both}
+.lm.you{justify-self:end;background:#0E1A12;color:#fff}.lm.ai{background:#EEF5EF}
+.lm.err{background:#FFF3F3;border:1px solid #C0392B;color:#7A1F16;animation:rise 260ms var(--out) both,llmg 2.4s steps(1) 400ms infinite}
+@keyframes llmg{92%{transform:translateX(2px)}94%{transform:translateX(-3px)}96%{transform:translateX(0)}}
+.llm-form{display:flex;gap:.5rem;padding:1rem 0 1.5rem;position:sticky;bottom:0;background:#FAFCFA}
+.llm-form input{flex:1;min-width:0;font:inherit;font-size:1rem;padding:.9rem 1.2rem;border:1px solid #CFDCD2;border-radius:999px;background:#fff}
+.llm .dots i{background:#159447}

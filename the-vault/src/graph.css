@@ -1,0 +1,21 @@
+.graph{width:100%;max-width:640px;background:var(--bg);border:1px solid var(--g2);margin:1rem 0}
+.graph line{stroke:var(--g2);stroke-width:2}
+.gn{cursor:pointer}.gn rect{fill:var(--surf);stroke:var(--g2);stroke-width:2;transition:fill 140ms var(--out),stroke 140ms ease}
+.gn text{fill:var(--tx);font:11px var(--mono);text-anchor:middle;pointer-events:none}
+.gn.start rect{stroke:var(--err)}.gn.on rect{fill:rgba(57,255,120,.25);stroke:var(--g)}
+.gn:focus-visible{outline:none}.gn:focus-visible rect{stroke:var(--warn);stroke-width:3}
+@media(hover:hover) and (pointer:fine){.gn:hover rect{stroke:var(--g)}}
+.gn .gb{fill:var(--g)}.gn .gbt{fill:#031007;font-weight:700;font-size:10px}
+.ord{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin:.4rem 0}.ord span{border:1px solid var(--g);color:var(--g);padding:.2rem .5rem;font-size:.8rem}
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}.meter{border:1px solid var(--g2);padding:.5rem .7rem;font-size:.8rem;letter-spacing:.1em;color:var(--mut)}
+.meter i{display:block;height:.6rem;margin-top:.4rem;background:var(--g);transition:width 300ms var(--out)}.meter.w i{background:var(--warn)}
+.tag{display:inline-block;font-size:.72rem;letter-spacing:.15em;color:var(--mut);border:1px solid var(--g2);padding:.15rem .5rem;margin-bottom:.5rem}.tag.hot{color:var(--warn);border-color:var(--warn)}
+/* simple graph game (Level 2) */
+.gc{cursor:pointer}.gc circle{fill:var(--surf);stroke:var(--g2);stroke-width:2.5;transition:fill 140ms var(--out),stroke 140ms ease}
+.gc .em{font-size:24px;text-anchor:middle;pointer-events:none}.gc .lb{fill:var(--tx);font:700 10px var(--mono);text-anchor:middle;pointer-events:none;letter-spacing:.05em}
+.gc.on circle{fill:rgba(57,255,120,.22);stroke:var(--g)}.gc.ask circle{stroke:var(--warn);animation:gpulse 1.2s ease-in-out infinite}
+@keyframes gpulse{50%{stroke-width:6}}
+.gc:focus-visible{outline:none}.gc:focus-visible circle{stroke:var(--warn);stroke-width:4}
+@media(hover:hover) and (pointer:fine){.gc:hover circle{stroke:var(--g)}}
+.graph line.on{stroke:var(--g);stroke-width:5}
+.gc .dg{fill:var(--g);stroke:none}.gc .deg{fill:#031007;font:700 12px var(--mono);text-anchor:middle;pointer-events:none}

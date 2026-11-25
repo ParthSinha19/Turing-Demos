@@ -1,0 +1,19 @@
+/* Dramatic "open the backend" breach: crack → blackout wipe → access granted */
+.br{position:fixed;inset:0;z-index:50;pointer-events:none;font-family:var(--mono)}
+.br .fx-skip{pointer-events:auto}
+.br-warn{position:absolute;left:50%;top:14%;transform:translateX(-50%);margin:0;background:#C0392B;color:#fff;padding:.5rem 1rem;font:700 .9rem var(--mono);letter-spacing:.2em;white-space:nowrap;animation:brwarn .4s steps(2) infinite}
+@keyframes brwarn{50%{opacity:.55}}
+.crack{position:absolute;inset:0;width:100%;height:100%}
+.crack path{fill:none;stroke:#0E1A12;stroke-width:3;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 5px #39FF78);animation:brdraw .55s var(--out) forwards;animation-delay:calc(var(--i)*70ms)}
+@keyframes brdraw{to{stroke-dashoffset:0}}
+.quake .llm{animation:bshake .22s steps(2) infinite}
+@keyframes bshake{0%{transform:translate(0,0)}50%{transform:translate(-4px,3px)}100%{transform:translate(3px,-2px)}}
+.br-bars{position:absolute;inset:0;display:grid;grid-template-rows:repeat(12,1fr)}
+.br-bars i{background:#050B07;transform:scaleX(0);transform-origin:left;animation:brwipe .35s var(--io) forwards;animation-delay:calc(var(--i)*55ms)}
+.br-bars i:nth-child(even){transform-origin:right}
+@keyframes brwipe{to{transform:scaleX(1)}}
+.br-grant{position:absolute;inset:0;background:#050B07;color:var(--g);animation:brin .5s both}@keyframes brin{from{opacity:0}}
+.br-in{position:relative;z-index:1;height:100%;display:grid;place-content:center;justify-items:center;gap:1rem;text-align:center;padding:1rem}
+.br-grant h1{margin:0;font-size:clamp(2.2rem,9vw,6rem);letter-spacing:.04em;text-shadow:0 0 24px rgba(57,255,120,.6)}
+.br-grant p{margin:0;color:var(--tx);letter-spacing:.25em}.br-grant .br-d{color:var(--mut);font-size:.85rem;letter-spacing:.2em}
+.br-load{width:min(26rem,80vw);height:.7rem;border:1px solid var(--g2)}.br-load i{display:block;height:100%;background:var(--g)}
